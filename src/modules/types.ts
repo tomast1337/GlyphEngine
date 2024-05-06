@@ -1,4 +1,58 @@
+import { RenderModes } from "../core/types";
 import { Vec2 } from "./vec2";
+
+export interface Settings {
+  element: HTMLElement | HTMLCanvasElement | null;
+  cols: number;
+  rows: number;
+  once: boolean;
+  fps: number;
+  renderer: RenderModes;
+  allowSelect: boolean;
+  restoreState: boolean;
+  [key: string]: any;
+}
+
+export interface State {
+  time: number;
+  frame: number;
+  cycle: number;
+
+  fps: number;
+}
+
+export interface Metrics {
+  aspect: number;
+  cellWidth: number;
+  lineHeight: number;
+  fontFamily: string;
+  fontSize: number;
+  _update: () => void;
+}
+
+export interface Program {
+  boot?: (context: Context, buffer: any[], userData: any) => void;
+  pre?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
+  main?: (
+    position: { x: number; y: number; index: number },
+    context: Context,
+    cursor: any,
+    buffer: any[],
+    userData: any
+  ) => any;
+  post?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
+  settings?: Settings;
+  [key: string]: any;
+}
+
+export interface Pointer {
+  x: number;
+  y: number;
+  pressed: boolean;
+  px: number;
+  py: number;
+  ppressed: boolean;
+}
 
 export type Cell =
   | Record<string, any> & {
@@ -31,29 +85,13 @@ export interface Style {
 export type Context = {
   height: number;
   width: number;
-  settings: {
-    textAlign: string;
-    canvasOffset: any;
-    canvasSize: any;
-    fontWeight: string | number;
-    backgroundColor: string;
-    color: string;
-    element: HTMLElement;
-  };
-  runtime: {
-    fps: number;
-  };
   frame: number;
   time: number;
   cols: number;
   rows: number;
-  metrics: {
-    fontSize: string;
-    fontFamily: string;
-    lineHeight: number;
-    cellWidth: number;
-    aspect: number;
-  };
+  metrics: Metrics;
+  settings: Settings;
+  runtime: State;
 };
 
 export type Coord = Vec2 & {
