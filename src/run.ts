@@ -12,6 +12,7 @@ import {
   Buffer,
   Context,
   Metrics,
+  Pointer,
   Program,
   Settings,
   State,
@@ -137,7 +138,7 @@ export function run(
     const eventQueue: ("pointerMove" | "pointerDown" | "pointerUp")[] = [];
 
     // Input pointer updated by DOM events
-    const pointer = {
+    const pointer: Pointer = {
       x: 0,
       y: 0,
       pressed: false,
