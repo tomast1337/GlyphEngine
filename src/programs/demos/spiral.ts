@@ -7,49 +7,57 @@ Inspired by this shader by ahihi
 https://www.shadertoy.com/view/XdSGzR
 */
 
-import { vec2, dot, add, sub, length } from '/src/modules/vec2.js'
-import { map } from '/src/modules/num.js'
-import { sort } from '/src/modules/sort.js'
+import { drawInfo } from "../../modules/drawbox";
+import { sort } from "../../modules/sort";
+import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import { length } from "../../modules/vec2";
 
-export const settings = { fps : 60 }
+export const settings = { fps: 60 };
 
-const { sin, cos, floor, PI, atan, sqrt, pow } = Math
-const TAU = PI * 2
+const { sin, cos, floor, PI, atan, sqrt, pow } = Math;
+const TAU = PI * 2;
 
-const density = sort('▅▃▁?ab012:. ', 'Simple Console', false)
+const density = sort("▅▃▁?ab012:. ", "Simple Console", false);
 
-export function main(coord, context, cursor, buffer) {
-	const t = context.time * 0.0006
-    const m = Math.min(context.cols, context.rows)
-    const a = context.metrics.aspect
+export function main(
+  coord: Coord,
+  context: Context,
+  cursor: Cursor,
+  buffer: Buffer
+) {
+  const t = context.time * 0.0006;
+  const m = Math.min(context.cols, context.rows);
+  const a = context.metrics.aspect;
 
-	let st = {
-		x : 2.0 * (coord.x - context.cols / 2) / m * a,
-		y : 2.0 * (coord.y - context.rows / 2) / m
-	}
+  let st = {
+    x: ((2.0 * (coord.x - context.cols / 2)) / m) * a,
+    y: (2.0 * (coord.y - context.rows / 2)) / m,
+  };
 
-	const radius = length(st)
-	const rot = 0.03 * TAU * t
-	const turn = atan(st.y, st.x) / TAU + rot
+  const radius = length(st);
+  const rot = 0.03 * TAU * t;
+  //const turn = atan(st.y, st.x) / TAU + rot;
+  const turn = atan(st.y) / TAU + rot;
 
-	const n_sub = 1.5
+  const n_sub = 1.5;
 
-	const turn_sub = n_sub * turn % n_sub
+  const turn_sub = (n_sub * turn) % n_sub;
 
-	const k = 0.1 * sin(3.0 * t)
-	const s = k * sin(50.0 * (pow(radius, 0.1) - 0.4 * t))
-	const turn_sine = turn_sub + s
+  const k = 0.1 * sin(3.0 * t);
+  const s = k * sin(50.0 * (pow(radius, 0.1) - 0.4 * t));
+  const turn_sine = turn_sub + s;
 
-	const i_turn = floor(density.length * turn_sine % density.length)
-	const i_radius = floor(1.5 / pow(radius * 0.5, 0.6) + 5.0 * t)
-	const idx = (i_turn + i_radius) % density.length
+  const i_turn = floor((density.length * turn_sine) % density.length);
+  const i_radius = floor(1.5 / pow(radius * 0.5, 0.6) + 5.0 * t);
+  const idx = (i_turn + i_radius) % density.length;
 
-	return density[idx]
+  return density[idx];
 }
 
-import { drawInfo } from '/src/modules/drawbox.js'
-export function post(context, cursor, buffer) {
-	drawInfo(context, cursor, buffer, {
-		color : 'white', backgroundColor : 'royalblue', shadowStyle : 'gray'
-	})
+export function post(context: Context, cursor: Cursor, buffer: Buffer) {
+  drawInfo(context, cursor, buffer, {
+    color: "white",
+    backgroundColor: "royalblue",
+    shadowStyle: "gray",
+  });
 }

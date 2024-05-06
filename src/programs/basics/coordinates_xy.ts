@@ -5,19 +5,26 @@
 @desc   Use of coord.x and coord.y
 */
 
-const density = 'Ñ@#W$9876543210?!abc;:+=-,._ '
+import { Buffer, Context, Coord, Cursor } from "../../modules/types";
 
-export function main(coord, context, cursor, buffer) {
-	// To generate an output return a single character
-	// or an object with a “char” field, for example {char: 'x'}
+const density = "Ñ@#W$9876543210?!abc;:+=-,._ ";
 
-	// Shortcuts for frame, cols and coord (x, y)
-	const {cols, frame } = context
-	const {x, y} = coord
+export function main(
+  coord: Coord,
+  context: Context,
+  cursor: Cursor,
+  buffer: Buffer
+) {
+  // To generate an output return a single character
+  // or an object with a “char” field, for example {char: 'x'}
 
-	// -1 for even lines, 1 for odd lines
-	const sign = y % 2 * 2 - 1
-	const index = (cols + y + x * sign + frame) % density.length
+  // Shortcuts for frame, cols and coord (x, y)
+  const { cols, frame } = context;
+  const { x, y } = coord;
 
-	return density[index]
+  // -1 for even lines, 1 for odd lines
+  const sign = (y % 2) * 2 - 1;
+  const index = (cols + y + x * sign + frame) % density.length;
+
+  return density[index];
 }

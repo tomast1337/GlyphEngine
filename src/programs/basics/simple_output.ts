@@ -6,7 +6,7 @@
 */
 
 export function main() {
-	return '?'
+  return "?";
 }
 
 // Shorter:
