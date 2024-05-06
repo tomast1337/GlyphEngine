@@ -16,6 +16,7 @@ const { sin, cos, atan2, floor, min } = Math;
 
 // Change the mouse pointer to 'pointer'
 export const boot = (context: Context) =>
+  context.settings.element &&
   (context.settings.element.style.cursor = "pointer");
 
 // Cycle modes with click or tap
