@@ -17,7 +17,7 @@ const backBuffer: Buffer = [];
 let cols: number, rows: number;
 
 function render(context: Context, buffer: Buffer) {
-  const element = context.settings.element;
+  const element = context.settings.element as HTMLElement;
 
   // Set the most used styles to the container
   // element.style.backgroundColor = context.settings.background
