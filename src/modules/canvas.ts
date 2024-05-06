@@ -36,21 +36,23 @@ Or accessed with:
 - sample(x, y)
 */
 
-import { AugmentedPaletteElement, RGB } from "./color";
+import { RGB } from "./color";
 import { map, mix, clamp } from "./num";
 import { Buffer } from "./types";
+
+type Source = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 
 export const MODE_COVER = Symbol();
 export const MODE_FIT = Symbol();
 export const MODE_CENTER = Symbol();
 
-const BLACK = { r: 0, g: 0, b: 0, a: 1, v: 0 };
-const WHITE = { r: 255, g: 255, b: 255, a: 1, v: 1 };
+const BLACK: RGB = { r: 0, g: 0, b: 0, a: 1, v: 0 };
+const WHITE: RGB = { r: 255, g: 255, b: 255, a: 1, v: 1 };
 
 export default class Canvas {
   public canvas: HTMLCanvasElement;
   public ctx;
-  public pixels = [];
+  public pixels: Array<RGB> = [];
 
   constructor(sourceCanvas?: HTMLCanvasElement) {
     this.canvas = sourceCanvas || document.createElement("canvas");
@@ -96,11 +98,29 @@ export default class Canvas {
 
   // Copies the source canvas or video element to dest via drawImage
   // allows distortion, offsets, etc.
-  copy(source, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
+  copy(
+    source: Source,
+    sx: number,
+    sy: number,
+    sWidth: number,
+    sHeight: number,
+    dx: number,
+    dy: number,
+    dWidth: number,
+    dHeight: number
+  ) {
     sx = sx || 0;
     sy = sy || 0;
-    sWidth = sWidth || source.videoWidth || source.width;
-    sHeight = sHeight || source.videoHeight || source.height;
+    sWidth =
+      sWidth ||
+      (source instanceof HTMLImageElement || source instanceof HTMLVideoElement
+        ? (source as HTMLVideoElement).videoWidth
+        : source.width);
+    sHeight =
+      sHeight ||
+      (source instanceof HTMLImageElement || source instanceof HTMLVideoElement
+        ? (source as HTMLVideoElement).videoHeight
+        : source.height);
 
     dx = dx || 0;
     dy = dy || 0;
@@ -125,9 +145,10 @@ export default class Canvas {
 
   // Resizes the canvas to the size of the source image
   // and paints the image on it.
-  image(source) {
-    const w = source.videoWidth || source.width;
-    const h = source.videoHeight || source.height;
+  image(source: Source) {
+    if (!source) return this;
+    const w = (source as HTMLVideoElement).videoWidth || source.width;
+    const h = (source as HTMLVideoElement).videoHeight || source.height;
     this.resize(w, h);
     this.copy(source, 0, 0, w, h, 0, 0, w, h);
     return this;
@@ -136,7 +157,7 @@ export default class Canvas {
   // Covers the destintation canvas with the source image
   // without resizing the canvas.
   // An otional aspect factor can be passed.
-  cover(source, aspect: number = 1) {
+  cover(source: Source, aspect: number = 1) {
     centerImage(source, this.canvas, 1, aspect, MODE_COVER);
     this.loadPixels();
     return this;
@@ -145,7 +166,7 @@ export default class Canvas {
   // Fits the source image on the destintation canvas
   // without resizing the canvas.
   // An otional aspect factor can be passed.
-  fit(source, aspect: number = 1) {
+  fit(source: Source, aspect: number = 1) {
     centerImage(source, this.canvas, 1, aspect, MODE_FIT);
     this.loadPixels();
     return this;
@@ -154,7 +175,7 @@ export default class Canvas {
   // Centers the source image on the destination canvas
   // without resizing the canvas.
   // Optional scaling factors can be passed.
-  center(source, scaleX: number = 1, scaleY: number = 1) {
+  center(source: Source, scaleX: number = 1, scaleY: number = 1) {
     centerImage(source, this.canvas, scaleX, scaleY, MODE_CENTER);
     this.loadPixels();
     return this;
@@ -192,7 +213,7 @@ export default class Canvas {
   // -- Getters (pixel array) ------------------------------------------------
 
   // Get color at coord
-  get(x: number, y: number) {
+  get(x: number, y: number): RGB {
     if (x < 0 || x >= this.canvas.width) return BLACK;
     if (y < 0 || y >= this.canvas.height) return BLACK;
     return this.pixels[x + y * this.canvas.width];
@@ -221,8 +242,8 @@ export default class Canvas {
 
     // Avoid 9 extra interpolations if only gray is needed
     if (gray) {
-      const p1 = mix(this.get(l, b).v, this.get(r, b).v, lr);
-      const p2 = mix(this.get(l, t).v, this.get(r, t).v, lr);
+      const p1 = mix(this.get(l, b).v || 0, this.get(r, b).v || 0, lr);
+      const p2 = mix(this.get(l, t).v || 0, this.get(r, t).v || 0, lr);
       return mix(p1, p2, bt);
     } else {
       const p1 = mixColors(this.get(l, b), this.get(r, b), lr);
@@ -251,14 +272,14 @@ export default class Canvas {
         b,
         a,
         v: toGray(r, g, b),
-      };
+      } as RGB;
     }
     return this;
   }
 
   // -- Helpers --------------------------------------------------------------
 
-  writeTo(buf: Buffer) {
+  writeTo(buf: RGB) {
     if (Array.isArray(buf)) {
       for (let i = 0; i < this.pixels.length; i++) buf[i] = this.pixels[i];
     }
@@ -268,39 +289,45 @@ export default class Canvas {
   // Debug -------------------------------------------------------------------
 
   // Attaches the canvas to a target element for debug purposes
-  display(target, x = 0, y = 0) {
+  display(target: HTMLElement, x = 0, y = 0) {
     target = target || document.body;
     this.canvas.style.position = "absolute";
     this.canvas.style.left = x + "px";
     this.canvas.style.top = y + "px";
     this.canvas.style.width = "auto";
     this.canvas.style.height = "auto";
-    this.canvas.style.zIndex = 10;
+    this.canvas.style.zIndex = "10";
     document.body.appendChild(this.canvas);
   }
 }
 
 // Helpers ---------------------------------------------------------------------
 
-function mixColors(a: RGB, b: RGB, amt: number) {
+function mixColors(a: RGB, b: RGB, amt: number): RGB {
   return {
     r: mix(a.r, b.r, amt),
     g: mix(a.g, b.g, amt),
     b: mix(a.b, b.b, amt),
-    v: mix(a.v, b.v, amt),
+    v: mix(a.v || 0, b.v || 0, amt),
   };
 }
 
-function getElementSize(source) {
+function getElementSize(source: Source) {
   const type = source.nodeName;
-  const width = type == "VIDEO" ? source.videoWidth : source.width || 0;
-  const height = type == "VIDEO" ? source.videoHeight : source.height || 0;
+  const width =
+    type == "VIDEO"
+      ? (source as HTMLVideoElement).videoWidth
+      : source.width || 0;
+  const height =
+    type == "VIDEO"
+      ? (source as HTMLVideoElement).videoHeight
+      : source.height || 0;
   return { width, height };
 }
 
 function centerImage(
-  sourceCanvas,
-  targetCanvas,
+  sourceCanvas: Source,
+  targetCanvas: HTMLCanvasElement,
   scaleX: number = 1,
   scaleY: number = 1,
   mode = MODE_CENTER
@@ -317,7 +344,8 @@ function centerImage(
   const ta = tw / th;
 
   // Destination width and height (adjusted for cover / fit)
-  let dw, dh;
+  let dw: number = 0,
+    dh: number = 0;
 
   // Cover the entire dest canvas with image content
   if (mode == MODE_COVER) {
@@ -347,12 +375,17 @@ function centerImage(
 
   // Update the targetCanvas with correct aspect ratios
   const ctx = targetCanvas.getContext("2d");
-
+  if (!ctx)
+    throw new Error("Canvas 2d context is not supported on this browser.");
   // Fill the canvas in case of 'fit'
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, tw, th);
   ctx.save();
   ctx.translate(tw / 2, th / 2);
+
+  // verify dw, dh are not NaN or 0
+  if (!dw || !dh) return;
+
   ctx.drawImage(sourceCanvas, -dw / 2, -dh / 2, dw, dh);
   ctx.restore();
 }
@@ -391,15 +424,15 @@ function paletteQuantize(arrayIn: RGB[], arrayOut: RGB[], palette: RGB[]) {
         nearest = b;
       }
     }
-    arrayOut[i] = { ...nearest, v: arrayIn[i].v }; // Keep the original gray value intact
+    arrayOut[i] = { ...nearest, v: arrayIn[i].v } as RGB; // Keep the original gray value intact
   }
   return arrayOut;
 }
 
 // Normalizes the gray component (auto levels)
 function normalizeGray(
-  arrayIn,
-  arrayOut,
+  arrayIn: RGB[],
+  arrayOut: RGB[],
   lower: number = 0.0,
   upper: number = 1.0
 ) {
@@ -408,14 +441,14 @@ function normalizeGray(
   let min = Number.MAX_VALUE;
   let max = 0;
   for (let i = 0; i < arrayIn.length; i++) {
-    min = Math.min(arrayIn[i].v, min);
-    max = Math.max(arrayIn[i].v, max);
+    min = Math.min(arrayIn[i].v || 0, min);
+    max = Math.max(arrayIn[i].v || 0, max);
   }
   // return target.map( v => {
   //     return map(v, min, max, 0, 1)
   // })
   for (let i = 0; i < arrayIn.length; i++) {
-    const v = min == max ? min : map(arrayIn[i].v, min, max, lower, upper);
+    const v = min == max ? min : map(arrayIn[i].v || 0, min, max, lower, upper);
     arrayOut[i] = { ...arrayOut[i], v };
   }
   return arrayOut;

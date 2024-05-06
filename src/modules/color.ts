@@ -31,7 +31,7 @@ Colors in exported palettes are augmented to:
 
 */
 
-export type RGB = { r: number; g: number; b: number; a?: number };
+export type RGB = { r: number; g: number; b: number; a?: number; v?: number };
 
 // Convert r,g,b,a values to {r,g,b,a}
 export function rgb(r: number, g: number, b: number, a: number = 1.0) {
@@ -102,9 +102,8 @@ export type PaletteElement = {
 
 export type AugmentedPaletteElement = PaletteElement &
   RGB & {
-    v: number;
-    hex: string;
-    css: string;
+    hex?: string;
+    css?: string;
   };
 
 // https://www.c64-wiki.com/wiki/Color
