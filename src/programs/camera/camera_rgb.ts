@@ -28,7 +28,7 @@ pal.push(rgb(100, 255, 255));
 //pal.push(rgb(255, 182, 193))
 //pal.push(rgb(255, 255, 255))
 
-const data: [] = [];
+const data: any[] = [];
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   const a = context.metrics.aspect;
@@ -38,7 +38,11 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   // The cover() function draws an image (cam) to the canvas covering
   // the whole frame. The aspect ratio can be adjusted with the second
   // parameter.
-  can.cover(cam, a).mirrorX().quantize(pal).writeTo(data);
+  can
+    .cover(cam, a)
+    .mirrorX()
+    .quantize(pal)
+    .writeTo(data as any);
 }
 
 export function main(

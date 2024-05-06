@@ -28,7 +28,11 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   // The cover() function draws an image (cam) to the canvas covering
   // the whole frame. The aspect ratio can be adjusted with the second
   // parameter.
-  can.cover(cam, a).mirrorX().normalize().writeTo(data);
+  can
+    .cover(cam, a)
+    .mirrorX()
+    .normalize()
+    .writeTo(data as any);
 }
 
 export function main(

@@ -5,13 +5,13 @@
 @desc   Doubled vertical resolution input from camera
 */
 
-import { AugmentedPaletteElement, CSS3 } from "../../modules/color.js";
+import { AugmentedPaletteElement, CSS3 } from "../../modules/color";
 
 import { Buffer, Context, Coord, Cursor } from "../../modules/types";
 
-import Camera from "../../modules/camera.js";
-import Canvas from "../../modules/canvas.js";
-import { drawInfo } from "../../modules/drawbox.js";
+import Camera from "../../modules/camera";
+import Canvas from "../../modules/canvas";
+import { drawInfo } from "../../modules/drawbox";
 
 const cam = Camera.init();
 const can = new Canvas();
@@ -27,12 +27,7 @@ pal.push(CSS3.black);
 pal.push(CSS3.lightblue);
 
 // Camera data
-const data: {
-  char: string;
-  color: string;
-  backgroundColor: string;
-  hex: number;
-}[] = [];
+const data: Buffer = [];
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   const a = context.metrics.aspect;
@@ -45,7 +40,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     .cover(cam, a * 2)
     .quantize(pal)
     .mirrorX()
-    .writeTo(data as unknown as Buffer);
+    .writeTo(data as any);
 }
 
 export function main(
