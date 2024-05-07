@@ -54,8 +54,7 @@ const CSSStyles = [
 export default async function runner(
   program: Program,
   settings: Settings,
-  userData: any = {},
-  canvas: HTMLCanvasElement | HTMLDivElement
+  userData: any = {}
 ): Promise<void> {
   // Merge the default settings with the user settings
   const mergedSettings = { ...defaultSettings, ...settings };

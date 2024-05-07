@@ -30,11 +30,11 @@ export interface Metrics {
   _update: () => void;
 }
 
-export interface Program {
+export type Program = {
   boot?: (context: Context, buffer: any[], userData: any) => void;
   pre?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
   main?: (
-    position: { x: number; y: number; index: number },
+    position: Coord,
     context: Context,
     cursor: any,
     buffer: any[],
@@ -43,7 +43,7 @@ export interface Program {
   post?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
   settings?: Settings;
   [key: string]: any;
-}
+};
 
 export interface Pointer {
   x: number;
