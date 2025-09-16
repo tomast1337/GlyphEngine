@@ -15,6 +15,7 @@ import type {
 import type { RenderModes } from "./core/types";
 
 export * from './core';
+export * from './run';
 export * from './modules'
 export { RUNNER_VERSION };
 
@@ -357,7 +358,7 @@ export function copyContent(el: HTMLElement) {
   if (!sel) throw new Error("Could not get selection");
   sel.removeAllRanges();
   sel.addRange(range);
-  document.execCommand("copy");
+  navigator.clipboard.writeText(el.innerText);
   sel.removeAllRanges();
 
   // Restore default, if necessary

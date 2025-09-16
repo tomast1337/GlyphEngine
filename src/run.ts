@@ -438,7 +438,7 @@ export function copyContent(el: HTMLElement) {
   if (!sel) throw new Error("Could not get selection");
   sel.removeAllRanges();
   sel.addRange(range);
-  document.execCommand("copy");
+  navigator.clipboard.writeText(el.innerText);
   sel.removeAllRanges();
 
   // Restore default, if necessary
