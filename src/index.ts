@@ -3,7 +3,7 @@ import canvasRenderer from "./core/canvasrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
-import {
+import type {
   Buffer,
   Context,
   Metrics,
@@ -12,8 +12,10 @@ import {
   Settings,
   State,
 } from "./modules/types";
-import { RenderModes } from "./core/types";
+import type { RenderModes } from "./core/types";
 
+export * from './core';
+export * from './modules'
 export { RUNNER_VERSION };
 
 const renderers: Record<
@@ -126,8 +128,8 @@ export default async function runner(
   const touchHandler = ((e: TouchEvent) => {
     const rect = settings.element?.getBoundingClientRect();
     if (!rect) return;
-    pointer.x = e.touches[0].clientX - rect.left;
-    pointer.y = e.touches[0].clientY - rect.top;
+    pointer.x = e.touches[0]!.clientX - rect.left;
+    pointer.y = e.touches[0]!.clientY - rect.top;
     eventQueue.push("pointerMove");
   }) as EventListenerOrEventListenerObject;
 
@@ -261,8 +263,8 @@ export default async function runner(
             buffer[idx] = { ...buffer[idx], char: out };
           }
           // Fix undefined / null / etc.
-          if (buffer[idx].char === undefined || buffer[idx].char === null) {
-            buffer[idx].char = EMPTY_CELL;
+          if (buffer[idx]!.char === undefined || buffer[idx]!.char === null) {
+            buffer[idx]!.char = EMPTY_CELL;
           }
         }
       }

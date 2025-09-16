@@ -8,7 +8,7 @@ import canvasRenderer from "./core/canvasrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
-import {
+import type {
   Buffer,
   Context,
   Metrics,
@@ -16,8 +16,8 @@ import {
   Program,
   Settings,
   State,
-} from "./modules/types";
-import { RenderModes } from "./core/types";
+} from "./modules";
+import type{ RenderModes } from "./core";
 
 export { RUNNER_VERSION };
 
@@ -106,7 +106,7 @@ export function run(
     // TODO: better / more generic renderer init
     let renderer: typeof textRenderer | typeof canvasRenderer;
     if (!settings.element) {
-      renderer = renderers[settings.renderer] || renderers["text"];
+      renderer = renderers[settings.renderer] || renderers["text"]!;
       settings.element = document.createElement(
         renderer.preferredElementNodeName
       );
@@ -114,13 +114,13 @@ export function run(
     } else {
       if (settings.renderer == "canvas") {
         if (settings.element.nodeName == "CANVAS") {
-          renderer = renderers[settings.renderer];
+          renderer = renderers[settings.renderer]!;
         } else {
           console.warn("This renderer expects a canvas target element.");
         }
       } else {
         if (settings.element.nodeName != "CANVAS") {
-          renderer = renderers[settings.renderer];
+          renderer = renderers[settings.renderer]!;
         } else {
           console.warn("This renderer expects a text target element.");
         }
@@ -168,8 +168,8 @@ export function run(
     const touchHandler = ((e: TouchEvent) => {
       const rect = settings.element?.getBoundingClientRect();
       if (!rect) return;
-      pointer.x = e.touches[0].clientX - rect.left;
-      pointer.y = e.touches[0].clientY - rect.top;
+      pointer.x = e.touches[0]!.clientX - rect.left;
+      pointer.y = e.touches[0]!.clientY - rect.top;
       eventQueue.push("pointerMove");
     }) as EventListenerOrEventListenerObject;
 
@@ -339,8 +339,8 @@ export function run(
               buffer[idx] = { ...buffer[idx], char: out };
             }
             // Fix undefined / null / etc.
-            if (buffer[idx].char === undefined || buffer[idx].char === null) {
-              buffer[idx].char = EMPTY_CELL;
+            if (buffer[idx]!.char === undefined || buffer[idx]!.char === null) {
+              buffer[idx]!.char = EMPTY_CELL;
             }
           }
         }
