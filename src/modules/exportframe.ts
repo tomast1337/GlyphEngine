@@ -1,5 +1,5 @@
 /**
-@module   exportframe.js
+@module   exportframe.ts
 @desc     Exports a single frame (or a range) to an image
 @category public
 
@@ -9,7 +9,7 @@ Tested on Safari, FF, Chrome
 */
 
 import { saveBlobAsFile } from "./filedownload";
-import { Context } from "./types";
+import type { Context } from "./types";
 
 export function exportFrame(
   context: Context,

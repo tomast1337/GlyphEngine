@@ -1,5 +1,5 @@
-import { RenderModes } from "../core/types";
-import { Vec2 } from "./vec2";
+import { type RenderModes } from "../core/types";
+import { type Vec2 } from "./vec2";
 
 export interface Settings {
   element: HTMLElement | HTMLCanvasElement | null;

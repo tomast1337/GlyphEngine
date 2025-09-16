@@ -9,7 +9,7 @@ Counts lines and maxWidth (can be greater than width).
 If no width is passed the function just measures the 'box' of the text.
 */
 
-export function wrap(string, width=0) {
+export function wrap(string: string, width=0) {
 
 	if (width==0) return measure(string)
 
@@ -60,7 +60,7 @@ export function wrap(string, width=0) {
 	}
 }
 
-export function measure(string) {
+export function measure(string: string) {
 	let numLines = 0
 	let maxWidth = 0
 	let len = 0

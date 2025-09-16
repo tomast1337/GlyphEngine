@@ -1,5 +1,5 @@
 /**
-@module   image.js
+@module   image.ts
 @desc     Image loader and helper
 @category public
 
@@ -15,8 +15,8 @@ const color = img.get(10, 10)
 
 */
 
-import Canvas from "./canvas.js";
-import Load from "./load.js";
+import Canvas from "./canvas";
+import Load from "./load";
 
 export default {
   load,

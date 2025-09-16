@@ -1,5 +1,5 @@
 /**
-@module   drawbox.js
+@module   drawbox.ts
 @desc     Draw text boxes with optional custom styles
 @category public
 
@@ -20,9 +20,9 @@ const style = {
 }
 */
 
-import { merge, mergeRect, mergeText, setRect } from "./buffer.js";
-import { measure } from "./string.js";
-import { Buffer, Context, Cursor, Style, WithRequired } from "./types.js";
+import { merge, mergeRect, mergeText, setRect } from "./buffer";
+import { measure } from "./string";
+import type { Buffer, Context, Cursor, Style, WithRequired } from "./types";
 
 type BorderStyle = {
   topleft: string;

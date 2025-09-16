@@ -1,5 +1,5 @@
 /**
-@module   canvas.js
+@module   canvas.ts
 @desc     A wrapper for a canvas element
 @category public
 
@@ -36,9 +36,9 @@ Or accessed with:
 - sample(x, y)
 */
 
-import { RGB } from "./color";
+import type { RGB } from "./color";
 import { map, mix, clamp } from "./num";
-import { Buffer } from "./types";
+import type { Buffer } from "./types";
 
 type Source = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 
@@ -193,8 +193,8 @@ export default class Canvas {
         const a = w * j + i;
         const b = w * (j + 1) - i - 1;
         const t = buf[b];
-        buf[b] = buf[a];
-        buf[a] = t;
+        buf[b] = buf[a]!;
+        buf[a] = t!;
       }
     }
     return this;
@@ -216,7 +216,7 @@ export default class Canvas {
   get(x: number, y: number): RGB {
     if (x < 0 || x >= this.canvas.width) return BLACK;
     if (y < 0 || y >= this.canvas.height) return BLACK;
-    return this.pixels[x + y * this.canvas.width];
+    return this.pixels[x + y * this.canvas.width]!;
   }
 
   // Sample value at coord (0-1)
@@ -265,13 +265,13 @@ export default class Canvas {
       const r = data[i]; // / 255.0,
       const g = data[i + 1]; // / 255.0,
       const b = data[i + 2]; // / 255.0,
-      const a = data[i + 3] / 255.0; // CSS style
+      const a = data[i + 3]! / 255.0; // CSS style
       this.pixels[idx++] = {
         r,
         g,
         b,
         a,
-        v: toGray(r, g, b),
+        v: toGray(r!, g!, b!),
       } as RGB;
     }
     return this;
@@ -418,13 +418,13 @@ function paletteQuantize(arrayIn: RGB[], arrayOut: RGB[], palette: RGB[]) {
     let dist = Number.MAX_VALUE;
     let nearest;
     for (const b of palette) {
-      const d = distFn(a, b);
+      const d = distFn(a!, b);
       if (d < dist) {
         dist = d;
         nearest = b;
       }
     }
-    arrayOut[i] = { ...nearest, v: arrayIn[i].v } as RGB; // Keep the original gray value intact
+    arrayOut[i] = { ...nearest, v: arrayIn[i]!.v } as RGB; // Keep the original gray value intact
   }
   return arrayOut;
 }
@@ -441,15 +441,15 @@ function normalizeGray(
   let min = Number.MAX_VALUE;
   let max = 0;
   for (let i = 0; i < arrayIn.length; i++) {
-    min = Math.min(arrayIn[i].v || 0, min);
-    max = Math.max(arrayIn[i].v || 0, max);
+    min = Math.min(arrayIn[i]!.v || 0, min);
+    max = Math.max(arrayIn[i]!.v || 0, max);
   }
   // return target.map( v => {
   //     return map(v, min, max, 0, 1)
   // })
   for (let i = 0; i < arrayIn.length; i++) {
-    const v = min == max ? min : map(arrayIn[i].v || 0, min, max, lower, upper);
-    arrayOut[i] = { ...arrayOut[i], v };
+    const v = min == max ? min : map(arrayIn[i]!.v || 0, min, max, lower, upper);
+    arrayOut[i] = { ...arrayOut[i]!, v };
   }
   return arrayOut;
 }
