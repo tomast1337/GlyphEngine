@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Core files, example and demos of the live-code ASCII playground:   [play.ertdfgcvb.xyz](https://play.ertdfgcvb.xyz)",
     "main": "index.js",
+    "type": "module",
     "directories": {
         "test": "tests"
     },
@@ -10,8 +11,10 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc --outDir dist"
     },
-    "author": "",
     "devDependencies": {
-        "typescript": "^5.4.5"
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
     }
 }
