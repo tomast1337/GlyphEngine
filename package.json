@@ -8,13 +8,17 @@
         "test": "tests"
     },
     "exports": {
-        ".": "./dist/index.js",
-        "./types": "./dist/index.d.ts"
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "bun build src/index.ts --outdir dist && bun run build:types",
-        "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist"
+        "build": "bun run clean && bun build src/index.ts --target browser --outdir dist && bun run build:types",
+        "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
+        "clean": "rm -rf dist"
     },
     "devDependencies": {
         "@types/bun": "latest"
