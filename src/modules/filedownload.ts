@@ -1,12 +1,12 @@
 /**
-@module   filedownload.js
+@module   filedownload
 @desc     Exports a file via Blob
 @category internal
 
 Downloads a Blob as file and this “hack”:
 creates an anchor with a “download” attribute
 and then emits a click event.
-See: https://github.com/eligrey/FileSaver.js
+See: https://github.com/tomast1337/FileSaver.ts
 */
 
 type FileExt = "js" | "txt" | "png" | "jpg";

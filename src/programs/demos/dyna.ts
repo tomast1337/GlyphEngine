@@ -9,9 +9,9 @@ http://www.graficaobscura.com/dyna/
 */
 
 import { smoothstep } from "../../modules/num";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import {
-  Vec2,
+  type Vec2,
   add,
   copy,
   divN,
@@ -35,7 +35,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     cols = context.cols;
     rows = context.rows;
     for (let i = 0; i < cols * rows; i++) {
-      buffer[i].value = 0;
+      buffer[i]!.value = 0;
     }
   }
 
@@ -58,7 +58,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
         const y = (p.y - j) / a;
         const l = 1 - length({ x, y }) / RADIUS;
         const idx = i + cols * j;
-        buffer[idx].value = Math.max(buffer[idx].value, l);
+        buffer[idx]!.value = Math.max(buffer[idx]!.value, l);
       }
     }
   }
@@ -74,8 +74,8 @@ export function main(
   buffer: Buffer
 ) {
   const i = coord.index;
-  const v = smoothstep(0, 0.9, buffer[i].value);
-  buffer[i].value *= 0.99;
+  const v = smoothstep(0, 0.9, buffer[i]!.value);
+  buffer[i]!.value *= 0.99;
   const idx = Math.floor(v * (density.length - 1));
   return density[idx];
 }

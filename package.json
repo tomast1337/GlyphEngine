@@ -3,15 +3,27 @@
     "version": "1.0.0",
     "description": "Core files, example and demos of the live-code ASCII playground:   [play.ertdfgcvb.xyz](https://play.ertdfgcvb.xyz)",
     "main": "index.js",
+    "type": "module",
     "directories": {
         "test": "tests"
     },
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc --outDir dist"
+        "build": "bun run clean && bun build src/index.ts --target browser --outdir dist && bun run build:types",
+        "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
+        "clean": "rm -rf dist"
     },
-    "author": "",
     "devDependencies": {
-        "typescript": "^5.4.5"
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
     }
 }

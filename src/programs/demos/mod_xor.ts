@@ -7,7 +7,7 @@ Inspired by this tweet by @ntsutae
 https://twitter.com/ntsutae/status/1292115106763960327
 */
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 const pattern = "└┧─┨┕┪┖┫┘┩┙┪━";
 
 export function main(

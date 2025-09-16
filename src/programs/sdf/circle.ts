@@ -7,7 +7,7 @@
 
 import { sdCircle } from "../../modules/sdf.js";
 import { sort } from "../../modules/sort.js";
-import { Buffer, Context, Coord, Cursor, Style } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor, Style } from "../../modules";
 
 const density = sort("/\\MXYZabc!?=-. ", "Simple Console", false);
 

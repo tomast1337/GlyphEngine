@@ -7,7 +7,7 @@ See: http://www.hammersleyfoundation.org/index.php/artwork/computer-drawings/184
 */
 
 import { map, mod, step } from "../../modules/num";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import { fract as fract2, mul, vec2 } from "../../modules/vec2";
 
 const chars = "#BEFTI_".split("");

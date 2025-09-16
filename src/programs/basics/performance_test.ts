@@ -7,7 +7,7 @@
 
 import { drawInfo } from "../../modules/drawbox";
 import { map } from "../../modules/num";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 export const settings = { fps: 60 };
 
 const { cos } = Math;

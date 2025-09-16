@@ -1,5 +1,5 @@
 /**
-@module   sort.js
+@module   sort
 @desc     Sorts a set of characters by brightness
 @category public
 
@@ -47,7 +47,7 @@ export function sort(
     ctx.font = size + "px " + fontFamily; // NOTE: font family inherit doesn't work
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(charSet[i], ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.fillText(charSet[i]!, ctx.canvas.width / 2, ctx.canvas.height / 2);
 
     out[i] = {
       count: 0,
@@ -65,8 +65,8 @@ export function sort(
     for (let y = 0; y < ctx.canvas.height; y++) {
       const oy = y * ctx.canvas.width;
       for (let x = 0; x < ctx.canvas.width; x++) {
-        let r = data[4 * (x + oy)];
-        out[i].count += r;
+        let r = data[4 * (x + oy)]!;
+        out[i]!.count += r;
       }
     }
     //console.log(out[i].char, out[i].count)

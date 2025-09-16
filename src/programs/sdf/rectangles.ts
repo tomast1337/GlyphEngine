@@ -4,11 +4,11 @@
 @title  Rectangles
 @desc   Smooth SDF Rectangles
 */
-import { drawInfo } from "../../modules/drawbox.js";
-import { map } from "../../modules/num.js";
-import { opSmoothUnion, sdBox } from "../../modules/sdf.js";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
-import { Vec2 } from "../../modules/vec2";
+import { drawInfo } from "../../modules/drawbox";
+import { map } from "../../modules/num";
+import { opSmoothUnion, sdBox } from "../../modules/sdf";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Vec2 } from "../../modules/vec2";
 
 let density = "▚▀abc|/:÷×+-=?*· ";
 

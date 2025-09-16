@@ -1,5 +1,5 @@
 /**
-@module   sdf.js
+@module   sdf
 @desc     Some signed distance functions
 @category public
 
@@ -8,7 +8,7 @@ https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 */
 
 import { clamp, mix } from "./num.js";
-import { Vec2, dot, length, mulN, sub } from "./vec2.js";
+import { type Vec2, dot, length, mulN, sub } from "./vec2.js";
 
 export function sdCircle(p: Vec2, radius: number) {
   return length(p) - radius;

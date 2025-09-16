@@ -7,8 +7,8 @@
 
 import { map } from "../../modules/num";
 import { opSmoothUnion, sdCircle } from "../../modules/sdf";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
-import { Vec2 } from "../../modules/vec2";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Vec2 } from "../../modules/vec2";
 
 const density = "#ABC|/:÷×+-=?*· ";
 

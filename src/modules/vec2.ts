@@ -1,5 +1,5 @@
 /**
-@module   vec2.js
+@module   vec2
 @desc     2D vector helper functions
 @category public
 

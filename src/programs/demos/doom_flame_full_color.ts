@@ -7,7 +7,7 @@
 
 import { drawInfo } from "../../modules/drawbox";
 import { clamp, map, mix, smoothstep } from "../../modules/num";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 export const settings = { backgroundColor: "black" };
 
@@ -49,7 +49,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     const last = cols * (rows - 1);
     for (let i = 0; i < cols; i++) {
       const val = floor(map(noise(i * 0.05, t), 0, 1, 5, 50));
-      data[last + i] = min(val, data[last + i] + 2);
+      data[last + i] = min(val, data[last + i]! + 2);
     }
   } else {
     const cx = floor(cursor.x);
@@ -63,7 +63,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     const col = i % cols;
     const dest = row * cols + clamp(col + rndi(-1, 1), 0, cols - 1);
     const src = min(rows - 1, row + 1) * cols + col;
-    data[dest] = max(0, data[src] - rndi(0, 2));
+    data[dest] = max(0, data[src]! - rndi(0, 2));
   }
 }
 
@@ -74,7 +74,7 @@ export function main(
   buffer: Buffer
 ) {
   const u = data[coord.index];
-  const v = flame[clamp(u, 0, flame.length - 1)];
+  const v = flame[clamp(u!, 0, flame.length - 1)];
 
   if (v === 0)
     return {
@@ -83,9 +83,9 @@ export function main(
     };
 
   return {
-    char: u % 10,
-    color: palette[min(palette.length - 1, v + 1)],
-    backgroundColor: palette[v],
+    char: u! % 10,
+    color: palette[min(palette.length - 1, v! + 1)],
+    backgroundColor: palette[v!],
   };
 }
 

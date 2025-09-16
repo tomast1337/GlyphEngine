@@ -10,7 +10,7 @@ import { vec2, dot, add, sub, length } from "../../modules/vec2";
 import { map } from "../../modules/num";
 import { css } from "../../modules/color";
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 export const settings = { fps: 60 };
 
 const { sin, cos, floor, PI } = Math;

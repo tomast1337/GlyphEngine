@@ -5,12 +5,12 @@
 @desc   The cursor controls box thickness and exp
 */
 
-import { drawInfo } from "../../modules/drawbox.js";
-import { map } from "../../modules/num.js";
-import { sdSegment } from "../../modules/sdf.js";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
-import * as v2 from "../../modules/vec2.js";
-import * as v3 from "../../modules/vec3.js";
+import { drawInfo } from "../../modules/drawbox";
+import { map } from "../../modules/num";
+import { sdSegment } from "../../modules/sdf";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import * as v2 from "../../modules/vec2";
+import * as v3 from "../../modules/vec3";
 
 export const settings = { fps: 60 };
 
@@ -62,7 +62,7 @@ const box = {
 
 const boxProj: v2.Vec2[] = [];
 
-const bgMatrixDim = vec2(bgMatrix[0].length, bgMatrix.length);
+const bgMatrixDim = vec2(bgMatrix[0]!.length, bgMatrix.length);
 
 export function pre(context: Context, cursor: Cursor) {
   const t = context.time * 0.01;
@@ -70,7 +70,7 @@ export function pre(context: Context, cursor: Cursor) {
   const d = 2;
   const zOffs = map(sin(t * 0.12), -1, 1, -2.5, -6);
   for (let i = 0; i < box.vertices.length; i++) {
-    const v = v3.copy(box.vertices[i]);
+    const v = v3.copy(box.vertices[i]!);
     let vt = v3.rotX(v, rot.x);
     vt = v3.rotY(vt, rot.y);
     vt = v3.rotZ(vt, rot.z);
@@ -98,8 +98,8 @@ export function main(
   const thickness = map(cursor.x, 0, context.cols, 0.001, 0.1);
   const expMul = map(cursor.y, 0, context.rows, -100, -5);
   for (let i = 0; i < n; i++) {
-    const a = boxProj[box.edges[i][0]];
-    const b = boxProj[box.edges[i][1]];
+    const a = boxProj[box.edges[i]![0]!]!;
+    const b = boxProj[box.edges[i]![1]!]!;
     d = min(d, sdSegment(st, a, b, thickness));
   }
 
@@ -109,7 +109,7 @@ export function main(
     const x = coord.x % bgMatrixDim.x;
     const y = coord.y % bgMatrixDim.y;
     return {
-      char: d < 0 ? " " : bgMatrix[y][x],
+      char: d < 0 ? " " : bgMatrix[y]![x],
       color: "black",
     };
   } else {

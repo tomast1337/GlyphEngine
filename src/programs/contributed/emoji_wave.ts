@@ -5,7 +5,7 @@
 @desc   From wingdings icons to unicode emojis
 		Inspired by emojis evolution
 */
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 export const settings = {
   color: "white",

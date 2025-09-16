@@ -5,7 +5,7 @@
 @desc   Use of context.time
 */
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 // Globals have module scope
 const pattern = "ABCxyz01═|+:. ";

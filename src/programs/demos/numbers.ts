@@ -7,7 +7,7 @@
 
 import { CGA } from "../../modules/color.js";
 import { map } from "../../modules/num.js";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 export const settings = {
   backgroundColor: "black",
 };
@@ -58,7 +58,7 @@ export function main(
   let char;
 
   if (nx < numX && ny < numY) {
-    char = bit(ints[num], numX - nx - 1 + (numY - ny - 1) * numX);
+    char = bit(ints[num]!, numX - nx - 1 + (numY - ny - 1) * numX);
   } else {
     char = 0;
   }
@@ -66,6 +66,6 @@ export function main(
   let color = num % CGA.length;
   return {
     char: ".▇"[char],
-    color: char ? CGA[color].hex : CGA[5].hex,
+    color: char ? CGA[color]!.hex : CGA[5]!.hex,
   };
 }

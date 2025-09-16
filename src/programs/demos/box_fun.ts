@@ -5,7 +5,7 @@
 @desc   Think inside of the box
 */
 
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 const { sin, cos, floor } = Math;
 
 export function main(

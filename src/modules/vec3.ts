@@ -1,5 +1,5 @@
 /**
-@module   vec3.js
+@module   vec3
 @desc     3D vector helper functions
 @category public
 
@@ -12,7 +12,7 @@
 	import * as Vec3 from '/src/modules/vec3.js'
 */
 
-import { Vec2, vec2 } from "./vec2";
+import { type Vec2, vec2 } from "./vec2";
 
 type Vec3 = { x: number; y: number; z: number };
 

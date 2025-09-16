@@ -5,9 +5,9 @@
 @desc   Doubled vertical resolution input from camera
 */
 
-import { AugmentedPaletteElement, CSS3 } from "../../modules/color";
+import  { type AugmentedPaletteElement, CSS3 } from "../../modules/color";
 
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type{ Buffer, Context, Coord, Cursor } from "../../modules";
 
 import Camera from "../../modules/camera";
 import Canvas from "../../modules/canvas";
@@ -20,11 +20,11 @@ const can = new Canvas();
 
 // Palette for quantization
 const pal: AugmentedPaletteElement[] = [];
-pal.push(CSS3.red);
-pal.push(CSS3.blue);
-pal.push(CSS3.white);
-pal.push(CSS3.black);
-pal.push(CSS3.lightblue);
+pal.push(CSS3.red!);
+pal.push(CSS3.blue!);
+pal.push(CSS3.white!);
+pal.push(CSS3.black!);
+pal.push(CSS3.lightblue!);
 
 // Camera data
 const data: Buffer = [];
@@ -51,8 +51,8 @@ export function main(
 ) {
   // Coord also contains the index of each cell:
   const idx = coord.y * context.cols * 2 + coord.x;
-  const upper = data[idx];
-  const lower = data[idx + context.cols];
+  const upper = data[idx]!;
+  const lower = data[idx + context.cols]!;
 
   return {
     char: "▄",

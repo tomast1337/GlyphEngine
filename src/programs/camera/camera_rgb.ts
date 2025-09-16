@@ -7,9 +7,9 @@
 
 import Camera from "../../modules/camera";
 import Canvas from "../../modules/canvas";
-import { RGB, rgb, rgb2hex } from "../../modules/color";
+import { type RGB, rgb, rgb2hex } from "../../modules/color";
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 const cam = Camera.init();
 const can = new Canvas();

@@ -1,5 +1,5 @@
 /**
-@module   buffer.js
+@module   buffer
 @desc     Safe buffer helpers, mostly for internal use
 @category internal
 
@@ -13,7 +13,7 @@ const v = get(10, 10, buffer, cols, rows)
 
 */
 
-import { Buffer, Cell } from "./types";
+import type { Buffer, Cell } from "./types";
 
 // Safe get function to read from a buffer
 export function get(
@@ -65,7 +65,7 @@ export function merge(
   const cell = typeof target[i] == "object" ? target[i] : { char: target[i] };
 
   //target[i] = { ...cell, ...val };
-  target[i] = Object.assign(cell, val) as Cell;
+  target[i] = Object.assign(cell!, val) as Cell;
 }
 
 export function setRect(
@@ -146,8 +146,8 @@ export function mergeText(
       col = x + charNum;
       merge({ char, ...mergeObj }, col, row, target, targetCols, targetRows);
     });
-    const first = get(x, row, target, targetCols, targetRows);
-    const last = get(x + line.length - 1, row, target, targetCols, targetRows);
+    const first = get(x, row, target, targetCols, targetRows)!;
+    const last = get(x + line.length - 1, row, target, targetCols, targetRows)!;
     wrapInfo.push({ first, last });
     row++;
   });

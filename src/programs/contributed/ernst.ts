@@ -7,8 +7,8 @@
 
 import { drawInfo } from "../../modules/drawbox";
 import { smoothstep } from "../../modules/num";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
-import { Vec2, add, length, vec2 } from "../../modules/vec2";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { type Vec2, add, length, vec2 } from "../../modules/vec2";
 
 const { PI, atan2, floor, cos, max } = Math;
 

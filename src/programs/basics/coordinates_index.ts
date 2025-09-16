@@ -5,7 +5,7 @@
 @desc   Use of coord.index
 */
 
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 // Global variables have scope in the whole module.
 const pattern = "| |.|,|:|;|x|K|Ñ|R|a|+|=|-|_";

@@ -8,7 +8,7 @@
 import { vec2, dist, mulN } from "../../modules/vec2";
 import { map } from "../../modules/num";
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 export const settings = { fps: 60 };
 
 // Shorthands

@@ -1,11 +1,11 @@
 /**
-@module   canvasrenderer.js
+@module   canvasrenderer
 @desc     renders to canvas
 @category renderer
 */
 
-import { Buffer, Context } from "../modules/types";
-import { Render } from "./types";
+import type { Buffer, Context } from "../modules/types";
+import type { Render } from "./types";
 
 export default {
   preferredElementNodeName: "CANVAS",
@@ -87,7 +87,7 @@ function render(context: Context, buffer: Buffer) {
 
       // Find width
       for (let i = 0; i < c; i++) {
-        const cell = buffer[offs + i];
+        const cell = buffer[offs + i]!;
         ctx.font = (cell.fontWeight || fontWeight) + ff;
         const w = ctx.measureText(cell.char).width;
         totalWidth += w;
@@ -97,17 +97,17 @@ function render(context: Context, buffer: Buffer) {
       let ox = (canvas.width / scale - totalWidth) * 0.5;
       const y = j * ch;
       for (let i = 0; i < c; i++) {
-        const cell = buffer[offs + i];
+        const cell = buffer[offs + i]!;
         const x = ox;
         if (cell.backgroundColor && cell.backgroundColor != bg) {
           ctx.fillStyle = cell.backgroundColor || bg;
-          ctx.fillRect(Math.round(x), y, Math.ceil(widths[i]), ch);
+          ctx.fillRect(Math.round(x), y, Math.ceil(widths[i]!), ch);
         }
         ctx.font = (cell.fontWeight || fontWeight) + ff;
         ctx.fillStyle = cell.color || fg;
         ctx.fillText(cell.char, ox, y);
 
-        ox += widths[i];
+        ox += widths[i]!;
       }
     }
 
@@ -115,7 +115,7 @@ function render(context: Context, buffer: Buffer) {
   } else {
     for (let j = 0; j < r; j++) {
       for (let i = 0; i < c; i++) {
-        const cell = buffer[j * c + i];
+        const cell = buffer[j * c + i]!;
         const x = i * cw;
         const y = j * ch;
         if (cell.backgroundColor && cell.backgroundColor != bg) {

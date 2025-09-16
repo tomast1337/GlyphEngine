@@ -1,5 +1,5 @@
 /**
-@module   color.js
+@module   color
 @desc     Some common palettes and simple color helpers
 @category public
 

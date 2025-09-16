@@ -1,4 +1,4 @@
-import { Context, Buffer } from "../modules/types";
+import type { Context, Buffer } from "../modules/types";
 
 export type RenderModes = string;
 

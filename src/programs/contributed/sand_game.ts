@@ -5,7 +5,7 @@
 @desc   Click to drop sand
 */
 
-import { Buffer, Cell, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Cell, Context, Coord, Cursor } from "../../modules";
 import { dist } from "../../modules/vec2";
 
 let prevFrame: any[];
