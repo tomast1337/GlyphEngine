@@ -7,9 +7,12 @@
     "directories": {
         "test": "tests"
     },
+    "exports": {
+        ".": "./dist/index.js"
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc --outDir dist"
+        "build": "bun build src/index.ts --outdir dist"
     },
     "devDependencies": {
         "@types/bun": "latest"
