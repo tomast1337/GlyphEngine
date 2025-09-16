@@ -1,11 +1,11 @@
 /**
-@module   textrenderer.js
+@module   textrenderer
 @desc     renders to a text element
 @category renderer
 */
 
-import { Buffer, Cell, Context } from "../modules/types";
-import { Render } from "./types";
+import type { Buffer, Cell, Context } from "../modules/types";
+import type { Render } from "./types";
 
 export default {
   preferredElementNodeName: "PRE",
@@ -66,8 +66,8 @@ function render(context: Context, buffer: Buffer) {
     let rowNeedsUpdate = false;
     for (let i = 0; i < cols; i++) {
       const idx = i + offs;
-      const newCell = buffer[idx];
-      const oldCell = backBuffer[idx];
+      const newCell = buffer[idx]!;
+      const oldCell = backBuffer[idx]!;
       if (!isSameCell(newCell, oldCell)) {
         if (rowNeedsUpdate == false) updatedRowNum++;
         rowNeedsUpdate = true;
@@ -82,7 +82,7 @@ function render(context: Context, buffer: Buffer) {
     let prevCell = {} as Cell; //defaultCell
     let tagIsOpen = false;
     for (let i = 0; i < cols; i++) {
-      const currCell = buffer[i + offs]; //|| {...defaultCell, char : EMPTY_CELL}
+      const currCell = buffer[i + offs]!; //|| {...defaultCell, char : EMPTY_CELL}
       // Undocumented feature:
       // possible to inject some custom HTML (for example <a>) into the renderer.
       // It can be inserted before the char or after the char (beginHTML, endHTML)
