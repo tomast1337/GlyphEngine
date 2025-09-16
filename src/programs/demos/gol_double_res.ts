@@ -18,8 +18,8 @@ All the automata state is stored in the custom 'data' buffer.
 Each frame of the animation depends on the previous frame,
 so in this case the 'data' buffer is two arrays (see initialization in pre).
 */
-import { drawBox } from "../../modules/drawbox.js";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import { drawBox } from "../../modules/drawbox";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 // Safe set function
 function set(
   val: number,
@@ -31,7 +31,7 @@ function set(
 ) {
   if (x < 0 || x >= w) return;
   if (y < 0 || y >= h) return;
-  buf[y * w + x] = val;
+  buf[y * w + x]! = val;
 }
 
 // Safe get function
@@ -66,8 +66,8 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   }
 
   // Update the buffer
-  const prev = data[context.frame % 2];
-  const curr = data[(context.frame + 1) % 2];
+  const prev = data[context.frame % 2]!;
+  const curr = data[(context.frame + 1) % 2]!;
   const w = cols;
   const h = rows * 2;
 
@@ -89,14 +89,14 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     for (let x = 0; x < w; x++) {
       const current = get(x, y, w, h, prev);
       const neighbors =
-        get(x - 1, y - 1, w, h, prev) +
-        get(x, y - 1, w, h, prev) +
-        get(x + 1, y - 1, w, h, prev) +
-        get(x - 1, y, w, h, prev) +
-        get(x + 1, y, w, h, prev) +
-        get(x - 1, y + 1, w, h, prev) +
-        get(x, y + 1, w, h, prev) +
-        get(x + 1, y + 1, w, h, prev);
+        get(x - 1, y - 1, w, h, prev)! +
+        get(x, y - 1, w, h, prev)! +
+        get(x + 1, y - 1, w, h, prev)! +
+        get(x - 1, y, w, h, prev)! +
+        get(x + 1, y, w, h, prev)! +
+        get(x - 1, y + 1, w, h, prev)! +
+        get(x, y + 1, w, h, prev)! +
+        get(x + 1, y + 1, w, h, prev)!;
       // Update
       const i = x + y * w;
       if (current == 1) {
@@ -116,7 +116,7 @@ export function main(
   buffer: Buffer
 ) {
   // Current buffer
-  const curr = data[(context.frame + 1) % 2];
+  const curr = data[(context.frame + 1) % 2]!;
 
   // Upper and lower half
   const idx = coord.x + coord.y * 2 * context.cols;
@@ -131,12 +131,12 @@ export function main(
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
   const buff = data[(context.frame + 1) % 2];
-  const numCells = buff.reduce((a, b) => a + b, 0);
+  const numCells = buff!.reduce((a, b) => a + b, 0);
 
   let text = "";
   text += "frame " + context.frame + "\n";
   text += "size  " + context.cols + "×" + context.rows + "\n";
-  text += "cells " + numCells + "/" + buff.length + "\n";
+  text += "cells " + numCells + "/" + buff!.length + "\n";
 
   drawBox(
     text,

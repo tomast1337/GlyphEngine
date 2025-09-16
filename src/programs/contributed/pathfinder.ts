@@ -5,7 +5,7 @@
 @desc   Click to spawn new path segments
 */
 
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import * as v2 from "../../modules/vec2";
 
 const vec2 = v2.vec2;
@@ -104,5 +104,5 @@ function get(x: number, y: number) {
   if (x < 0 || x >= width) return 0;
   if (y < 0 || y >= height) return 0;
   const index = y * width + x;
-  return prevFrame[index].char;
+  return prevFrame[index]!.char;
 }

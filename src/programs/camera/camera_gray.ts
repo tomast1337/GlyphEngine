@@ -9,7 +9,7 @@ import Camera from "../../modules/camera";
 import Canvas from "../../modules/canvas";
 import { drawInfo } from "../../modules/drawbox";
 import { sort } from "../../modules/sort";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 const cam = Camera.init();
 const can = new Canvas();
@@ -42,7 +42,7 @@ export function main(
   buffer: Buffer
 ) {
   // Coord also contains the index of each cell:
-  const color = data[coord.index];
+  const color = data[coord.index]!;
   const index = Math.floor(color.v * (density.length - 1));
   return density[index];
 }

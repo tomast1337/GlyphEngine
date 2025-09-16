@@ -7,7 +7,7 @@
 
 import { drawInfo } from "../../modules/drawbox";
 import { exportFrame } from "../../modules/exportframe";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 // Important: the frame exporter works only with the canvas renderer.
 // Optional: reset the frame count and time at each new run!
 export const settings = {

@@ -5,7 +5,7 @@
 @desc   Checker variation
 */
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 const pattern = [" _000111_ ", ".+abc+.      "];
 const col = ["black", "blue"];
@@ -26,7 +26,7 @@ export function main(
   const i = floor(Math.abs(x + y + o));
   const c = (floor(coord.x * 0.09) + floor(coord.y * 0.09)) % 2;
   return {
-    char: pattern[c][i % pattern[c].length],
+    char: pattern[c]![i % pattern[c]!.length],
     color: "black", //col[c],
     // backgroundColor : col[(c+1)%2],
     fontWeight: weights[c],

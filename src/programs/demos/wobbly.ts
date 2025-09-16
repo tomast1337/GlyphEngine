@@ -8,7 +8,7 @@
 import { drawInfo } from "../../modules/drawbox";
 import { fract, map, smoothstep } from "../../modules/num";
 import { sdCircle } from "../../modules/sdf";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import { length, rot } from "../../modules/vec2";
 
 const density = "▀▄▚▐─═0123.+?";

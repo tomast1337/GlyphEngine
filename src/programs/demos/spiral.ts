@@ -9,7 +9,7 @@ https://www.shadertoy.com/view/XdSGzR
 
 import { drawInfo } from "../../modules/drawbox";
 import { sort } from "../../modules/sort";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import { length } from "../../modules/vec2";
 
 export const settings = { fps: 60 };

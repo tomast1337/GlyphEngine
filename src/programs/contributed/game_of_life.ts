@@ -8,7 +8,7 @@ Each frame of the animation depends on the previous frame. Code in the `pre()`
 function saves the previous frame so it can be used in `main()`.
 */
 
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import { dist } from "../../modules/vec2.js";
 
 let prevFrame: Buffer;
@@ -64,5 +64,5 @@ function get(x: number, y: number) {
   if (x < 0 || x >= width) return 0;
   if (y < 0 || y >= height) return 0;
   const index = y * width + x;
-  return prevFrame[index].char === " " ? 0 : 1;
+  return prevFrame[index]!.char === " " ? 0 : 1;
 }

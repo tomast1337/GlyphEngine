@@ -13,7 +13,7 @@ With inspiration from:
 - http://www.tech-algorithm.com/articles/nearest-neighbor-image-scaling
 */
 
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import * as v2 from "../../modules/vec2.js";
 
 // Environment
@@ -156,8 +156,8 @@ export function main(
 
   // Convert the cell value into a character from the texture map
   const texRow = (coord.x + coord.y) % TEXTURE.length;
-  const texCol = Math.ceil(val * (TEXTURE[0].length - 1));
-  const char = TEXTURE[texRow][texCol];
+  const texCol = Math.ceil(val * (TEXTURE[0]!.length - 1));
+  const char = TEXTURE[texRow]![texCol];
   if (!char) throw new Error(`Invalid char for ${val}`);
 
   return char;
@@ -233,7 +233,7 @@ class Agent {
     );
     const pos: v2.Vec2 = v2.floor(v2.add(this.pos, senseVec));
     if (!bounded(pos)) return -1;
-    const sensed: number = chem[pos.y * HEIGHT + pos.x];
+    const sensed: number = chem[pos.y * HEIGHT + pos.x]!;
     if (this.scatter) return 1 - sensed;
     return sensed;
   }
@@ -267,7 +267,7 @@ class Agent {
   deposit(chem: number[]): void {
     const { y, x } = v2.floor(this.pos);
     const i: number = y * HEIGHT + x;
-    chem[i] = Math.min(1, chem[i] + DEPOSIT);
+    chem[i] = Math.min(1, chem[i]! + DEPOSIT);
   }
 }
 

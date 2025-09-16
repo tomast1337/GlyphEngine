@@ -7,7 +7,7 @@
 
 import { drawInfo } from "../../modules/drawbox";
 import { opSmoothUnion, sdCircle } from "../../modules/sdf";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 import { sub, vec2 } from "../../modules/vec2";
 
 const density = "#WX?*:÷×+=-· ";

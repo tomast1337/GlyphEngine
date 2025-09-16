@@ -4,7 +4,7 @@
 @title  How to log
 @desc   Console output inside the main() loop
 */
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import  type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 const { abs, floor, max } = Math;
 export function main(

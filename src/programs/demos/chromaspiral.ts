@@ -8,9 +8,9 @@ https://www.shadertoy.com/view/tdsyRf
 */
 
 import { drawInfo } from "../../modules/drawbox";
-import { map } from "../../modules/num.js";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
-import { add, length, mulN, rot, subN, vec2 } from "../../modules/vec2.js";
+import { map } from "../../modules/num";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { add, length, mulN, rot, subN, vec2 } from "../../modules/vec2";
 
 const { min, sin, cos, floor } = Math;
 

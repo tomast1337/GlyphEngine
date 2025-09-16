@@ -7,7 +7,7 @@
 
 import { drawInfo } from "../../modules/drawbox";
 import { clamp, map, mix, smoothstep } from "../../modules/num";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 export const settings = { fps: 30, backgroundColor: "black", color: "white" };
 
 const { min, max, sin, floor } = Math;
@@ -34,7 +34,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     const last = cols * (rows - 1);
     for (let i = 0; i < cols; i++) {
       const val = floor(map(noise(i * 0.05, t), 0, 1, 5, 40));
-      data[last + i] = min(val, data[last + i] + 2);
+      data[last + i] = min(val, data[last + i]! + 2);
     }
   } else {
     const cx = floor(cursor.x);
@@ -48,7 +48,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     const col = i % cols;
     const dest = row * cols + clamp(col + rndi(-1, 1), 0, cols - 1);
     const src = min(rows - 1, row + 1) * cols + col;
-    data[dest] = max(0, data[src] - rndi(0, 2));
+    data[dest] = max(0, data[src]! - rndi(0, 2));
   }
 }
 
@@ -58,11 +58,11 @@ export function main(
   cursor: Cursor,
   buffer: Buffer
 ) {
-  const u = data[coord.index];
+  const u = data[coord.index]!;
   if (u === 0) return; // Inserts a space
 
   return {
-    char: flame[clamp(u, 0, flame.length - 1)],
+    char: flame[clamp(u!, 0, flame.length - 1)],
     fontWeight: u > 20 ? 700 : 100,
   };
 }

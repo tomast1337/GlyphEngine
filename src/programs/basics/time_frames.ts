@@ -8,7 +8,7 @@
 // The default framerate can be altered
 // by exporting a 'settings' object (see the manual for details).
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 export const settings = { fps: 30 };
 export function main(
   coord: Coord,

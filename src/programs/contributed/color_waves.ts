@@ -6,7 +6,7 @@
 */
 
 import { drawInfo } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor } from "../../modules/types";
+import type { Buffer, Context, Coord, Cursor } from "../../modules";
 
 const chars = "¯_(ツ)_/¯.::.ᕦ(ò_óˇ)ᕤ ".split("");
 

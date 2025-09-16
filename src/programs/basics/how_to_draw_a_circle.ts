@@ -6,7 +6,7 @@
 */
 
 import { drawBox } from "../../modules/drawbox";
-import { Buffer, Context, Coord, Cursor, Style } from "../../modules/types";
+import  type { Buffer, Context, Coord, Cursor, Style } from "../../modules";
 import { length } from "../../modules/vec2";
 export function main(
   coord: Coord,
