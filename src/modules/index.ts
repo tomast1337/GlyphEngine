@@ -11,6 +11,6 @@ export * as num from './num';
 export * as sdf from './sdf';
 export * as sort from './sort';
 export * as string from './string';
-export * as types from './types';
+export * from './types';
 export * as vec2 from './vec2';
 export * as vec3 from './vec3';
