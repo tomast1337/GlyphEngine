@@ -1,5 +1,5 @@
 /**
-@module   exportframe.ts
+@module   exportframe
 @desc     Exports a single frame (or a range) to an image
 @category public
 

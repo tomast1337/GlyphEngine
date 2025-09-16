@@ -1,5 +1,5 @@
 /**
-@module   num.ts
+@module   num
 @desc     Some GLSL functions ported to JS
 @category public
 */

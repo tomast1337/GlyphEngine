@@ -1,5 +1,5 @@
 /**
-@module   sort.ts
+@module   sort
 @desc     Sorts a set of characters by brightness
 @category public
 

@@ -1,5 +1,5 @@
 /**
-@module   loader.ts
+@module   loader
 @desc     Various file type loader, returns a Promise
 @category internal
 

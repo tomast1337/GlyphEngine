@@ -1,5 +1,5 @@
 /**
-@module   vec3.ts
+@module   vec3
 @desc     3D vector helper functions
 @category public
 

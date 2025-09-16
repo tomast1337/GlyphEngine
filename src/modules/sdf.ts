@@ -1,5 +1,5 @@
 /**
-@module   sdf.ts
+@module   sdf
 @desc     Some signed distance functions
 @category public
 

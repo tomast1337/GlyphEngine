@@ -1,5 +1,5 @@
 /**
-@module   drawbox.ts
+@module   drawbox
 @desc     Draw text boxes with optional custom styles
 @category public
 

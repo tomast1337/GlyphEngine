@@ -1,5 +1,5 @@
 /**
-@module   buffer.ts
+@module   buffer
 @desc     Safe buffer helpers, mostly for internal use
 @category internal
 

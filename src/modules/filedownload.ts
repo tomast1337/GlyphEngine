@@ -1,5 +1,5 @@
 /**
-@module   filedownload.ts
+@module   filedownload
 @desc     Exports a file via Blob
 @category internal
 

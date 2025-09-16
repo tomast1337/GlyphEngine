@@ -1,5 +1,5 @@
 /**
-@module   canvas.ts
+@module   canvas
 @desc     A wrapper for a canvas element
 @category public
 

@@ -1,5 +1,5 @@
 /**
-@module   image.ts
+@module   image
 @desc     Image loader and helper
 @category public
 

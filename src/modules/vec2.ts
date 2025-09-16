@@ -1,5 +1,5 @@
 /**
-@module   vec2.ts
+@module   vec2
 @desc     2D vector helper functions
 @category public
 

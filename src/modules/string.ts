@@ -1,5 +1,5 @@
 /**
-@module   string.js
+@module   string
 @desc     String helpers
 @category internal
 
