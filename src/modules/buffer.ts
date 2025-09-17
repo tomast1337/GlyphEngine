@@ -22,9 +22,9 @@ export function get(
   target: Buffer,
   targetCols: number,
   targetRows: number
-) {
-  if (x < 0 || x >= targetCols) return {};
-  if (y < 0 || y >= targetRows) return {};
+): Cell | undefined {
+  if (x < 0 || x >= targetCols) return undefined;
+  if (y < 0 || y >= targetRows) return undefined;
   const i = x + y * targetCols;
   return target[i];
 }
@@ -119,49 +119,49 @@ export function mergeText(
   targetCols: number = 0,
   targetRows: number = 0
 ) {
-  let text;
-  let mergeObj = {} as any;
-  // An object has been passed as argument, expect a 'text' field
-  if (typeof textObj == "object") {
-    text = textObj.text;
-    // Extract all the fields to be merged...
-    mergeObj = { ...textObj };
-    // ...but emove text field
-    delete mergeObj.text;
-  }
-  // A string has been passed as argument
-  else {
-    text = textObj;
-  }
+    let text: string;
+    let mergeObj: Record<string, any>;
+	// An object has been passed as argument, expect a 'text' field
+	if (typeof textObj == "object") {
+		text = textObj.text
+		// Extract all the fields to be merged...
+		mergeObj = {...textObj}
+		// ...but emove text field
+		delete mergeObj.text
+	}
+	// A string has been passed as argument
+	else {
+		text = textObj
+	}
 
-  let col = x;
-  let row = y;
-  // Hackish and inefficient way to retain info of the first and last
-  // character of each line merged into the matrix.
-  // Can be useful to wrap with markup.
-  const wrapInfo: { first: {}; last: {} }[] = [];
+	let col = x
+	let row = y
+	// Hackish and inefficient way to retain info of the first and last
+	// character of each line merged into the matrix.
+	// Can be useful to wrap with markup.
+	const wrapInfo: { first: Cell; last: Cell }[] = [];
 
-  text.split("\n").forEach((line: string, lineNum: number) => {
-    line.split("").forEach((char: string, charNum: number) => {
-      col = x + charNum;
-      merge({ char, ...mergeObj }, col, row, target, targetCols, targetRows);
-    });
-    const first = get(x, row, target, targetCols, targetRows)!;
-    const last = get(x + line.length - 1, row, target, targetCols, targetRows)!;
-    wrapInfo.push({ first, last });
-    row++;
-  });
+	text.split('\n').forEach((line, lineNum) => {
+		line.split('').forEach((char, charNum) => {
+			col = x + charNum
+			merge({char, ...mergeObj}, col, row, target, targetCols, targetRows)
+		})
+		const first = get(x, row, target, targetCols, targetRows)!
+		const last = get(x+line.length-1, row, target, targetCols, targetRows)!
+		wrapInfo.push({first, last})
+		row++
+	})
 
-  // Adjust for last ++
-  row = Math.max(y, row - 1);
+	// Adjust for last ++
+	row = Math.max(y, row-1)
 
-  // Returns some info about the inserted text:
-  // - the coordinates (offset) of the last inserted character
-  // - the first an last chars of each line (wrapInfo)
-  return {
-    offset: { col, row },
-    // first  : wrapInfo[0].first,
-    // last   : wrapInfo[wrapInfo.length-1].last,
-    wrapInfo,
-  };
+	// Returns some info about the inserted text:
+	// - the coordinates (offset) of the last inserted character
+	// - the first an last chars of each line (wrapInfo)
+	return {
+		offset : {col, row},
+		// first  : wrapInfo[0].first,
+		// last   : wrapInfo[wrapInfo.length-1].last,
+		wrapInfo
+	}
 }
