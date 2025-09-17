@@ -5,9 +5,8 @@
 @desc   Export 10 frames as images
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { exportFrame } from "../../modules/exportframe";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox,exportframe } from "play.core";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 // Important: the frame exporter works only with the canvas renderer.
 // Optional: reset the frame count and time at each new run!
 export const settings = {
@@ -26,7 +25,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   // The last two parameters are the start and the end frame
   // of the sequence to be exported.
 
-  exportFrame(context, "export.png", 10, 20);
+  exportframe.exportFrame(context, "export.png", 10, 20);
 
   // The image will (probably) be saved in the “Downloads” folder
   // and can be assembled into a movie file; for example with FFmpeg:
@@ -47,7 +46,7 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer, {
+    drawbox.drawInfo(context, cursor, buffer, {
     color: "white",
     backgroundColor: "royalblue",
     shadowStyle: "gray",

@@ -4,8 +4,8 @@
 @title  Time: milliseconds
 @desc   Use of context.time
 */
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "play.core";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 
 // Globals have module scope
 const pattern = "ABCxyz01═|+:. ";
@@ -35,7 +35,7 @@ export function main(
 // to manipulate the buffer; in this case with a window overlay.
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
   // An extra object can be passed to drawInfo to alter the default style
-  drawInfo(context, cursor, buffer, {
+  drawbox.drawInfo(context, cursor, buffer, {
     color: "white",
     backgroundColor: "royalblue",
     shadowStyle: "gray",

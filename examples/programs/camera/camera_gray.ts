@@ -5,18 +5,15 @@
 @desc   Grayscale input from camera
 */
 
-import Camera from "../../modules/camera";
-import Canvas from "../../modules/canvas";
-import { drawInfo } from "../../modules/drawbox";
-import { sort } from "../../modules/sort";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import  { canvas,camera,drawbox,sort } from "play.core";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 
-const cam = Camera.init();
-const can = new Canvas();
+const cam = camera.default.init();
+const can = new canvas.default();
 // For a debug view uncomment the following line:
 // can.display(document.body, 10, 10)
 
-const density = sort(" .x?▂▄▆█", "Simple Console", false);
+const density = sort.sort(" .x?▂▄▆█", "Simple Console", false);
 
 const data: Buffer = [];
 
@@ -48,5 +45,5 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+    drawbox.drawInfo(context, cursor, buffer);
 }

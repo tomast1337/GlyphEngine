@@ -5,7 +5,7 @@
 @desc   Use of coord.index
 */
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 
 // Global variables have scope in the whole module.
 const pattern = "| |.|,|:|;|x|K|Ñ|R|a|+|=|-|_";

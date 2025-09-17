@@ -5,8 +5,8 @@
 @desc   Crosshair example with mouse cursor
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import  type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "play.core";
+import  type { Buffer, Context, Coord, Cursor } from "play.core";
 
 export function main(
   coord: Coord,
@@ -26,7 +26,7 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer, {
+    drawbox.drawInfo(context, cursor, buffer, {
     color: "white",
     backgroundColor: "royalblue",
     shadowStyle: "gray",

@@ -5,28 +5,25 @@
 @desc   Color input from camera (quantised)
 */
 
-import Camera from "../../modules/camera";
-import Canvas from "../../modules/canvas";
-import { type RGB, rgb, rgb2hex } from "../../modules/color";
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import  { canvas,camera,drawbox,sort ,color} from "play.core";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 
-const cam = Camera.init();
-const can = new Canvas();
+const cam = camera.default.init();
+const can = new canvas.default();
 // For a debug view uncomment the following line:
 // can.display(document.body, 10, 10)
 
 const density = " .+=?X#ABC";
 
 // A custom palette used for color quantisation:
-const pal: RGB[] = [];
-pal.push(rgb(0, 0, 0));
-pal.push(rgb(255, 0, 0));
-pal.push(rgb(255, 255, 0));
-pal.push(rgb(0, 100, 250));
-pal.push(rgb(100, 255, 255));
-//pal.push(rgb(255, 182, 193))
-//pal.push(rgb(255, 255, 255))
+const pal: color.RGB[] = [];
+pal.push(color.rgb(0, 0, 0));
+pal.push(color.rgb(255, 0, 0));
+pal.push(color.rgb(255, 255, 0));
+pal.push(color.rgb(0, 100, 250));
+pal.push(color.rgb(100, 255, 255));
+//pal.push(color.rgb(255, 182, 193))
+//pal.push(color.rgb(255, 255, 255))
 
 const data: any[] = [];
 
@@ -59,10 +56,10 @@ export function main(
     char: density[index],
     color: "white",
     // convert {r,g,b} obj to a valid CSS hex string
-    backgroundColor: rgb2hex(color),
+    backgroundColor: color.rgb2hex(color),
   };
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+  drawbox.drawInfo(context, cursor, buffer);
 }

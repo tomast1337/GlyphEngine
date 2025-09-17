@@ -4,7 +4,7 @@
 @title  Name game
 @desc   What’s your name?
 */
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 // The default backround color and font attributes can be altered
 // by exporting a ‘settings’ object (see the manual for details).
 export const settings = {

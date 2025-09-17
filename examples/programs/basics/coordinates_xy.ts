@@ -5,7 +5,7 @@
 @desc   Use of coord.x and coord.y
 */
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 
 const density = "Ñ@#W$9876543210?!abc;:+=-,._ ";
 

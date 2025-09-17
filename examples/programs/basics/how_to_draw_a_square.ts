@@ -5,15 +5,14 @@
 @desc   Draw a square using a distance function
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { map } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import type { Vec2 } from "../../modules/vec2";
+import { drawbox, num } from "play.core";
+import type { Buffer, Context, Coord, Cursor, vec2 } from "play.core";
+
 // Set framerate to 60
 export const settings = { fps: 60 };
 
 // Function to measure a distance to a square
-export function box(p: Vec2, size: Vec2) {
+export function box(p: vec2.Vec2, size: vec2.Vec2) {
   const dx = Math.max(Math.abs(p.x) - size.x, 0);
   const dy = Math.max(Math.abs(p.y) - size.y, 0);
   // return the distance from the point
@@ -46,7 +45,7 @@ export function main(
   };
 
   // Size of the square
-  const size = map(Math.sin(t * 0.0023), -1, 1, 0.1, 2);
+  const size = num.map(Math.sin(t * 0.0023), -1, 1, 0.1, 2);
 
   // Calculate the distance
   const d = box(p, { x: size, y: size });
@@ -58,7 +57,7 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer, {
+    drawbox.drawInfo(context, cursor, buffer, {
     color: "white",
     backgroundColor: "royalblue",
     shadowStyle: "gray",

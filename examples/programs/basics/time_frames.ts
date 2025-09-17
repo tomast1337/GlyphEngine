@@ -7,8 +7,8 @@
 
 // The default framerate can be altered
 // by exporting a 'settings' object (see the manual for details).
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "play.core";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 export const settings = { fps: 30 };
 export function main(
   coord: Coord,
@@ -34,7 +34,7 @@ export function main(
 // Display some info
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer, {
+    drawbox.drawInfo(context, cursor, buffer, {
     color: "white",
     backgroundColor: "royalblue",
     shadowStyle: "gray",

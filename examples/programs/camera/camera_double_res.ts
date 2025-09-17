@@ -5,26 +5,21 @@
 @desc   Doubled vertical resolution input from camera
 */
 
-import  { type AugmentedPaletteElement, CSS3 } from "../../modules/color";
+import  { color,canvas,camera,drawbox } from "play.core";
+import type{ Buffer, Context, Coord, Cursor } from "play.core";
 
-import type{ Buffer, Context, Coord, Cursor } from "../../modules";
-
-import Camera from "../../modules/camera";
-import Canvas from "../../modules/canvas";
-import { drawInfo } from "../../modules/drawbox";
-
-const cam = Camera.init();
-const can = new Canvas();
+const cam = camera.default.init();
+const can = new canvas.default();
 // For a debug view uncomment the following line:
 // can.display(document.body, 10, 10)
 
 // Palette for quantization
-const pal: AugmentedPaletteElement[] = [];
-pal.push(CSS3.red!);
-pal.push(CSS3.blue!);
-pal.push(CSS3.white!);
-pal.push(CSS3.black!);
-pal.push(CSS3.lightblue!);
+const pal: color.AugmentedPaletteElement[] = [];
+pal.push(color.CSS3.red!);
+pal.push(color.CSS3.blue!);
+pal.push(color.CSS3.white!);
+pal.push(color.CSS3.black!);
+pal.push(color.CSS3.lightblue!);
 
 // Camera data
 const data: Buffer = [];
@@ -62,5 +57,5 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+    drawbox.drawInfo(context, cursor, buffer);
 }

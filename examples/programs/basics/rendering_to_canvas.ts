@@ -4,7 +4,7 @@
 @title  Canvas renderer
 @desc   Rendering to a canvas element
 */
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 // A few extra fields are available when choosing the canvas renderer:
 // The offset (from top, left) and the size of the canvas element.
 export const settings = {

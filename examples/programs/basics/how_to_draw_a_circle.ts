@@ -5,9 +5,8 @@
 @desc   Use of context.metrics.aspect
 */
 
-import { drawBox } from "../../modules/drawbox";
-import  type { Buffer, Context, Coord, Cursor, Style } from "../../modules";
-import { length } from "../../modules/vec2";
+import { drawbox, vec2 } from "play.core";
+import  type { Buffer, Context, Coord, Cursor, Style } from "play.core";
 export function main(
   coord: Coord,
   context: Context,
@@ -26,7 +25,7 @@ export function main(
   };
 
   // Distance of each cell from the center (0, 0)
-  const l = length(st);
+  const l = vec2.length(st);
 
   // 0.7 is the radius of the circle
   return l < 0.7 ? "X" : ".";
@@ -51,5 +50,5 @@ export function post(context: Context, cursor: Cursor, buffer: Buffer) {
   };
 
   // Finally draw the box
-  drawBox(text, style, buffer, context.cols, context.rows);
+  drawbox.drawBox(text, style, buffer, context.cols, context.rows);
 }

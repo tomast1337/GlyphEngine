@@ -5,9 +5,8 @@
 @desc   Vertical vs horizontal changes impact FPS
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { map } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox, num } from "play.core";
+import type { Buffer, Context, Coord, Cursor } from "play.core";
 export const settings = { fps: 60 };
 
 const { cos } = Math;
@@ -29,12 +28,12 @@ export function main(
 
   const f = context.frame * 0.05;
 
-  const r1 = map(cos(direction * 0.06 + 1 - f), -1, 1, 0, 255);
-  const g1 = map(cos(direction * 0.07 + 2 - f), -1, 1, 0, 255);
-  const b1 = map(cos(direction * 0.08 + 3 - f), -1, 1, 0, 255);
-  const r2 = map(cos(direction * 0.03 + 1 - f), -1, 1, 0, 255);
-  const g2 = map(cos(direction * 0.04 + 2 - f), -1, 1, 0, 255);
-  const b2 = map(cos(direction * 0.05 + 3 - f), -1, 1, 0, 255);
+  const r1 = num.map(cos(direction * 0.06 + 1 - f), -1, 1, 0, 255);
+  const g1 = num.map(cos(direction * 0.07 + 2 - f), -1, 1, 0, 255);
+  const b1 = num.map(cos(direction * 0.08 + 3 - f), -1, 1, 0, 255);
+  const r2 = num.map(cos(direction * 0.03 + 1 - f), -1, 1, 0, 255);
+  const g2 = num.map(cos(direction * 0.04 + 2 - f), -1, 1, 0, 255);
+  const b2 = num.map(cos(direction * 0.05 + 3 - f), -1, 1, 0, 255);
 
   return {
     char: context.frame % 10,
@@ -44,5 +43,5 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+    drawbox.drawInfo(context, cursor, buffer);
 }
