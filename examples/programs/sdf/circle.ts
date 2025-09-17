@@ -5,11 +5,10 @@
 @desc   Draw a smooth circle with exp()
 */
 
-import { sdCircle } from "../../modules/sdf.js";
-import { sort } from "../../modules/sort.js";
-import type { Buffer, Context, Coord, Cursor, Style } from "../../modules";
+import type { Buffer, Context, Coord, Cursor, Style } from "glyph-engine";
+import { sort,sdf } from "glyph-engine";
 
-const density = sort("/\\MXYZabc!?=-. ", "Simple Console", false);
+const density = sort.sort("/\\MXYZabc!?=-. ", "Simple Console", false);
 
 export const settings = { fps: 60 };
 
@@ -29,7 +28,7 @@ export function main(
   };
 
   const radius = Math.cos(t) * 0.4 + 0.5;
-  const d = sdCircle(st, radius);
+  const d = sdf.sdCircle(st, radius);
   const c = 1.0 - Math.exp(-5 * Math.abs(d));
   const index = Math.floor(c * density.length);
 

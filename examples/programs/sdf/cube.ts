@@ -5,12 +5,9 @@
 @desc   The cursor controls box thickness and exp
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { map } from "../../modules/num";
-import { sdSegment } from "../../modules/sdf";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import * as v2 from "../../modules/vec2";
-import * as v3 from "../../modules/vec3";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import  { vec2 as v2 ,vec3 as v3, drawbox,num,sdf } from "glyph-engine";
+
 
 export const settings = { fps: 60 };
 
@@ -68,7 +65,7 @@ export function pre(context: Context, cursor: Cursor) {
   const t = context.time * 0.01;
   const rot = vec3(t * 0.11, t * 0.13, -t * 0.15);
   const d = 2;
-  const zOffs = map(sin(t * 0.12), -1, 1, -2.5, -6);
+  const zOffs = num.map(sin(t * 0.12), -1, 1, -2.5, -6);
   for (let i = 0; i < box.vertices.length; i++) {
     const v = v3.copy(box.vertices[i]!);
     let vt = v3.rotX(v, rot.x);
@@ -95,12 +92,12 @@ export function main(
 
   let d = 1e10;
   const n = box.edges.length;
-  const thickness = map(cursor.x, 0, context.cols, 0.001, 0.1);
-  const expMul = map(cursor.y, 0, context.rows, -100, -5);
+  const thickness = num.map(cursor.x, 0, context.cols, 0.001, 0.1);
+  const expMul = num.map(cursor.y, 0, context.rows, -100, -5);
   for (let i = 0; i < n; i++) {
     const a = boxProj[box.edges[i]![0]!]!;
     const b = boxProj[box.edges[i]![1]!]!;
-    d = min(d, sdSegment(st, a, b, thickness));
+    d = min(d, sdf.sdSegment(st, a, b, thickness));
   }
 
   const idx = floor(exp(expMul * abs(d)) * density.length);
@@ -121,5 +118,5 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+  drawbox.drawInfo(context, cursor, buffer);
 }

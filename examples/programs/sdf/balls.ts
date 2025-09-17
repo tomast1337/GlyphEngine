@@ -5,10 +5,10 @@
 @desc   Smooth SDF balls
 */
 
-import { map } from "../../modules/num";
-import { opSmoothUnion, sdCircle } from "../../modules/sdf";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import type { Vec2 } from "../../modules/vec2";
+
+
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import  { num as num2, vec2 ,sdf} from "glyph-engine";
 
 const density = "#ABC|/:÷×+-=?*· ";
 
@@ -33,17 +33,17 @@ export function main(
   // st.x *= z
   // st.y *= z
 
-  const s = map(sin(t * 0.5), -1, 1, 0.0, 0.9);
+  const s = num2.map(sin(t * 0.5), -1, 1, 0.0, 0.9);
 
   let d = Number.MAX_VALUE;
 
   const num = 12;
   for (let i = 0; i < num; i++) {
-    const r = map(cos((t * 0.95 * (i + 1)) / (num + 1)), -1, 1, 0.1, 0.3);
-    const x = map(cos(t * 0.23 * ((i / num) * PI + PI)), -1, 1, -1.2, 1.2);
-    const y = map(sin(t * 0.37 * ((i / num) * PI + PI)), -1, 1, -1.2, 1.2);
+    const r = num2.map(cos((t * 0.95 * (i + 1)) / (num + 1)), -1, 1, 0.1, 0.3);
+    const x = num2.map(cos(t * 0.23 * ((i / num) * PI + PI)), -1, 1, -1.2, 1.2);
+    const y = num2.map(sin(t * 0.37 * ((i / num) * PI + PI)), -1, 1, -1.2, 1.2);
     const f = transform(st, { x, y }, t);
-    d = opSmoothUnion(d, sdCircle(f, r), s);
+    d = sdf.opSmoothUnion(d, sdf.sdCircle(f, r), s);
   }
 
   let c = 1.0 - exp(-3 * abs(d));
@@ -54,7 +54,7 @@ export function main(
   return density[index];
 }
 
-function transform(p: Vec2, trans: Vec2, rot: number) {
+function transform(p: vec2.Vec2, trans: vec2.Vec2, rot: number) {
   const s = sin(-rot);
   const c = cos(-rot);
   const dx = p.x - trans.x;

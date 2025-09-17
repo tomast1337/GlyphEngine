@@ -4,11 +4,8 @@
 @title  Rectangles
 @desc   Smooth SDF Rectangles
 */
-import { drawInfo } from "../../modules/drawbox";
-import { map } from "../../modules/num";
-import { opSmoothUnion, sdBox } from "../../modules/sdf";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import type { Vec2 } from "../../modules/vec2";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { vec2,drawbox,num,sdf } from "glyph-engine";
 
 let density = "▚▀abc|/:÷×+-=?*· ";
 
@@ -29,14 +26,14 @@ export function main(
 
   let d = 1e100;
 
-  const s = map(Math.sin(t * 0.0005), -1, 1, 0.0, 0.4);
+  const s = num.map(Math.sin(t * 0.0005), -1, 1, 0.0, 0.4);
   const g = 1.2;
   for (let by = -g; by <= g; by += g * 0.33) {
     for (let bx = -g; bx <= g; bx += g * 0.33) {
       const r = t * 0.0004 * (bx + g * 2) + (by + g * 2);
       const f = transform(st, { x: bx, y: by }, r);
-      const d1 = sdBox(f, { x: g * 0.33, y: 0.01 });
-      d = opSmoothUnion(d, d1, s);
+      const d1 = sdf.sdBox(f, { x: g * 0.33, y: 0.01 });
+      d = sdf.opSmoothUnion(d, d1, s);
     }
   }
 
@@ -46,7 +43,7 @@ export function main(
   return density[index];
 }
 
-function transform(p: Vec2, trans: Vec2, rot: number) {
+function transform(p: vec2.Vec2, trans: vec2.Vec2, rot: number) {
   const s = Math.sin(-rot);
   const c = Math.cos(-rot);
   const dx = p.x - trans.x;
@@ -58,5 +55,5 @@ function transform(p: Vec2, trans: Vec2, rot: number) {
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+  drawbox.drawInfo(context, cursor, buffer);
 }
