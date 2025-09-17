@@ -6,7 +6,7 @@
         The code for the Open Simplex Noise function is downloaded from GitHub
         and evaluated through “new Function()”.
 */
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 // Don’t do this :)
 fetch(

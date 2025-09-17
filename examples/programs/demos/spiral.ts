@@ -7,10 +7,11 @@ Inspired by this shader by ahihi
 https://www.shadertoy.com/view/XdSGzR
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { sort } from "../../modules/sort";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import { length } from "../../modules/vec2";
+import { drawbox,num,vec2,sort as sort2 } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+const { drawInfo } = drawbox;
+const { sort } = sort2 ;
+const { length } = vec2;
 
 export const settings = { fps: 60 };
 

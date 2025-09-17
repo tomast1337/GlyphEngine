@@ -6,11 +6,12 @@
 Plasma primer: https://www.bidouille.org/prog/plasma
 */
 
-import { vec2, dot, add, sub, length } from "../../modules/vec2";
-import { map } from "../../modules/num";
-import { css } from "../../modules/color";
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import  { vec2 as v2, num,color,drawbox } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+const { vec2, dot, add, sub, length } = v2;
+const { map } = num;
+const { css } = color;
+const { drawInfo } = drawbox;
 export const settings = { fps: 60 };
 
 const { sin, cos, floor, PI } = Math;

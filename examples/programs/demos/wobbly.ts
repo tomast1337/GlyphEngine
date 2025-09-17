@@ -5,11 +5,12 @@
 @desc   Draw donuts with SDF
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { fract, map, smoothstep } from "../../modules/num";
-import { sdCircle } from "../../modules/sdf";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import { length, rot } from "../../modules/vec2";
+import { drawbox,num,sdf,vec2 } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+const { drawInfo } = drawbox;
+const { fract, map, smoothstep } = num;
+const { sdCircle } = sdf;
+const { length, rot } = vec2;
 
 const density = "▀▄▚▐─═0123.+?";
 

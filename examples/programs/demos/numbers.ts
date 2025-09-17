@@ -5,9 +5,11 @@
 @desc   Fun with integers
 */
 
-import { CGA } from "../../modules/color.js";
-import { map } from "../../modules/num.js";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { color,num } from "glyph-engine";
+const { CGA } = color;
+const { map } = num;
+
 export const settings = {
   backgroundColor: "black",
 };

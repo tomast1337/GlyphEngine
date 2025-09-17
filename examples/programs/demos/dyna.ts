@@ -8,18 +8,14 @@ The original from 1989:
 http://www.graficaobscura.com/dyna/
 */
 
-import { smoothstep } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import {
-  type Vec2,
-  add,
-  copy,
-  divN,
-  length,
-  mulN,
-  sub,
-  vec2,
-} from "../../modules/vec2";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { num, vec2 } from "glyph-engine";
+import { drawbox } from "glyph-engine";
+
+
+const { drawInfo } = drawbox;
+const { smoothstep } = num;
+const {  add,  copy,  divN,  length,  mulN,  sub,} = vec2;
 
 export const settings = { fps: 60 };
 
@@ -80,7 +76,7 @@ export function main(
   return density[idx];
 }
 
-import { drawInfo } from "../../modules/drawbox";
+
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
   drawInfo(context, cursor, buffer, {
     color: "white",
@@ -92,16 +88,16 @@ export function post(context: Context, cursor: Cursor, buffer: Buffer) {
 // -----------------------------------------------------------------------------
 
 class Dyna {
-  public pos: Vec2;
-  public vel: Vec2;
-  public pre: Vec2;
+  public pos: vec2.Vec2;
+  public vel: vec2.Vec2;
+  public pre: vec2.Vec2;
   public mass: number;
   public damp: number;
 
   constructor(mass: number, damp: number) {
-    this.pos = vec2(0, 0);
-    this.vel = vec2(0, 0);
-    this.pre = vec2(0, 0);
+    this.pos = vec2.vec2(0, 0);
+    this.vel = vec2.vec2(0, 0);
+    this.pre = vec2.vec2(0, 0);
     this.mass = mass;
     this.damp = damp;
   }
@@ -121,7 +117,7 @@ const dyna = new Dyna(MASS, DAMP);
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 // NOTE: vectors a and b will be floored
 
-function line(a: Vec2, b: Vec2) {
+function line(a: vec2.Vec2, b: vec2.Vec2): vec2.Vec2[] {
   let x0 = Math.floor(a.x);
   let y0 = Math.floor(a.y);
   const x1 = Math.floor(b.x);
@@ -132,7 +128,7 @@ function line(a: Vec2, b: Vec2) {
   const sy = y0 < y1 ? 1 : -1;
   let err = dx + dy;
 
-  const points = [];
+  const points:vec2.Vec2[]  = [];
 
   while (true) {
     points.push({ x: x0, y: y0 });

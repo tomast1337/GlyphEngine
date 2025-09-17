@@ -5,10 +5,12 @@
 @desc   Click or tap to toggle mode
 */
 
-import { vec2, dist, mulN } from "../../modules/vec2";
-import { map } from "../../modules/num";
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+
+import { drawbox,num,vec2 as v2 } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+const { drawInfo } = drawbox;
+const { map } = num;
+const { vec2, dist, mulN} = v2;
 export const settings = { fps: 60 };
 
 // Shorthands

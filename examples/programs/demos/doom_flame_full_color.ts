@@ -5,9 +5,10 @@
 @desc   Oldschool flame effect
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { clamp, map, mix, smoothstep } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox,num } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+
+const { clamp, map, mix, smoothstep } = num;
 
 export const settings = { backgroundColor: "black" };
 
@@ -151,5 +152,5 @@ function valueNoise() {
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+  drawbox.drawInfo(context, cursor, buffer);
 }

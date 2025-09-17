@@ -10,14 +10,14 @@ in a sort of 'brute force' way:
 theta and phi (below) must be small enough to fill
 all the gaps.
 */
-import { drawInfo } from "../../modules/drawbox.js";
-import type { Buffer, Context, Cursor } from "../../modules";
+import { drawbox } from "glyph-engine";
+import type { Buffer, Context, Cursor } from "glyph-engine";
 export const settings = { backgroundColor: "whitesmoke" };
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   const TAU = Math.PI * 2;
 
-  const z = [];
+  const z: number[] = [];
   const A = context.time * 0.0015;
   const B = context.time * 0.0017;
 
@@ -80,7 +80,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   }
 }
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer, {
+  drawbox.drawInfo(context, cursor, buffer, {
     color: "white",
     backgroundColor: "royalblue",
     shadowStyle: "gray",

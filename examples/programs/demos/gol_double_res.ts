@@ -18,8 +18,9 @@ All the automata state is stored in the custom 'data' buffer.
 Each frame of the animation depends on the previous frame,
 so in this case the 'data' buffer is two arrays (see initialization in pre).
 */
-import { drawBox } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "glyph-engine";
+const { drawBox } = drawbox;
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 // Safe set function
 function set(
   val: number,

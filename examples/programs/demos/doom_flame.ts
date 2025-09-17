@@ -5,9 +5,12 @@
 @desc   Oldschool flame effect
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { clamp, map, mix, smoothstep } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { drawbox,num } from "glyph-engine";
+
+const { drawInfo }= drawbox;
+const { clamp, map, mix, smoothstep } =num;
 export const settings = { fps: 30, backgroundColor: "black", color: "white" };
 
 const { min, max, sin, floor } = Math;

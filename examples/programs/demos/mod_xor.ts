@@ -6,8 +6,9 @@
 Inspired by this tweet by @ntsutae
 https://twitter.com/ntsutae/status/1292115106763960327
 */
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "glyph-engine";
+const { drawInfo } = drawbox;
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 const pattern = "└┧─┨┕┪┖┫┘┩┙┪━";
 
 export function main(

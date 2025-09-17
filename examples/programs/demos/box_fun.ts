@@ -5,7 +5,8 @@
 @desc   Think inside of the box
 */
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { drawbox } from "glyph-engine";
 const { sin, cos, floor } = Math;
 
 export function main(
@@ -18,7 +19,6 @@ export function main(
   return (coord.x + coord.y) % 2 ? "·" : " ";
 }
 
-import { drawBox } from "../../modules/drawbox";
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
   const { rows, cols } = context;
   const t = context.time * 0.002;
@@ -64,7 +64,7 @@ export function post(context: Context, cursor: Cursor, buffer: Buffer) {
       txt += `*${q[(i + j * numX) % q.length]}*\n`;
       txt += `pos: ${style.x}×${style.y}\n`;
 
-      drawBox(txt, style, buffer, cols, rows);
+      drawbox.drawBox(txt, style, buffer, cols, rows);
     }
   }
 }

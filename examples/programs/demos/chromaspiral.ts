@@ -7,10 +7,12 @@ Inspired by this shader by scry
 https://www.shadertoy.com/view/tdsyRf
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { map } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import { add, length, mulN, rot, subN, vec2 } from "../../modules/vec2";
+import { drawbox,num,vec2 as v2 } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+const { drawInfo } = drawbox;
+const { map } = num;
+const { add, length, mulN, rot, subN,vec2 } = v2;
+
 
 const { min, sin, cos, floor } = Math;
 

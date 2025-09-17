@@ -4,8 +4,9 @@
 @title  Sin Sin
 @desc   Wave variation
 */
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+const { drawInfo } = drawbox;
 const pattern = "┌┘└┐╰╮╭╯";
 
 const { sin, round, abs } = Math;
