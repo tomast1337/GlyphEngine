@@ -6,9 +6,9 @@
 See: http://www.hammersleyfoundation.org/index.php/artwork/computer-drawings/184-computer-drawings/331-equal-tea-talk
 */
 
-import { map, mod, step } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import { fract as fract2, mul, vec2 } from "../../modules/vec2";
+
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import {  num, vec2 } from "glyph-engine";
 
 const chars = "#BEFTI_".split("");
 
@@ -61,15 +61,15 @@ export function main(
     x: coord.x / w,
     y: coord.y / context.rows,
   };
-  const _st = mul(st, vec2(5.0, 1.0));
-  const tileIndex = step(1, mod(_st.x, 2.0));
+  const _st = vec2.mul(st, vec2.vec2(5.0, 1.0));
+  const tileIndex = num.step(1, num.mod(_st.x, 2.0));
   // make each cell between 0.0 - 1.0
   // see Truchet Tiles from https://thebookofshaders.com/09/
   // for reference/inspiration
-  const __st = fract2(_st);
+  const __st = vec2.fract(_st);
 
   const color = tileIndex === 0 ? _st.y : 1 - _st.y;
-  const i = Math.floor(map(color, 0, 1, 0, chars.length - 1));
+  const i = Math.floor(num.map(color, 0, 1, 0, chars.length - 1));
 
   let char = chars[i];
 

@@ -5,8 +5,8 @@
 @desc   Click to spawn new path segments
 */
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import * as v2 from "../../modules/vec2";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { vec2 as v2 } from "glyph-engine";
 
 const vec2 = v2.vec2;
 

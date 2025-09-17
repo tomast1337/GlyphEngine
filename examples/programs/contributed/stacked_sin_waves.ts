@@ -5,9 +5,9 @@
 @desc   noob at frag shaders
 */
 
-const chars = "█▓▒░ ".split("");
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+const chars = "█▓▒░ ".split("");
 
 export function main(
   coord: Coord,

@@ -5,8 +5,8 @@
 @desc   ¯\_(ツ)_/¯
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
+import { drawbox } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 const chars = "¯_(ツ)_/¯.::.ᕦ(ò_óˇ)ᕤ ".split("");
 
@@ -48,5 +48,5 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+    drawbox.drawInfo(context, cursor, buffer);
 }

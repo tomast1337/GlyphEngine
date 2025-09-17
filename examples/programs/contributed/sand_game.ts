@@ -5,8 +5,8 @@
 @desc   Click to drop sand
 */
 
-import type { Buffer, Cell, Context, Coord, Cursor } from "../../modules";
-import { dist } from "../../modules/vec2";
+import type { Buffer, Cell, Context, Coord, Cursor } from "glyph-engine";
+import { vec2 } from "glyph-engine";
 
 let prevFrame: any[];
 let width: number, height: number;
@@ -37,7 +37,7 @@ export function main(
   buffer: Buffer
 ) {
   if (cursor.pressed) {
-    if (dist(coord, cursor) < 3) {
+    if (vec2.dist(coord, cursor) < 3) {
       return {
         char: Math.random() > 0.5 ? newParticle() : " ",
 

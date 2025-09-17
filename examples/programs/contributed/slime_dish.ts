@@ -13,8 +13,8 @@ With inspiration from:
 - http://www.tech-algorithm.com/articles/nearest-neighbor-image-scaling
 */
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import * as v2 from "../../modules/vec2.js";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { vec2 as v2 } from "glyph-engine";
 
 // Environment
 const WIDTH = 400;

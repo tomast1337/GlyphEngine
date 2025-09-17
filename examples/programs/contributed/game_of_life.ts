@@ -8,8 +8,8 @@ Each frame of the animation depends on the previous frame. Code in the `pre()`
 function saves the previous frame so it can be used in `main()`.
 */
 
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import { dist } from "../../modules/vec2.js";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { vec2 } from "glyph-engine";
 
 let prevFrame: Buffer;
 let width: number, height: number;
@@ -36,7 +36,7 @@ export function main(
   buffer: Buffer
 ) {
   if (cursor.pressed) {
-    if (dist(coord, cursor) < 3) {
+    if (vec2.dist(coord, cursor) < 3) {
       return Math.random() > 0.5 ? "▒" : " ";
     }
   }

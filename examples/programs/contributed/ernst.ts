@@ -5,22 +5,22 @@
 @desc   Inspired by Ernst Jandl, 1964
 */
 
-import { drawInfo } from "../../modules/drawbox";
-import { smoothstep } from "../../modules/num";
-import type { Buffer, Context, Coord, Cursor } from "../../modules";
-import { type Vec2, add, length, vec2 } from "../../modules/vec2";
+
+
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import { drawbox,num,vec2 } from "glyph-engine";
 
 const { PI, atan2, floor, cos, max } = Math;
 
-function polygon(center: Vec2, edges: number, time: number) {
+function polygon(center: vec2.Vec2, edges: number, time: number) {
   time = time || 0;
   // from https://observablehq.com/@riccardoscalco/draw-regular-polygons-by-means-of-functions
   const p = center;
   const N = edges;
   const a = (atan2(p.x, p.y) + 2 + time * PI) / (2 * PI);
   const b = (floor(a * N) + 0.5) / N;
-  const c = length(p) * cos((a - b) * 2 * PI);
-  return smoothstep(0.3, 0.31, c);
+  const c = vec2.length(p) * cos((a - b) * 2 * PI);
+  return num.smoothstep(0.3, 0.31, c);
 }
 
 export function main(
@@ -37,12 +37,12 @@ export function main(
     y: (2.0 * (coord.y - context.rows / 2)) / m / a,
   };
 
-  const centerT = add(st, vec2(0, cos(context.time * 0.0021) * 0.5));
+  const centerT = vec2.add(st, vec2.vec2(0, cos(context.time * 0.0021) * 0.5));
   const colorT = polygon(centerT, 3, context.time * 0.0002);
 
   const triangle = colorT <= 0.1 ? 1 : 0;
 
-  const centerQ = add(st, vec2(cos(context.time * 0.0023) * 0.5, 0));
+  const centerQ = vec2.add(st, vec2.vec2(cos(context.time * 0.0023) * 0.5, 0));
   const colorQ = polygon(centerQ, 4, -context.time * 0.0004);
   const quadrato = colorQ <= 0.1 ? 2 : 0;
   const i = triangle + quadrato;
@@ -57,5 +57,5 @@ export function main(
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+    drawbox.drawInfo(context, cursor, buffer);
 }
