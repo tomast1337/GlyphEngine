@@ -20,8 +20,8 @@ const style = {
 }
 */
 
-import { merge, mergeRect, mergeText, setRect } from "./buffer";
-import { measure } from "./string";
+import { merge, setRect, mergeRect, mergeText } from "./buffer";
+import { measure,wrap } from "./string";
 import type { Buffer, Context, Cursor, Style, WithRequired } from "./types";
 
 type BorderStyle = {
@@ -112,10 +112,27 @@ const borderStyles: Record<BorderName, BorderStyle> = {
     right: " ",
     bg: " ",
   },
+} as const;
+
+type ShadowStyle = {
+  char?: string;
+  color?: string;
+  backgroundColor?: string;
 };
 
+type ShadowName =
+  | "light"
+  | "medium"
+  | "dark"
+  | "solid"
+  | "checker"
+  | "x"
+  | "gray"
+  | "none";
+
+
 // The glyphs to draw a shadow.
-const shadowStyles = {
+const shadowStyles: Record<ShadowName, ShadowStyle> = {
   light: {
     char: "░",
   },
@@ -139,7 +156,7 @@ const shadowStyles = {
     backgroundColor: "lightgray",
   },
   none: {},
-};
+} as const;
 
 const defaultTextBoxStyle: Style = {
   x: 2,
@@ -164,128 +181,66 @@ export function drawBox(
   targetCols?: number,
   targetRows?: number
 ) {
-  const s = { ...defaultTextBoxStyle, ...style };
+    const s = {...defaultTextBoxStyle, ...style}
 
-  let boxWidth = s.width;
-  let boxHeight = s.height;
+	let boxWidth  = s.width! 
+	let boxHeight = s.height!
 
-  const spaddingX = s.paddingX || 0;
-  const spaddingY = s.paddingY || 0;
+	if (!boxWidth || !boxHeight) {
+		const m = measure(text)
+		boxWidth = boxWidth || m.maxWidth + s.paddingX! * 2
+		boxHeight = boxHeight || m.numLines + s.paddingY! * 2
+	}
 
-  if (!boxWidth || !boxHeight) {
-    const m = measure(text);
-    boxWidth = boxWidth || m.maxWidth + spaddingX * 2;
-    boxHeight = boxHeight || m.numLines + spaddingY * 2;
-  }
+	const x1 = s.x!
+	const y1 = s.y!
+	const x2 = s.x! + boxWidth - 1
+	const y2 = s.y! + boxHeight - 1
+	const w  = boxWidth
+	const h  = boxHeight
 
-  const sx = s.x || 0;
-  const sy = s.y || 0;
+	const border = borderStyles[s.borderStyle as BorderName] || borderStyles['round']
 
-  const x1 = sx;
-  const y1 = sy;
-  const x2 = sx + boxWidth - 1;
-  const y2 = sy + boxHeight - 1;
-  const w = boxWidth;
-  const h = boxHeight;
+	// Background, overwrite the buffer
+	setRect({
+		char       : border.bg,
+		color      : s.color,
+		fontWeight     : s.fontWeight,
+		backgroundColor : s.backgroundColor
+	}, x1, y1, w, h, target, targetCols, targetRows)
 
-  const border =
-    borderStyles[s.borderStyle as keyof typeof borderStyles] ||
-    borderStyles["round"];
+	// Corners
+	merge({ char : border.topleft     }, x1, y1, target, targetCols, targetRows)
+	merge({ char : border.topright    }, x2, y1, target, targetCols, targetRows)
+	merge({ char : border.bottomright }, x2, y2, target, targetCols, targetRows)
+	merge({ char : border.bottomleft  }, x1, y2, target, targetCols, targetRows)
 
-  // Background, overwrite the buffer
-  setRect(
-    {
-      char: border.bg,
-      color: s.color,
-      fontWeight: s.fontWeight,
-      backgroundColor: s.backgroundColor,
-    },
-    x1,
-    y1,
-    w,
-    h,
-    target,
-    targetCols,
-    targetRows
-  );
+	// Top & Bottom
+	mergeRect({ char : border.top    }, x1+1, y1, w-2, 1, target, targetCols, targetRows)
+	mergeRect({ char : border.bottom }, x1+1, y2, w-2, 1, target, targetCols, targetRows)
 
-  // Corners
-  merge({ char: border.topleft }, x1, y1, target, targetCols, targetRows);
-  merge({ char: border.topright }, x2, y1, target, targetCols, targetRows);
-  merge({ char: border.bottomright }, x2, y2, target, targetCols, targetRows);
-  merge({ char: border.bottomleft }, x1, y2, target, targetCols, targetRows);
+	// Left & Right
+	mergeRect({ char : border.left  }, x1, y1+1, 1, h-2, target, targetCols, targetRows)
+	mergeRect({ char : border.right }, x2, y1+1, 1, h-2, target, targetCols, targetRows)
 
-  // Top & Bottom
-  mergeRect(
-    { char: border.top },
-    x1 + 1,
-    y1,
-    w - 2,
-    1,
-    target,
-    targetCols,
-    targetRows
-  );
-  mergeRect(
-    { char: border.bottom },
-    x1 + 1,
-    y2,
-    w - 2,
-    1,
-    target,
-    targetCols,
-    targetRows
-  );
+	// Shadows
+	const ss = shadowStyles[s.shadowStyle as keyof typeof shadowStyles] || shadowStyles['none']
+	if (ss !== shadowStyles['none']) {
+		const ox = s.shadowX!
+		const oy = s.shadowY!
+		// Shadow Bottom
+		mergeRect(ss, x1+ox, y2+1, w, oy, target, targetCols, targetRows)
+		// Shadow Right
+		mergeRect(ss, x2+1, y1+oy, ox, h-oy, target, targetCols, targetRows)
+	}
 
-  // Left & Right
-  mergeRect(
-    { char: border.left },
-    x1,
-    y1 + 1,
-    1,
-    h - 2,
-    target,
-    targetCols,
-    targetRows
-  );
-  mergeRect(
-    { char: border.right },
-    x2,
-    y1 + 1,
-    1,
-    h - 2,
-    target,
-    targetCols,
-    targetRows
-  );
-
-  // Shadows
-  const ss =
-    shadowStyles[s.shadowStyle as keyof typeof shadowStyles] ||
-    shadowStyles["none"];
-  if (ss !== shadowStyles["none"]) {
-    const ox = s.shadowX || 0;
-    const oy = s.shadowY || 0;
-    // Shadow Bottom
-    mergeRect(ss, x1 + ox, y2 + 1, w, oy, target, targetCols, targetRows);
-    // Shadow Right
-    mergeRect(ss, x2 + 1, y1 + oy, ox, h - oy, target, targetCols, targetRows);
-  }
-
-  // Txt
-  mergeText(
-    {
-      text,
-      color: style.color,
-      backgroundColor: style.backgroundColor,
-      fontWeight: style.fontWeight,
-    },
-    x1 + spaddingX,
-    y1 + spaddingY,
-    target,
-    targetCols,
-    targetRows
-  );
+	// Txt
+	mergeText({
+		text,
+		color : style.color,
+		backgroundColor : style.backgroundColor,
+		fontWeight : style.fontWeight
+	}, x1+s.paddingX!, y1+s.paddingY!, target, targetCols, targetRows)
 }
 
 // -- Utility for some info output ---------------------------------------------
