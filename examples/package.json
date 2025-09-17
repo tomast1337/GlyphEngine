@@ -11,5 +11,8 @@
   },
   "dependencies": {
     "glyph-engine": "file:../"
+  },
+  "scripts": {
+    "build": "bun run script/build.ts"
   }
 }
