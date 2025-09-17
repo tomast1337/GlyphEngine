@@ -1,5 +1,5 @@
 {
-    "name": "play.core",
+    "name": "glyph-engine",
     "version": "1.0.0",
     "description": "Core files, example and demos of the live-code ASCII playground:   [play.ertdfgcvb.xyz](https://play.ertdfgcvb.xyz)",
     "main": "index.js",
