@@ -1,14 +1,5 @@
-# this is a fork of play.core
+# GlyphEngine
 
-Core files, example and demos of the live-code ASCII playground:  
-[play.ertdfgcvb.xyz](https://play.ertdfgcvb.xyz)
+This is a fork of [play.core](https://github.com/ertdfgcvb/play.core)
 
-Examples and demos:  
-[play.ertdfgcvb.xyz/abc.html#source:examples](https://play.ertdfgcvb.xyz/abc.html#source:examples)
-
-Embedding examples:  
-[single](https://play.ertdfgcvb.xyz/tests/single.html)  
-[multi](https://play.ertdfgcvb.xyz/tests/multi.html)  
-
-Playground manual, API and resources:  
-[play.ertdfgcvb.xyz/abc.html](https://play.ertdfgcvb.xyz/abc.html)
+with the added npm package support, and typescript support.
