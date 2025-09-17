@@ -216,7 +216,6 @@ await Bun.build({
 });
 
 const buildExampleHtml = (path: string) => {
-    console.log(path);
   const content = `
   <html>
   <style>
@@ -286,5 +285,4 @@ for (const file of entrypoints) {
     fs.writeFileSync(htmlPath, html);
 }
 
-
-
+console.log("Examples built successfully");
