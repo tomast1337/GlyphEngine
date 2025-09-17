@@ -212,12 +212,7 @@ await Bun.build({
   outdir: outDir,
   format: "esm",
   target: "browser",
-  minify: {
-    whitespace: true,
-    syntax: true,
-    identifiers: false,
-    keepNames: true,
-  },
+  minify: false,
 });
 
 const buildExampleHtml = (path: string) => {
