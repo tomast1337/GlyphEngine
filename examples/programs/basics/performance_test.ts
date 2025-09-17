@@ -5,8 +5,8 @@
 @desc   Vertical vs horizontal changes impact FPS
 */
 
-import { drawbox, num } from "play.core";
-import type { Buffer, Context, Coord, Cursor } from "play.core";
+import { drawbox, num } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 export const settings = { fps: 60 };
 
 const { cos } = Math;

@@ -5,8 +5,8 @@
 @desc   Crosshair example with mouse cursor
 */
 
-import { drawbox } from "play.core";
-import  type { Buffer, Context, Coord, Cursor } from "play.core";
+import { drawbox } from "glyph-engine";
+import  type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 export function main(
   coord: Coord,

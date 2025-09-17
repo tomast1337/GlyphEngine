@@ -4,8 +4,8 @@
 @title  Time: milliseconds
 @desc   Use of context.time
 */
-import { drawbox } from "play.core";
-import type { Buffer, Context, Coord, Cursor } from "play.core";
+import { drawbox } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 // Globals have module scope
 const pattern = "ABCxyz01═|+:. ";

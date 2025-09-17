@@ -5,8 +5,8 @@
 @desc   Color input from camera (quantised)
 */
 
-import  { canvas,camera,drawbox,sort ,color} from "play.core";
-import type { Buffer, Context, Coord, Cursor } from "play.core";
+import  { canvas,camera,drawbox,sort ,color} from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 const cam = camera.default.init();
 const can = new canvas.default();

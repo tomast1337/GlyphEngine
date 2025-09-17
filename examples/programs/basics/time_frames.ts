@@ -7,8 +7,8 @@
 
 // The default framerate can be altered
 // by exporting a 'settings' object (see the manual for details).
-import { drawbox } from "play.core";
-import type { Buffer, Context, Coord, Cursor } from "play.core";
+import { drawbox } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 export const settings = { fps: 30 };
 export function main(
   coord: Coord,

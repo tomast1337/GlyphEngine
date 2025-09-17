@@ -5,8 +5,8 @@
 @desc   Grayscale input from camera
 */
 
-import  { canvas,camera,drawbox,sort } from "play.core";
-import type { Buffer, Context, Coord, Cursor } from "play.core";
+import  { canvas,camera,drawbox,sort } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 const cam = camera.default.init();
 const can = new canvas.default();

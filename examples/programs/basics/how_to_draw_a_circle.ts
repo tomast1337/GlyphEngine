@@ -5,8 +5,8 @@
 @desc   Use of context.metrics.aspect
 */
 
-import { drawbox, vec2 } from "play.core";
-import  type { Buffer, Context, Coord, Cursor, Style } from "play.core";
+import { drawbox, vec2 } from "glyph-engine";
+import  type { Buffer, Context, Coord, Cursor, Style } from "glyph-engine";
 export function main(
   coord: Coord,
   context: Context,

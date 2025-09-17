@@ -5,8 +5,8 @@
 @desc   Doubled vertical resolution input from camera
 */
 
-import  { color,canvas,camera,drawbox } from "play.core";
-import type{ Buffer, Context, Coord, Cursor } from "play.core";
+import  { color,canvas,camera,drawbox } from "glyph-engine";
+import type{ Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 const cam = camera.default.init();
 const can = new canvas.default();

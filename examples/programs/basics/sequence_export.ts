@@ -5,8 +5,8 @@
 @desc   Export 10 frames as images
 */
 
-import { drawbox,exportframe } from "play.core";
-import type { Buffer, Context, Coord, Cursor } from "play.core";
+import { drawbox,exportframe } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 // Important: the frame exporter works only with the canvas renderer.
 // Optional: reset the frame count and time at each new run!
 export const settings = {

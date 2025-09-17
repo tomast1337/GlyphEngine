@@ -5,8 +5,8 @@
 @desc   Draw a square using a distance function
 */
 
-import { drawbox, num } from "play.core";
-import type { Buffer, Context, Coord, Cursor, vec2 } from "play.core";
+import { drawbox, num } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor, vec2 } from "glyph-engine";
 
 // Set framerate to 60
 export const settings = { fps: 60 };

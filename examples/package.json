@@ -10,6 +10,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "play.core": "file:../"
+    "glyph-engine": "file:../"
   }
 }
