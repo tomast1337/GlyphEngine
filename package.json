@@ -19,7 +19,9 @@
         "build": "bun run clean && bun build src/index.ts --target browser --outdir dist && bun run build:types",
         "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
         "prepublishOnly": "bun run build",
-        "clean": "rm -rf dist"
+        "clean": "rm -rf dist",
+        "build:examples": "bun run script/build-examples.ts",
+        "dev": "bun run build:examples -- --watch"
     },
     "devDependencies": {
         "@types/bun": "latest"

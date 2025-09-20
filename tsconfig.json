@@ -27,6 +27,11 @@
       "noUnusedLocals": false,
       "noUnusedParameters": false,
       "noPropertyAccessFromIndexSignature": false,
+      "paths": {
+        "glyph-engine": [
+          "./src/*"
+        ]
+      }
     },
     "include": ["src/**/*"],
     "exclude": ["dist/**/*"]
