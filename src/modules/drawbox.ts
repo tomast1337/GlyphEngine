@@ -174,7 +174,7 @@ const defaultTextBoxStyle: Style = {
   shadowY: 1, // vertical shadow offset
 };
 
-export function drawBox(  text: string,  style: Partial<Style>,  target: Buffer,  targetCols: number,  targetRows: number) {
+export function drawBox(  text: string,  style: Partial<Style>,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
     const s = {...defaultTextBoxStyle, ...style}
 
 	let boxWidth  = s.width! 
