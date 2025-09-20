@@ -24,8 +24,19 @@ const build = async () => {
     };
     
     let links = '';
-    
+    const paths: string[] = [];
     for await (const path of files.scan()) {
+        paths.push(path);
+    }
+
+    paths.sort(
+        (a, b) => {
+            return a.localeCompare(b) || a.localeCompare(b);
+        }
+    );
+
+
+    for (const path of paths) {
       const info = await getemoInfo(path);
       const title = info.title || path.split('/').pop()?.replace('.ts', '') || 'Untitled';
       links += `<li class="example">
