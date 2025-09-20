@@ -13,51 +13,51 @@ export function wrap(string: string, width=0) {
 
 	if (width==0) return measure(string)
 
-	const paragraphs = string.split('\n')
-	let out = ''
-
-	let maxWidth = 0
-	let numLines = 0
-
-	for (const p of paragraphs) {
-		const chunks = p.split(' ')
-		let len = 0
-		for(const word of chunks) {
-			// First word
-			if (len == 0) {
-				out += word
-				len = word.length
-				maxWidth = Math.max(maxWidth, len)
-			}
-			// Subsequent words
-			else {
-				if (len + 1 + word.length <= width) {
-					out += ' ' + word
-					len += word.length + 1
-					maxWidth = Math.max(maxWidth, len)
-				} else {
-					// Remove last space
-					out += '\n' + word
-					len = word.length + 1
-					numLines++
-				}
-			}
-		}
-		out += '\n'
-		numLines++
-	}
-
-	// Remove last \n
-	out = out.slice(0, -1)
-
-	// Adjust line count in case of last trailing \n
-	if (out.charAt(out.length-1) == '\n') numLines--
-
-	return {
-		text : out,
-		numLines,
-		maxWidth
-	}
+        const paragraphs = string.split('\n')
+        let out = ''
+    
+        let maxWidth = 0
+        let numLines = 0
+    
+        for (const p of paragraphs) {
+            const chunks = p.split(' ')
+            let len = 0
+            for(const word of chunks) {
+                // First word
+                if (len == 0) {
+                    out += word
+                    len = word.length
+                    maxWidth = Math.max(maxWidth, len)
+                }
+                // Subsequent words
+                else {
+                    if (len + 1 + word.length <= width) {
+                        out += ' ' + word
+                        len += word.length + 1
+                        maxWidth = Math.max(maxWidth, len)
+                    } else {
+                        // Remove last space
+                        out += '\n' + word
+                        len = word.length + 1
+                        numLines++
+                    }
+                }
+            }
+            out += '\n'
+            numLines++
+        }
+    
+        // Remove last \n
+        out = out.slice(0, -1)
+    
+        // Adjust line count in case of last trailing \n
+        if (out.charAt(out.length-1) == '\n') numLines--
+    
+        return {
+            text : out,
+            numLines,
+            maxWidth
+        }
 }
 
 export function measure(string: string) {

@@ -16,11 +16,11 @@ const v = get(10, 10, buffer, cols, rows)
 import type { Buffer, Cell } from "./types";
 
 // Safe get function to read from a buffer
-export function get(  x: number,  y: number,  target: Buffer,  targetCols: number,  targetRows: number): Cell | undefined {
-  if (x < 0 || x >= targetCols) return undefined;
-  if (y < 0 || y >= targetRows) return undefined;
-  const i = x + y * targetCols;
-  return target[i];
+export function get(  x: number,  y: number,  target: Buffer,  targetCols: number,  targetRows: number): Cell | {} {
+    if (x < 0 || x >= targetCols) return {}
+	if (y < 0 || y >= targetRows) return {}
+	const i = x + y * targetCols
+	return target[i]!
 }
 
 // Safe set and merge functions for a generic buffer object.
@@ -30,14 +30,14 @@ export function get(  x: number,  y: number,  target: Buffer,  targetCols: numbe
 // { char, color, backgroundColor, fontWeight }
 // which can overwrite the buffer (set) or partially merged (merge)
 export function set(  val: any,  x: number,  y: number,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
-  if (x < 0 || x >= targetCols) return;
-  if (y < 0 || y >= targetRows) return;
-  const i = x + y * targetCols;
-  target[i] = val;
+    if (x < 0 || x >= targetCols) return 
+	if (y < 0 || y >= targetRows) return
+	const i = x + y * targetCols
+	target[i] = val
 }
 
 export function merge(  val: any,  x: number,  y: number,  target: Buffer,  targetCols: number,  targetRows: number) {
-	if (x < 0 || x >= targetCols) return
+    if (x < 0 || x >= targetCols) return
 	if (y < 0 || y >= targetRows) return
 	const i = x + y * targetCols
 
@@ -48,19 +48,19 @@ export function merge(  val: any,  x: number,  y: number,  target: Buffer,  targ
 }
 
 export function setRect(  val: any,  x: number,  y: number,  w: number,  h: number,  target: Buffer,  targetCols?: number,  targetRows?: number) {
-  for (let j = y; j < y + h; j++) {
-    for (let i = x; i < x + w; i++) {
-      set(val, i, j, target, targetCols, targetRows);
-    }
-  }
+    for (let j=y; j<y+h; j++ ) {
+		for (let i=x; i<x+w; i++ ) {
+			set(val, i, j, target, targetCols, targetRows)
+		}
+	}
 }
 
 export function mergeRect(  val: any,  x: number,  y: number,  w: number,  h: number,  target: Buffer,  targetCols: number,  targetRows: number) {
-  for (let j = y; j < y + h; j++) {
-    for (let i = x; i < x + w; i++) {
-      merge(val, i, j, target, targetCols, targetRows);
-    }
-  }
+    for (let j=y; j<y+h; j++ ) {
+		for (let i=x; i<x+w; i++ ) {
+			merge(val, i, j, target, targetCols, targetRows)
+		}
+	}
 }
 
 // Merges a textObj in the form of:
@@ -73,8 +73,7 @@ export function mergeRect(  val: any,  x: number,  y: number,  w: number,  h: nu
 //	}
 // or just as a string into the target buffer.
 export function mergeText(  textObj: any,  x: number,  y: number,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
-    let text: string
-    let mergeObj: Record<string, any>
+    let text: string, mergeObj: Record<string, any>
 	// An object has been passed as argument, expect a 'text' field
 	if (typeof textObj == "object") {
 		text = textObj.text
@@ -100,8 +99,8 @@ export function mergeText(  textObj: any,  x: number,  y: number,  target: Buffe
 			col = x + charNum
 			merge({char, ...mergeObj}, col, row, target, targetCols, targetRows)
 		})
-		const first = get(x, row, target, targetCols, targetRows)!
-		const last = get(x+line.length-1, row, target, targetCols, targetRows)!
+		const first = get(x, row, target, targetCols, targetRows) as Cell
+		const last = get(x+line.length-1, row, target, targetCols, targetRows) as Cell
 		wrapInfo.push({first, last})
 		row++
 	})

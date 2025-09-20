@@ -174,13 +174,7 @@ const defaultTextBoxStyle: Style = {
   shadowY: 1, // vertical shadow offset
 };
 
-export function drawBox(
-  text: string,
-  style: Partial<Style>,
-  target: Buffer,
-  targetCols?: number,
-  targetRows?: number
-) {
+export function drawBox(  text: string,  style: Partial<Style>,  target: Buffer,  targetCols: number,  targetRows: number) {
     const s = {...defaultTextBoxStyle, ...style}
 
 	let boxWidth  = s.width! 
@@ -260,6 +254,7 @@ export function drawInfo(
   target: Buffer,
   style?: Partial<Style>
 ) {
+    console.info("drawInfo", context, cursor, target, style);
   let info = "";
   info += "FPS         " + Math.round(context.runtime.fps) + "\n";
   info += "frame       " + context.frame + "\n";
@@ -273,6 +268,5 @@ export function drawInfo(
   // info += 'context      ' + Math.floor(context.width) + '×' + Math.floor(context.height) + '\n'
 
   const textBoxStyle = { ...defaultInfoStyle, ...style } as Style;
-
   drawBox(info, textBoxStyle, target, context.cols, context.rows);
 }
