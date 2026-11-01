@@ -113,6 +113,7 @@ function render(context: Context, buffer: Buffer) {
 
     // (Default) block mode
   } else {
+    let font = "";
     for (let j = 0; j < r; j++) {
       for (let i = 0; i < c; i++) {
         const cell = buffer[j * c + i]!;
@@ -122,7 +123,10 @@ function render(context: Context, buffer: Buffer) {
           ctx.fillStyle = cell.backgroundColor || bg;
           ctx.fillRect(Math.round(x), y, Math.ceil(cw), ch);
         }
-        ctx.font = (cell.fontWeight || fontWeight) + ff;
+        if (cell.char === " ") continue;
+        // Parsing a font string is slow; most neighbouring cells share one.
+        const next = (cell.fontWeight || fontWeight) + ff;
+        if (next !== font) ctx.font = font = next;
         ctx.fillStyle = cell.color || fg;
         ctx.fillText(cell.char, x, y);
       }
