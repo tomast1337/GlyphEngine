@@ -4,8 +4,8 @@
 @category renderer
 */
 
-import type { Context } from "../modules/types";
-import type { Render } from "./types";
+import type { Context } from "../program";
+import type { Render } from "./renderer";
 import { colorString, createFrame, getChar, weightString, type Frame } from "./frame";
 
 export default {

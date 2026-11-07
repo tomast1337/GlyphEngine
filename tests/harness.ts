@@ -2,7 +2,8 @@
 // Shared by the snapshot tests and the benchmark's computation timing.
 import { stepFrame } from "../src/run";
 import { createFrame } from "../src/core/frame";
-import type { Buffer, Context, Cursor, Program } from "../src/modules/types";
+import type { Buffer } from "../src/modules/buffer";
+import type { Context, Cursor, Program } from "../src/program";
 
 const metrics = { aspect: 0.5, cellWidth: 8, lineHeight: 16, fontFamily: "monospace", fontSize: 13 };
 const cursor = { x: 0, y: 0, pressed: false, p: { x: 0, y: 0, pressed: false } } as Cursor;

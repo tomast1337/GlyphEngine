@@ -4,8 +4,8 @@
 @category renderer
 */
 
-import type { Context } from "../modules/types";
-import type { Render } from "./types";
+import type { Context } from "../program";
+import type { Render } from "./renderer";
 import canvasRenderer from "./canvasrenderer";
 import { fitCanvas } from "./canvassize";
 import { cellSpan } from "./cellspan";

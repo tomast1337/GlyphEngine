@@ -4,7 +4,8 @@
 @category core
 */
 
-import type { Buffer, Cell, Settings } from "../modules/types";
+import type { Buffer, Cell } from "../modules/buffer";
+import type { Settings } from "../program";
 
 // chars[i] >= GRAPHEME: index into frame.graphemes (glyphs made of several code points)
 export const GRAPHEME = 0x80000000;

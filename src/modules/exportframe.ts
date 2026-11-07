@@ -9,7 +9,7 @@ Tested on Safari, FF, Chrome
 */
 
 import { saveBlobAsFile } from "./filedownload";
-import type { Context } from "./types";
+import type { Context } from "../program";
 
 export function exportFrame(
   context: Context,

@@ -1,4 +1,4 @@
-import type { Context } from "../modules/types";
+import type { Context } from "../program";
 
 // Sizes the canvas backing store for the current frame. Shared by the canvas
 // and WebGL renderers. Assigning width/height, even the same value,

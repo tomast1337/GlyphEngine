@@ -38,7 +38,7 @@ Or accessed with:
 
 import type { RGB } from "./color";
 import { map, mix, clamp } from "./num";
-import type { Buffer } from "./types";
+import type { Buffer } from "./buffer";
 
 type Source = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 

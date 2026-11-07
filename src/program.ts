@@ -1,6 +1,9 @@
-import type { Frame } from "../core/frame";
-import { type RenderModes } from "../core/types";
-import { type Vec2 } from "./vec2";
+// The contract between run() and a program: what a program exports and what
+// it receives each frame.
+import type { Frame } from "./core/frame";
+import type { Buffer, Cell } from "./modules/buffer";
+import type { RenderModes } from "./core/renderer";
+import type { Vec2 } from "./modules/vec2";
 
 export interface Settings {
   element: HTMLElement | HTMLCanvasElement | null;
@@ -71,36 +74,6 @@ export interface Pointer {
   ppressed: boolean;
 }
 
-export type Cell = {
-      char: string;
-      beginHTML?: string; // text renderer only: raw HTML around the glyph
-      endHTML?: string;
-      color?: string;
-      backgroundColor?: string;
-      fontWeight?: string;
-      shadowStyle?: string;
-      borderStyle?: string;
-      shadowX?: number;
-      shadowY?: number;
-    };
-// Extra: fields a program keeps in its own cells, e.g. Buffer<{ value: number }>
-export type Buffer<Extra extends object = object> = Array<Cell & Extra>;
-export interface Style {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  paddingX?: number;
-  paddingY?: number;
-  backgroundColor?: string;
-  color?: string;
-  fontWeight?: string;
-  shadowStyle?: string;
-  borderStyle?: string;
-  shadowX?: number;
-  shadowY?: number;
-}
-
 export type Context = {
   height: number;
   width: number;
@@ -122,5 +95,3 @@ export type Cursor = {
   x: number;
   y: number;
 };
-
-export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };

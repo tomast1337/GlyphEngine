@@ -22,7 +22,26 @@ const style = {
 
 import { merge, setRect, mergeRect, mergeText } from "./buffer";
 import { measure,wrap } from "./string";
-import type { Buffer, Context, Cursor, Style, WithRequired } from "./types";
+import type { Buffer } from "./buffer";
+import type { Context, Cursor } from "../program";
+
+export interface Style {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  paddingX?: number;
+  paddingY?: number;
+  backgroundColor?: string;
+  color?: string;
+  fontWeight?: string;
+  shadowStyle?: string;
+  borderStyle?: string;
+  shadowX?: number;
+  shadowY?: number;
+}
+
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 type BorderStyle = {
   topleft: string;

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import textRenderer from "../src/core/textrenderer";
-import type { Context } from "../src/modules/types";
+import type { Context } from "../src/program";
 import { createFrame, setChar } from "../src/core/frame";
 
 // Minimal fake of the DOM bits the text renderer touches.
