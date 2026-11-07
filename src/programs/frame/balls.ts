@@ -5,7 +5,7 @@
 @desc   sdf/balls written with frame()
 */
 
-import { num, sdf } from "glyph-engine";
+import { num, sdf, asBuffer, drawbox } from "glyph-engine";
 import type { Context, Cursor, Frame } from "glyph-engine";
 
 const { PI, sin, cos, exp, abs, floor, min } = Math;
@@ -56,4 +56,7 @@ export function frame(context: Context, cursor: Cursor, out: Frame) {
       chars[k] = glyphs[floor(c * density.length)]!;
     }
   }
+
+  // FPS box: drawInfo() expects a buffer, asBuffer() lets it write into the frame
+  drawbox.drawInfo(context, cursor, asBuffer(out));
 }

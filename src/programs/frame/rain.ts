@@ -5,7 +5,7 @@
 @desc   The frame keeps its content: fade what was drawn before
 */
 
-import { rgba } from "glyph-engine";
+import { rgba, asBuffer, drawbox } from "glyph-engine";
 import type { Context, Cursor, Frame } from "glyph-engine";
 
 export const settings = { backgroundColor: "black", fps: 30 };
@@ -40,4 +40,7 @@ export function frame(context: Context, cursor: Cursor, out: Frame) {
     chars[k] = glyphs[Math.floor(Math.random() * glyphs.length)]!;
     fg[k] = head;
   }
+
+  // FPS box: drawInfo() expects a buffer, asBuffer() lets it write into the frame
+  drawbox.drawInfo(context, cursor, asBuffer(out));
 }
