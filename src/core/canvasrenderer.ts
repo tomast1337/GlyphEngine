@@ -44,7 +44,7 @@ function render(context: Context, buffer: Buffer) {
   const bg =
     settings && settings.backgroundColor ? settings.backgroundColor : "white";
   const fg = settings && settings.color ? settings.color : "black";
-  const fontWeight = settings && settings.fontWeight ? settings.color : "400";
+  const fontWeight = settings && settings.fontWeight ? settings.fontWeight : "400";
 
   // Set the backgroundColor of the box-element
   // canvas.style.backgroundColor = settings.backgroundColor || 'white'
