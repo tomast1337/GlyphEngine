@@ -233,9 +233,15 @@ export function run(
     // Metrics object, calc once (below)
     let metrics: Metrics;
 
+    // Element size, refreshed only on resize: reading it every frame forces layout
+    let rect: DOMRect;
+
     function boot() {
       metrics = calcMetrics(settings.element as HTMLElement);
-      const context = getContext(state, settings, metrics, fps);
+      const el = settings.element as HTMLElement;
+      rect = el.getBoundingClientRect();
+      new ResizeObserver(() => (rect = el.getBoundingClientRect())).observe(el);
+      const context = getContext(state, settings, metrics, fps, rect);
       if (typeof program.boot == "function") {
         program.boot(context, buffer, userData);
       }
@@ -263,7 +269,7 @@ export function run(
       }
 
       // Snapshot of context data
-      const context = getContext(state, settings, metrics, fps);
+      const context = getContext(state, settings, metrics, fps, rect);
 
       // FPS update
       fps.update(t);
@@ -391,9 +397,9 @@ function getContext(
   state: State,
   settings: Settings,
   metrics: Metrics,
-  fps: FPS
+  fps: FPS,
+  rect: DOMRect
 ): Context {
-  const rect = settings.element?.getBoundingClientRect() as DOMRect;
   const cols = settings.cols || Math.floor(rect.width / metrics.cellWidth);
   const rows = settings.rows || Math.floor(rect.height / metrics.lineHeight);
   return Object.freeze({
