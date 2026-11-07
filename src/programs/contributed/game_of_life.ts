@@ -18,7 +18,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   if (width != context.cols || height != context.rows) {
     const length = context.cols * context.rows;
     for (let i = 0; i < length; i++) {
-      buffer[i] = { char: Math.random() > 0.5 ? "▒" : " " } as any;
+      buffer[i] = { char: Math.random() > 0.5 ? "▒" : " " };
     }
     width = context.cols;
     height = context.rows;

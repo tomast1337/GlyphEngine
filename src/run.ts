@@ -50,7 +50,7 @@ const defaultSettings = {
 } as unknown as Settings;
 
 // CSS styles which can be passed to the container element via settings
-const CSSStyles = [
+const CSSStyles: (keyof Settings & keyof CSSStyleDeclaration)[] = [
   "backgroundColor",
   "color",
   "fontFamily",
@@ -70,7 +70,7 @@ const CSSStyles = [
 export function run(
   program: Program,
   runSettings: Partial<Settings> = {},
-  userData: any = {}
+  userData: object = {}
 ) {
   // Everything is wrapped inside a promise;
   // in case of errors in ‘program’ it will reject without reaching the bottom.
@@ -128,7 +128,8 @@ export function run(
 
     // Apply CSS settings to element
     for (const s of CSSStyles) {
-      if (settings[s]) settings.element.style[s as any] = settings[s];
+      const v = settings[s];
+      if (v) settings.element.style[s] = v;
     }
 
     // Eventqueue
@@ -341,7 +342,7 @@ export function run(
       while (eventQueue.length > 0) {
         const type = eventQueue.shift();
         if (type && typeof program[type] == "function") {
-          program[type](context, cursor, usesFrame ? frame : buffer);
+          program[type](context, cursor, usesFrame ? frame : buffer, userData);
         }
       }
 
@@ -366,7 +367,7 @@ export function stepFrame(
   cursor: Cursor,
   buffer: Buffer,
   frame: Frame,
-  userData: any = {}
+  userData: object = {}
 ) {
   if (typeof program.frame == "function") {
     program.frame(context, cursor, frame, userData);
@@ -386,7 +387,7 @@ export function computeFrame(
   context: Context,
   cursor: Cursor,
   buffer: Buffer,
-  userData: any = {}
+  userData: object = {}
 ) {
   // A cell with no value at all is just a space
   const EMPTY_CELL = " ";
@@ -421,7 +422,7 @@ export function computeFrame(
         if (typeof out == "object" && out !== null) {
           Object.assign(cell, out);
         } else {
-          cell.char = out;
+          cell.char = out == null ? EMPTY_CELL : String(out);
         }
         // Fix undefined / null / etc.
         if (cell.char === undefined || cell.char === null) {

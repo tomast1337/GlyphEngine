@@ -11,7 +11,18 @@ export interface Settings {
   renderer: RenderModes;
   allowSelect: boolean;
   restoreState: boolean;
-  [key: string]: any;
+  // CSS applied to the element (see CSSStyles in run.ts)
+  backgroundColor?: string;
+  color?: string;
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  letterSpacing?: string;
+  lineHeight?: string;
+  textAlign?: string;
+  // Canvas and WebGL renderers only
+  canvasOffset?: { x: number | "auto"; y: number | "auto" };
+  canvasSize?: { width: number; height: number };
 }
 
 export interface State {
@@ -31,22 +42,24 @@ export interface Metrics {
   _update: () => void;
 }
 
+// What main() may return for a cell: a glyph, a cell, or nothing (a space).
+export type CellValue = string | number | Partial<Cell> | null | undefined | void;
+
+// userData: whatever object was passed to run() ({} by default).
+// Method syntax on purpose: TypeScript checks method parameters bivariantly, so
+// a program may declare narrower ones (buffer: Buffer, data: MyData).
 export type Program = {
-  boot?: (context: Context, buffer: any /* Buffer, or Frame for frame() programs */, userData: any) => void;
-  pre?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
-  main?: (
-    position: Coord,
-    context: Context,
-    cursor: any,
-    buffer: any[],
-    userData: any
-  ) => any;
-  post?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
+  boot?(context: Context, buffer: Buffer | Frame, userData: object): void; // Frame for frame() programs
+  pre?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
+  main?(position: Coord, context: Context, cursor: Cursor, buffer: Buffer, userData: object): CellValue;
+  post?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
   // Fast API: fills the whole frame (typed arrays) in one call. When present,
   // pre(), main() and post() are not called; boot() and events get the frame.
-  frame?: (context: Context, cursor: any, frame: Frame, userData: any) => void;
-  settings?: Settings;
-  [key: string]: any;
+  frame?(context: Context, cursor: Cursor, frame: Frame, userData: object): void;
+  pointerMove?(context: Context, cursor: Cursor, buffer: Buffer | Frame, userData: object): void;
+  pointerDown?(context: Context, cursor: Cursor, buffer: Buffer | Frame, userData: object): void;
+  pointerUp?(context: Context, cursor: Cursor, buffer: Buffer | Frame, userData: object): void;
+  settings?: Partial<Settings>;
 };
 
 export interface Pointer {
@@ -58,9 +71,10 @@ export interface Pointer {
   ppressed: boolean;
 }
 
-export type Cell =
-  | Record<string, any> & {
+export type Cell = {
       char: string;
+      beginHTML?: string; // text renderer only: raw HTML around the glyph
+      endHTML?: string;
       color?: string;
       backgroundColor?: string;
       fontWeight?: string;
@@ -69,7 +83,8 @@ export type Cell =
       shadowX?: number;
       shadowY?: number;
     };
-export type Buffer = Array<Cell>;
+// Extra: fields a program keeps in its own cells, e.g. Buffer<{ value: number }>
+export type Buffer<Extra extends object = object> = Array<Cell & Extra>;
 export interface Style {
   x?: number;
   y?: number;

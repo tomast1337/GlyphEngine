@@ -22,7 +22,8 @@ pal.push(color.CSS3.black!);
 pal.push(color.CSS3.lightblue!);
 
 // Camera data
-const data: Buffer = [];
+// quantize() turns every pixel into a palette entry, so each has .hex
+const data: color.AugmentedPaletteElement[] = [];
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   const a = context.metrics.aspect;
@@ -35,7 +36,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     .cover(cam, a * 2)
     .quantize(pal)
     .mirrorX()
-    .writeTo(data as any);
+    .writeTo(data);
 }
 
 export function main(

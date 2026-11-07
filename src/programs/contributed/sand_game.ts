@@ -5,10 +5,10 @@
 @desc   Click to drop sand
 */
 
-import type { Buffer, Cell, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 import { vec2 } from "glyph-engine";
 
-let prevFrame: any[];
+let prevFrame: Buffer;
 let width: number, height: number;
 
 function newParticle() {
@@ -19,7 +19,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   if (width != context.cols || height != context.rows) {
     const length = context.cols * context.rows;
     for (let i = 0; i < length; i++) {
-      buffer[i] = { char: Math.random() > 0.5 ? newParticle() : " " } as Cell;
+      buffer[i] = { char: Math.random() > 0.5 ? newParticle() : " " };
     }
     width = context.cols;
     height = context.rows;
@@ -120,9 +120,10 @@ function alive(char: string) {
   return char != " ";
 }
 
+// Outside the grid is empty
 function get(x: number, y: number) {
-  if (x < 0 || x >= width) return 0;
-  if (y < 0 || y >= height) return 0;
+  if (x < 0 || x >= width) return " ";
+  if (y < 0 || y >= height) return " ";
   const index = y * width + x;
-  return prevFrame[index].char;
+  return prevFrame[index]!.char;
 }

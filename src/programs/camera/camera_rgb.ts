@@ -25,7 +25,8 @@ pal.push(color.rgb(100, 255, 255));
 //pal.push(color.rgb(255, 182, 193))
 //pal.push(color.rgb(255, 255, 255))
 
-const data: any[] = [];
+// quantize() turns every pixel into a palette entry
+const data: color.RGB[] = [];
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   const a = context.metrics.aspect;
@@ -39,7 +40,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     .cover(cam, a)
     .mirrorX()
     .quantize(pal)
-    .writeTo(data as any);
+    .writeTo(data);
 }
 
 export function main(
@@ -49,9 +50,9 @@ export function main(
   buffer: Buffer
 ) {
   // Coord also contains the index of each cell
-  const px = data[coord.index];
+  const px = data[coord.index]!;
   // Add some chars to the output
-  const index = Math.floor(px.v * (density.length - 1));
+  const index = Math.floor(px.v! * (density.length - 1));
   return {
     char: density[index],
     color: "white",

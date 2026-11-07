@@ -25,7 +25,7 @@ const RADIUS = 15; // Pencil radius
 
 let cols: number, rows: number;
 
-export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
+export function pre(context: Context, cursor: Cursor, buffer: Buffer<{ value: number }>) {
   // Detect window resize
   if (cols != context.cols || rows != context.rows) {
     cols = context.cols;
@@ -67,7 +67,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  buffer: Buffer<{ value: number }>
 ) {
   const i = coord.index;
   const v = smoothstep(0, 0.9, buffer[i]!.value);

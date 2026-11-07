@@ -39,13 +39,22 @@ const OOB = " ";
 // 0@0@0@0@0@0^v^v^v^v^v^„`„`„`„`„`„`.`.`.`.`.`.`. . . . . .
 // @0@0@0@0@0@v^v^v^v^v^v`„`„`„`„`„`„`.`.`.`.`.`.`. . . . . .
 
+// What boot() puts in userData
+interface SlimeData {
+  chem: Float32Array;
+  wip: Float32Array;
+  agents: Agent[];
+  viewScale: { x: number; y: number };
+  viewFocus: { x: number; y: number };
+}
+
 export const settings = {
   backgroundColor: "black",
   color: "white",
   fontSize: "12px",
 };
 
-export function boot(context: Context, buffer: Buffer, data: any) {
+export function boot(context: Context, buffer: Buffer, data: SlimeData) {
   document.body.style.cursor = "crosshair";
 
   data.chem = new Float32Array(HEIGHT * WIDTH);
@@ -71,7 +80,7 @@ export function pre(
   context: Context,
   cursor: Cursor,
   buffer: Buffer,
-  data: any
+  data: SlimeData
 ) {
   // Diffuse & decay
   for (let row = 0; row < HEIGHT; row++) {
@@ -85,7 +94,7 @@ export function pre(
   data.chem = data.wip;
   data.wip = swap;
 
-  const { chem, agents, view } = data;
+  const { chem, agents } = data;
 
   // Sense, rotate, and move
   const isScattering = Math.sin(context.frame / 150) > 0.8;
@@ -108,7 +117,7 @@ export function main(
   context: Context,
   cursor: Cursor,
   buffer: Buffer,
-  data: any
+  data: SlimeData
 ) {
   const { viewFocus, viewScale } = data;
 
@@ -143,7 +152,7 @@ export function main(
   let sum = 0;
   for (let x = sampleFrom.x; x < sampleFrom.x + sampleW; x++) {
     for (let y = sampleFrom.y; y < sampleFrom.y + sampleH; y++) {
-      const v = data.chem[y * HEIGHT + x];
+      const v = data.chem[y * HEIGHT + x]!;
       max = Math.max(max, v);
       sum += v;
     }
@@ -168,7 +177,7 @@ export function main(
 // 	drawInfo(context, cursor, buffer)
 // }
 
-function updateView(cursor: Cursor, context: Context, data: any) {
+function updateView(cursor: Cursor, context: Context, data: SlimeData) {
   let targetScale;
   if (cursor.pressed) {
     // 1 display char = 1 grid cell
@@ -226,7 +235,7 @@ class Agent {
     this.scatter = false;
   }
 
-  sense(m: number, chem: number[]): number {
+  sense(m: number, chem: Float32Array): number {
     const senseVec: v2.Vec2 = v2.mulN(
       v2.rot(this.dir, m * SENS_ANGLE),
       SENS_DIST
@@ -238,7 +247,7 @@ class Agent {
     return sensed;
   }
 
-  react(chem: number[]): void {
+  react(chem: Float32Array): void {
     let forwardChem: number = this.sense(0, chem);
     let leftChem: number = this.sense(-1, chem);
     let rightChem: number = this.sense(1, chem);
@@ -264,7 +273,7 @@ class Agent {
     this.pos = v2.add(this.pos, v2.mulN(this.dir, AGT_SPEED));
   }
 
-  deposit(chem: number[]): void {
+  deposit(chem: Float32Array): void {
     const { y, x } = v2.floor(this.pos);
     const i: number = y * HEIGHT + x;
     chem[i] = Math.min(1, chem[i]! + DEPOSIT);
@@ -277,7 +286,7 @@ function bounded(vec: v2.Vec2) {
   return (vec.x - R) ** 2 + (vec.y - R) ** 2 <= R ** 2;
 }
 
-function blur(row: number, col: number, data: any) {
+function blur(row: number, col: number, data: Float32Array) {
   let sum = 0;
   for (let dy = -1; dy <= 1; dy++) {
     for (let dx = -1; dx <= 1; dx++) {
