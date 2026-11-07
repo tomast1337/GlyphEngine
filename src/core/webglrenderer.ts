@@ -8,6 +8,7 @@ import type { Buffer, Context } from "../modules/types";
 import type { Render } from "./types";
 import canvasRenderer from "./canvasrenderer";
 import { fitCanvas } from "./canvassize";
+import { cellSpan } from "./cellspan";
 import vertSource from "./shaders/grid.vert" with { type: "text" };
 import fragSource from "./shaders/grid.frag" with { type: "text" };
 
@@ -89,6 +90,7 @@ function createState(gl: WebGL2RenderingContext) {
       next: 1, // slot 0 stays empty: spaces and blank cells
       glyphs: new Map<string | number, Map<unknown, number>>(), // weight -> char -> slot
       colored: new Uint8Array(0),
+      wide: new Uint8Array(0), // per slot: glyph covers two cells
     },
     colors: new Map<string, number>(),
     // Rasterizes one glyph at a time and normalizes CSS colours.
@@ -120,20 +122,35 @@ function draw(s: GLState, context: Context, buffer: Buffer) {
   const fontWeight = settings.fontWeight || "400";
 
   const data = s.cells;
-  const colored = s.atlas.colored;
+  const { colored, wide } = s.atlas;
   // Neighbouring cells usually share colours: skip the Map lookup on repeats.
   let lastFg: string | undefined = "", lastFgV = fg;
   let lastBg: string | undefined = "", lastBgV = bg;
-  for (let i = 0, n = cols * rows; i < n; i++) {
-    const cell = buffer[i]!;
-    const slot = glyphSlot(s, cell.char, cell.fontWeight || fontWeight, fontSize, m.fontFamily);
-    const o = i * 4;
-    data[o] = slot;
-    if (cell.color !== lastFg) lastFgV = (lastFg = cell.color) ? packColor(s, lastFg) : fg;
-    if (cell.backgroundColor !== lastBg) lastBgV = (lastBg = cell.backgroundColor) ? packColor(s, lastBg) : bg;
-    data[o + 1] = lastFgV;
-    data[o + 2] = lastBgV;
-    data[o + 3] = colored[slot] ? FLAG_COLOR_GLYPH : 0;
+  for (let j = 0; j < rows; j++) {
+    // Wide glyphs take two columns and push the rest of the row right (the last
+    // cells fall off), like the text renderer; the shader just sees a grid.
+    const row = j * cols;
+    let col = 0;
+    for (let i = 0; i < cols && col < cols; i++) {
+      const cell = buffer[row + i]!;
+      const slot = glyphSlot(s, cell.char, cell.fontWeight || fontWeight, fontSize, m.fontFamily);
+      if (cell.color !== lastFg) lastFgV = (lastFg = cell.color) ? packColor(s, lastFg) : fg;
+      if (cell.backgroundColor !== lastBg) lastBgV = (lastBg = cell.backgroundColor) ? packColor(s, lastBg) : bg;
+      let o = (row + col++) * 4;
+      data[o] = slot;
+      data[o + 1] = lastFgV;
+      data[o + 2] = lastBgV;
+      data[o + 3] = colored[slot] ? FLAG_COLOR_GLYPH : 0;
+      if (wide[slot] && col < cols) {
+        // Continuation cell: no glyph, same background; the shader draws the
+        // glyph's right half as overflow from its left neighbour.
+        o = (row + col++) * 4;
+        data[o] = 0;
+        data[o + 1] = lastFgV;
+        data[o + 2] = lastBgV;
+        data[o + 3] = 0;
+      }
+    }
   }
 
   // Grid origin, as the canvas renderer computes it (CSS px, rounded)
@@ -199,6 +216,7 @@ function ensureAtlas(s: GLState, slotW: number, slotH: number, font: string) {
   a.perRow = Math.floor(a.size / slotW);
   a.capacity = a.perRow * Math.floor(a.size / slotH);
   a.colored = new Uint8Array(a.capacity);
+  a.wide = new Uint8Array(a.capacity);
   a.glyphs.clear();
   a.next = 1;
   s.scratch.width = slotW;
@@ -221,6 +239,7 @@ function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize:
   if (a.next >= a.capacity) {
     a.glyphs.clear();
     a.colored.fill(0);
+    a.wide.fill(0);
     a.next = 1;
   }
   slot = a.next++;
@@ -232,6 +251,7 @@ function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize:
   ctx.fillStyle = "white";
   ctx.fillText(String(char), 0, 0);
   a.colored[slot] = isColorGlyph(ctx.getImageData(0, 0, a.slotW, a.slotH).data) ? 1 : 0;
+  a.wide[slot] = cellSpan(ctx, ctx.font, String(char), a.slotW / 2) - 1; // slots are two cells wide
 
   const { gl } = s;
   gl.activeTexture(gl.TEXTURE0 + ATLAS_UNIT);

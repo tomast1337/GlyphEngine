@@ -7,6 +7,7 @@
 import type { Buffer, Context } from "../modules/types";
 import type { Render } from "./types";
 import { fitCanvas } from "./canvassize";
+import { cellSpan } from "./cellspan";
 
 export default {
   preferredElementNodeName: "CANVAS",
@@ -103,18 +104,26 @@ function render(context: Context, buffer: Buffer) {
   } else {
     let font = "";
     for (let j = 0; j < r; j++) {
-      for (let i = 0; i < c; i++) {
+      // Column where the next cell is drawn: wide glyphs take two, pushing the
+      // rest of the row right (and the last cells off it), like the text renderer.
+      let col = 0;
+      for (let i = 0; i < c && col < c; i++) {
         const cell = buffer[j * c + i]!;
-        const x = i * cw;
+        const x = col * cw;
         const y = j * ch;
+        const space = cell.char === " ";
+        if (!space) {
+          // Parsing a font string is slow; most neighbouring cells share one.
+          const next = (cell.fontWeight || fontWeight) + ff;
+          if (next !== font) ctx.font = font = next;
+        }
+        const span = space ? 1 : cellSpan(ctx, font, cell.char, cw);
+        col += span;
         if (cell.backgroundColor && cell.backgroundColor != bg) {
           ctx.fillStyle = cell.backgroundColor || bg;
-          ctx.fillRect(Math.round(x), y, Math.ceil(cw), ch);
+          ctx.fillRect(Math.round(x), y, Math.ceil(cw * span), ch);
         }
-        if (cell.char === " ") continue;
-        // Parsing a font string is slow; most neighbouring cells share one.
-        const next = (cell.fontWeight || fontWeight) + ff;
-        if (next !== font) ctx.font = font = next;
+        if (space) continue;
         ctx.fillStyle = cell.color || fg;
         ctx.fillText(cell.char, x, y);
       }
