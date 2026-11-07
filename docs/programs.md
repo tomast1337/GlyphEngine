@@ -70,9 +70,47 @@ The frame rate is not fixed: `settings.fps` is a cap, and a slow machine or a he
 
 `delta` is 0 on the first frame. It is large after the tab was hidden (the browser pauses frames), so cap it if a jump would break something: `Math.min(context.delta, 100)`.
 
+## main() on the GPU (WGSL)
+
+A program can also export its `main()` in WGSL. With `renderer: "webgpu"` it runs on the GPU, one invocation per cell, and the JS `main()` is skipped. Without WebGPU the JS `main()` runs instead, so keep both. A program with only `wgsl` stops with an error.
+
+```ts
+export const glyphs = " .:-=+*#"; // every glyph the WGSL may draw
+export const wgsl = /* wgsl */ `
+fn main(coord: vec2f, ctx: Context, out: ptr<function, Cell>) {
+  let v = sin(coord.x * 0.1 + ctx.time * 0.001) * 0.5 + 0.5; // 0..1
+  out.char = glyph(u32(v * f32(GLYPHS)));
+  out.color = vec4f(v, 0.5, 1.0 - v, 1.0);
+}
+`;
+```
+
+What the WGSL gets:
+
+- `coord`: the cell, `x` and `y`.
+- `ctx`: `time`, `delta` (ms), `frame`, `cols`, `rows`, `aspect`, `cursor` (`vec2f`, in cells), `pressed` (1 while down).
+- `out`: `char` (a code point), `color` and `background` (`vec4f`, 0-1 per channel). It starts as a space in the settings colours.
+- `glyph(i)`: the i-th glyph of `glyphs`, clamped to the last one; `GLYPHS` is their count.
+
+Limits:
+
+- Only glyphs listed in `glyphs` draw. Raw code points work if they are in that list.
+- Glyphs outside the BMP (most emoji) and font weights other than the default draw nothing.
+- No state between frames: the cells are written fresh every frame.
+
+`pre()` and `post()` still run in JS. What they write into `buffer` is drawn on top of the GPU cells, e.g. the FPS box from `drawInfo()`.
+
+Speed, `demos/plasma`, a full frame including the GPU finishing, on a Radeon RX 580:
+
+| grid | JS `main()` + webgl | WGSL + webgpu |
+|---|---|---|
+| 300×100 | 5.7 ms | 2.5 ms |
+| 500×200 | 18.0 ms | 2.6 ms |
+| 1000×400 | 70.8 ms | 3.3 ms |
+
 ## Examples
 
 - `basics/simple_output`, `basics/colors_and_weight`: the `out` fields.
-- `demos/plasma`: colour channels, per-frame values in `pre()`.
+- `demos/plasma`: colour channels, per-frame values in `pre()`, and the same `main()` in WGSL (pick WebGPU in the playground).
 - `contributed/game_of_life`: reading last frame through the buffer.
 - `demos/rain`: time-based animation with `delta`.

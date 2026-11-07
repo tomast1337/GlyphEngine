@@ -53,3 +53,19 @@ test("main() writes the out slot: glyphs, CSS / channel colours, clamping, defau
   expect([...f.bg]).toEqual([0xff007fff, 0, 0x00ff00ff, 0]);
   expect([...f.weight]).toEqual([0, 7, 0, 0]);
 });
+
+test("on the GPU, main() is skipped and the frame holds only what post() drew", async () => {
+  const { computeFrame } = await import("../src/run");
+  const { createFrame } = await import("../src/core/frame");
+  const frame = createFrame(3, 1);
+  let calls = 0;
+  const program = {
+    main: () => void calls++,
+    post: (_ctx: unknown, _cur: unknown, buffer: { [i: number]: object }) => void (buffer[1] = { char: "#", color: "#ff0000" }),
+  };
+  const context = { cols: 3, rows: 1, settings: {} } as Parameters<typeof computeFrame>[1];
+  computeFrame(program, context, { x: 0, y: 0, pressed: false }, frame, {}, true);
+  expect(calls).toBe(0);
+  expect([...frame.chars]).toEqual([0, 35, 0]);
+  expect([...frame.fg]).toEqual([0, 0xff0000ff, 0]);
+});
