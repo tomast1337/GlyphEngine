@@ -12,6 +12,9 @@ for (const [name, program] of Object.entries(programs)) {
     const step = makeRunner(program as any, 40, 20);
     for (let i = 0; i < 4; i++) step();
     const buffer = step();
-    expect(buffer.map(({ char, color, backgroundColor, fontWeight }) => ({ char, color, backgroundColor, fontWeight }))).toMatchSnapshot();
+    // Chars as readable rows; styles as one hash to keep the snapshot small.
+    const rows = Array.from({ length: 20 }, (_, y) => buffer.slice(y * 40, y * 40 + 40).map((c) => c.char).join(""));
+    const styles = Bun.hash(JSON.stringify(buffer.map((c) => [c.color, c.backgroundColor, c.fontWeight]))).toString(16);
+    expect({ rows, styles }).toMatchSnapshot();
   });
 }
