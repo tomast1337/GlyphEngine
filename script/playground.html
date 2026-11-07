@@ -30,6 +30,10 @@
     nav a { display: block; color: #bbb; text-decoration: none; padding-left: 1em; }
     nav a:hover, nav a.active { color: #fff; background: #333; }
     nav kbd { color: #777; font: inherit; }
+    nav p { color: #999; margin: 0 0 0.8em; }
+    nav p a { display: inline; padding: 0; color: #ddd; text-decoration: underline; }
+    nav label { display: block; margin-bottom: 0.5em; color: #999; }
+    nav select { font: inherit; color: #ddd; background: #111; border: 1px solid #555; }
     @media (max-width: 800px) {
       body { grid-template-columns: 1fr; grid-template-rows: 50vh 50vh auto; }
     }
@@ -40,7 +44,14 @@
   <div id="code" aria-label="Program source"></div>
   <nav>
     <h1>GlyphEngine</h1>
+    <p>
+      A fork of <a href="https://github.com/ertdfgcvb/play.core" target="_blank" rel="noopener">play.core</a>
+      by ertdfgcvb (<a href="https://play.ertdfgcvb.xyz" target="_blank" rel="noopener">original playground</a>),
+      with TypeScript and npm package support.
+      <a href="https://github.com/tomast1337/GlyphEngine" target="_blank" rel="noopener">Source</a>
+    </p>
     <button id="run">Run</button> <kbd>Ctrl+Enter</kbd>
+    <label>Renderer <select id="renderer"></select></label>
     <div id="list"></div>
   </nav>
 
@@ -80,6 +91,15 @@
     const engineURL = new URL("glyph-engine.js", location.href).href;
     let blobURL;
 
+    // Renderers the engine knows (keys of `renderers` in src/run.ts). Add new backends here.
+    const RENDERERS = { text: "DOM (text)", canvas: "Canvas" };
+    const select = document.getElementById("renderer");
+    select.add(new Option("Auto", ""));
+    for (const [key, label] of Object.entries(RENDERERS)) select.add(new Option(label, key));
+    select.onchange = run;
+    // Called by the output iframe with the example's own renderer, shown on "Auto".
+    window.showRenderer = (key) => (select.options[0].text = `Auto (${RENDERERS[key] ?? key})`);
+
     // Each run gets a fresh iframe document: stops the old loop and resets program state.
     function run() {
       if (blobURL) URL.revokeObjectURL(blobURL);
@@ -99,7 +119,12 @@
   addEventListener("error", (e) => show(e.error || e.message));
   addEventListener("unhandledrejection", (e) => show(e.reason));
   const { run } = await import("glyph-engine");
-  run(await import("${blobURL}")).catch(show);
+  const program = await import("${blobURL}");
+  // Program settings win over run() settings, so a forced renderer goes into a settings copy.
+  const auto = program.settings?.renderer || "text";
+  const renderer = ${JSON.stringify(select.value)} || auto;
+  parent.showRenderer(auto);
+  run({ ...program, settings: { ...program.settings, renderer } }).catch(show);
 <\/script></body></html>`;
     }
 
