@@ -54,4 +54,4 @@ A `Frame` has, per cell (index `x + y * cols`):
 | `fg`, `bg` (`Uint32Array`) | colour as `0xRRGGBBAA`, from `rgba()` or `cssColor()` | `settings.color` / `settings.backgroundColor` |
 | `weight` (`Uint8Array`) | font weight / 100 (7 = bold) | `settings.fontWeight` |
 
-The frame keeps its content between frames (clear it yourself if needed) and is replaced on resize. Buffer helpers such as `drawBox()` and `drawInfo()` work on a frame through `asBuffer(frame)`. See `src/programs/demos/plasma.ts`.
+The frame keeps its content between frames (clear it yourself if needed) and is replaced on resize. Buffer helpers such as `drawBox()` and `drawInfo()` work on a frame through `asBuffer(frame)`. Examples: the "frame" group in the playground (`src/programs/frame/`) and `src/programs/demos/plasma.ts`.
