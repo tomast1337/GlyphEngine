@@ -27,17 +27,18 @@ function render(context: Context, buffer: Buffer) {
   // Shortcut
   const settings = context.settings;
 
+  // Assigning width/height, even the same value, reallocates the canvas and
+  // resets the context, so only do it on a real change (size or devicePixelRatio).
+  // Math.trunc matches how the browser stores a fractional size.
+  const size = settings.canvasSize;
+  const w = Math.trunc((size ? size.width : context.width) * scale);
+  const h = Math.trunc((size ? size.height : context.height) * scale);
+  if (canvas.width !== w) canvas.width = w;
+  if (canvas.height !== h) canvas.height = h;
   // Fixed size, to allow precise export
-  if (settings.canvasSize) {
-    canvas.width = settings.canvasSize.width * scale;
-    canvas.height = settings.canvasSize.height * scale;
-    canvas.style.width = settings.canvasSize.width + "px";
-    canvas.style.height = settings.canvasSize.height + "px";
-  }
-  // Stretch the canvas to the container width
-  else {
-    canvas.width = context.width * scale;
-    canvas.height = context.height * scale;
+  if (size) {
+    canvas.style.width = size.width + "px";
+    canvas.style.height = size.height + "px";
   }
 
   const ff = " " + m.fontSize + "px " + m.fontFamily;
@@ -78,11 +79,9 @@ function render(context: Context, buffer: Buffer) {
   // Center patch with cell bg color...
   // a bit painful and needs some opt.
   if (settings.textAlign == "center") {
+    const widths: number[] = []; // reused for every row
     for (let j = 0; j < r; j++) {
       const offs = j * c;
-      const widths = [];
-      const offsets = [];
-      const colors = [];
       let totalWidth = 0;
 
       // Find width
