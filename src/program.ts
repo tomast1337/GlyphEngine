@@ -58,6 +58,11 @@ export type Program = {
   pointerDown?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
   pointerUp?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
   settings?: Partial<Settings>;
+  // main() as WGSL, run on the GPU by the "webgpu" renderer (see docs/programs.md).
+  // A JS main() is the fallback where WebGPU is unavailable.
+  wgsl?: string;
+  // Every glyph the WGSL main() may draw; glyph(i) returns the i-th one.
+  glyphs?: string;
 };
 
 export interface Pointer {

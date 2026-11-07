@@ -25,4 +25,4 @@ run({
 });
 ```
 
-`main()` runs once per cell, like a fragment shader, and writes the cell into `out`. See [docs/programs.md](docs/programs.md) for the whole API.
+`main()` runs once per cell, like a fragment shader, and writes the cell into `out`. It can also be written in WGSL and run on the GPU with the `webgpu` renderer. See [docs/programs.md](docs/programs.md) for the whole API.

@@ -58,6 +58,40 @@ export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOu
   out.background = rgba(r, g, b);
 }
 
+// The same main() in WGSL: with the "webgpu" renderer it runs on the GPU, one
+// invocation per cell, and the JS main() above is skipped (it stays as the
+// fallback for browsers without WebGPU). glyph(i) is the i-th of `glyphs`.
+export const glyphs = density;
+export const wgsl = /* wgsl */ `
+const PI = 3.14159265;
+
+fn map(v: f32, inA: f32, inB: f32, outA: f32, outB: f32) -> f32 {
+  return outA + (outB - outA) * ((v - inA) / (inB - inA));
+}
+
+fn main(coord: vec2f, ctx: Context, out: ptr<function, Cell>) {
+  let t1 = ctx.time * 0.0009;
+  let t2 = ctx.time * 0.0003;
+  let m = f32(min(ctx.cols, ctx.rows));
+  let st = vec2f(
+    ((2.0 * (coord.x - f32(ctx.cols) / 2.0)) / m) * ctx.aspect,
+    (2.0 * (coord.y - f32(ctx.rows) / 2.0)) / m
+  );
+  let v1 = sin((coord.x * sin(t1) + coord.y * cos(t1)) * 0.08);
+  let v2 = cos(length(st - vec2f(sin(-t1), cos(-t1))) * 4.0);
+  let v3 = v1 + v2;
+
+  out.char = glyph(u32(floor(map(v3, -2.0, 2.0, 0.0, 1.0) * f32(GLYPHS))));
+  out.color = vec4f(1.0);
+  out.background = vec4f(
+    floor(map(sin(v3 * PI + t1), -1.0, 1.0, 0.0, 2.0)),
+    floor(map(sin(v3 * PI * 2.0 / 3.0 + t2), -1.0, 1.0, 0.0, 2.0)),
+    floor(map(sin(v3 * PI * 4.0 / 3.0 - t1), -1.0, 1.0, 0.0, 2.0)),
+    1.0
+  );
+}
+`;
+
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {
   drawInfo(context, cursor, buffer);
 }

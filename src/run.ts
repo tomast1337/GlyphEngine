@@ -6,6 +6,7 @@ Runner
 import textRenderer from "./core/textrenderer";
 import canvasRenderer from "./core/canvasrenderer";
 import webglRenderer from "./core/webglrenderer";
+import webgpuRenderer, { compileGpuProgram, initWebGPU, type GpuStep } from "./core/webgpurenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
@@ -13,17 +14,15 @@ import { asBuffer, createFrame, cssColor, setChar, weightCode, type Frame } from
 import { CellOut } from "./core/out";
 import type { Buffer } from "./modules/buffer";
 import type { Context, Cursor, Metrics, Pointer, Program, Settings, State } from "./program";
-import type{ RenderModes } from "./core";
+import type { Render, RenderModes } from "./core";
 
 export { RUNNER_VERSION };
 
-const renderers: Record<
-  RenderModes,
-  typeof textRenderer | typeof canvasRenderer
-> = {
+const renderers: Record<RenderModes, Render> = {
   canvas: canvasRenderer,
   text: textRenderer,
   webgl: webglRenderer,
+  webgpu: webgpuRenderer,
 };
 
 // Default settings for the program runner.
@@ -67,7 +66,7 @@ export function run(
   // Everything is wrapped inside a promise;
   // in case of errors in ‘program’ it will reject without reaching the bottom.
   // If the program reaches the bottom of the first frame the promise is resolved.
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     // Merge of user- and default settings
     const settings: Settings = {
       ...defaultSettings,
@@ -202,7 +201,7 @@ export function run(
           // console.log(`Using font faimily: ${ci.fontFamily} @ ${ci.fontSize}/${ci.lineHeight}`)
           // console.log(`Metrics: cellWidth: ${metrics.cellWidth}, lineHeightf: ${metrics.lineHeightf}`)
           // Finally Boot!
-          boot();
+          prepareGpu().then(boot, reject);
         }
       })();
       // Ideal mode:
@@ -223,6 +222,23 @@ export function run(
 
     // Element size, refreshed only on resize: reading it every frame forces layout
     let rect: DOMRect;
+
+    // Set when the program's WGSL main() runs on the GPU instead of main().
+    let gpu: Omit<GpuStep, "cursor"> | undefined;
+
+    async function prepareGpu() {
+      const device = settings.renderer == "webgpu" ? await initWebGPU() : null; // null: not asked
+      if (program.wgsl && device) {
+        await compileGpuProgram(program.wgsl, program.glyphs ?? " ");
+        gpu = { wgsl: program.wgsl, glyphs: program.glyphs ?? " " };
+      } else if (program.wgsl && typeof program.main != "function") {
+        throw new Error(
+          device === false
+            ? "This program needs WebGPU, which this browser does not provide."
+            : 'This program runs on the GPU: set renderer: "webgpu".'
+        );
+      }
+    }
 
     function boot() {
       metrics = calcMetrics(settings.element as HTMLElement);
@@ -306,10 +322,10 @@ export function run(
       }
 
       // 2-4. ------------------------------------------------------------
-      computeFrame(program, context, cursor, frame, userData);
+      computeFrame(program, context, cursor, frame, userData, !!gpu);
 
       // 5. --------------------------------------------------------------
-      renderer.render(context, frame);
+      renderer.render(context, frame, gpu && { ...gpu, cursor });
 
       // 6. --------------------------------------------------------------
       // Queued events
@@ -344,15 +360,23 @@ export function bufferOf(frame: Frame): Buffer {
 
 // Runs pre(), main() for every cell and post(), writing into `frame`.
 // No DOM access: used by the render loop, the tests and the benchmark.
-export function computeFrame(program: Program, context: Context, cursor: Cursor, frame: Frame, userData: object = {}) {
+// onGpu: main() runs on the GPU; the frame is cleared to empty cells (char 0)
+// so that it holds only what pre() and post() draw on top.
+export function computeFrame(program: Program, context: Context, cursor: Cursor, frame: Frame, userData: object = {}, onGpu = false) {
   const buffer = bufferOf(frame);
   frame.html.clear();
+  if (onGpu) {
+    frame.chars.fill(0);
+    frame.fg.fill(0);
+    frame.bg.fill(0);
+    frame.weight.fill(0);
+  }
 
   if (typeof program.pre == "function") {
     program.pre(context, cursor, buffer, userData);
   }
 
-  if (typeof program.main == "function") {
+  if (typeof program.main == "function" && !onGpu) {
     const { chars, fg, bg, weight } = frame;
     const settings = context.settings;
     // Packed settings colours, for cells still at their default (0). Opaque

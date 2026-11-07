@@ -26,6 +26,7 @@
     },
     "devDependencies": {
         "@types/bun": "latest",
+        "@webgpu/types": "^0.1.74",
         "playwright": "^1.65.0"
     },
     "peerDependencies": {
