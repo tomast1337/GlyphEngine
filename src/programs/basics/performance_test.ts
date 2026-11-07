@@ -11,6 +11,26 @@ export const settings = { fps: 60 };
 
 const { cos } = Math;
 
+// The colours depend only on the row (or the column while pressed), so they
+// are built once per row in pre() instead of once per cell.
+const colors: string[] = [];
+const backgrounds: string[] = [];
+
+export function pre(context: Context, cursor: Cursor) {
+  const f = context.frame * 0.05;
+  const n = Math.max(context.cols, context.rows);
+  for (let direction = 0; direction < n; direction++) {
+    const r1 = num.map(cos(direction * 0.06 + 1 - f), -1, 1, 0, 255);
+    const g1 = num.map(cos(direction * 0.07 + 2 - f), -1, 1, 0, 255);
+    const b1 = num.map(cos(direction * 0.08 + 3 - f), -1, 1, 0, 255);
+    const r2 = num.map(cos(direction * 0.03 + 1 - f), -1, 1, 0, 255);
+    const g2 = num.map(cos(direction * 0.04 + 2 - f), -1, 1, 0, 255);
+    const b2 = num.map(cos(direction * 0.05 + 3 - f), -1, 1, 0, 255);
+    colors[direction] = `rgb(${r2},${g2},${b2})`;
+    backgrounds[direction] = `rgb(${r1},${g1},${b1})`;
+  }
+}
+
 export function main(
   coord: Coord,
   context: Context,
@@ -26,19 +46,10 @@ export function main(
 
   const direction = cursor.pressed ? coord.x : coord.y;
 
-  const f = context.frame * 0.05;
-
-  const r1 = num.map(cos(direction * 0.06 + 1 - f), -1, 1, 0, 255);
-  const g1 = num.map(cos(direction * 0.07 + 2 - f), -1, 1, 0, 255);
-  const b1 = num.map(cos(direction * 0.08 + 3 - f), -1, 1, 0, 255);
-  const r2 = num.map(cos(direction * 0.03 + 1 - f), -1, 1, 0, 255);
-  const g2 = num.map(cos(direction * 0.04 + 2 - f), -1, 1, 0, 255);
-  const b2 = num.map(cos(direction * 0.05 + 3 - f), -1, 1, 0, 255);
-
   return {
     char: context.frame % 10,
-    color: `rgb(${r2},${g2},${b2})`,
-    backgroundColor: `rgb(${r1},${g1},${b1})`,
+    color: colors[direction],
+    backgroundColor: backgrounds[direction],
   };
 }
 
