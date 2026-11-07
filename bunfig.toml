@@ -1,0 +1,7 @@
+# bun fmt / bun fmt --check (Prettier defaults otherwise: semicolons, LF)
+[fmt]
+printWidth = 512
+tabWidth = 4
+singleQuote = true
+trailingComma = "all"
+sortImports = true # sorted and grouped: built-ins, packages, then relative paths
