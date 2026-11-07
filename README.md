@@ -18,10 +18,11 @@ Builds the examples and serves them at http://localhost:3000 (`PORT=4000 bun run
 import { run } from "glyph-engine";
 
 run({
-  main(coord, context) {
-    return { char: "#", color: "red" };
+  main(coord, context, cursor, out) {
+    out.char = "#";
+    out.color = "red";
   },
 });
 ```
 
-Programs fill the grid either per cell with `main()` or per frame with the faster `frame()`. See [docs/programs.md](docs/programs.md) for both APIs, how they differ and which to use.
+`main()` runs once per cell, like a fragment shader, and writes the cell into `out`. See [docs/programs.md](docs/programs.md) for the whole API.

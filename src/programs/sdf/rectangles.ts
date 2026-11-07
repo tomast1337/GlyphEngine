@@ -4,7 +4,7 @@
 @title  Rectangles
 @desc   Smooth SDF Rectangles
 */
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { drawbox,num,sdf } from "glyph-engine";
 
 let density = "▚▀abc|/:÷×+-=?*· ";
@@ -33,7 +33,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const m = Math.max(context.cols, context.rows);
   const a = context.metrics.aspect;
@@ -54,7 +54,7 @@ export function main(
   let c = 1.0 - Math.exp(-5 * Math.abs(d));
   const index = Math.floor(c * density.length);
 
-  return density[index];
+  out.char = density[index];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

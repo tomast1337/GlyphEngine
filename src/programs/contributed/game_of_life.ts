@@ -8,7 +8,7 @@ Each frame of the animation depends on the previous frame. Code in the `pre()`
 function saves the previous frame so it can be used in `main()`.
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { vec2 } from "glyph-engine";
 
 let prevFrame: Buffer;
@@ -33,11 +33,12 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   if (cursor.pressed) {
     if (vec2.dist(coord, cursor) < 3) {
-      return Math.random() > 0.5 ? "▒" : " ";
+      out.char = Math.random() > 0.5 ? "▒" : " ";
+      return;
     }
   }
 
@@ -54,9 +55,9 @@ export function main(
 
   const current = get(x, y);
   if (current == 1) {
-    return neighbors == 2 || neighbors == 3 ? "▒" : " ";
+    out.char = neighbors == 2 || neighbors == 3 ? "▒" : " ";
   } else if (current == 0) {
-    return neighbors == 3 ? "x" : " ";
+    out.char = neighbors == 3 ? "x" : " ";
   }
 }
 

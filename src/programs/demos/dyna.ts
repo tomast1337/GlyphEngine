@@ -8,7 +8,7 @@ The original from 1989:
 http://www.graficaobscura.com/dyna/
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { num, vec2 } from "glyph-engine";
 import { drawbox } from "glyph-engine";
 
@@ -65,13 +65,14 @@ const density = " .:░▒▓█Ñ#+-".split("");
 export function main(
   coord: Coord,
   context: Context,
-  cursor: Cursor
+  cursor: Cursor,
+  out: CellOut
 ) {
   const i = coord.index;
   const v = smoothstep(0, 0.9, values[i]!);
   values[i]! *= 0.99;
   const idx = Math.floor(v * (density.length - 1));
-  return density[idx];
+  out.char = density[idx];
 }
 
 

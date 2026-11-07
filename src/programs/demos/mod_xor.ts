@@ -8,14 +8,14 @@ https://twitter.com/ntsutae/status/1292115106763960327
 */
 import { drawbox } from "glyph-engine";
 const { drawInfo } = drawbox;
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 const pattern = "└┧─┨┕┪┖┫┘┩┙┪━";
 
 export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t1 = Math.floor(context.frame / 2);
   const t2 = Math.floor(context.frame / 128);
@@ -24,7 +24,7 @@ export function main(
   const m = ((t2 * 2) % 30) + 31;
   const i = ((x + y) ^ (x - y)) % m & 1;
   const c = (t2 + i) % pattern.length;
-  return pattern[c];
+  out.char = pattern[c];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

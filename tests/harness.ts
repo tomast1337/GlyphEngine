@@ -1,6 +1,6 @@
 // Runs a program without the DOM: fixed metrics, fixed time step, no input.
 // Shared by the snapshot tests and the benchmark's computation timing.
-import { stepFrame } from "../src/run";
+import { computeFrame } from "../src/run";
 import { createFrame } from "../src/core/frame";
 import type { Context, Cursor, Program } from "../src/program";
 
@@ -27,7 +27,7 @@ export function makeRunner(program: Program, cols: number, rows: number) {
       settings,
       runtime: Object.freeze({ cycle: 0, fps: settings.fps }),
     }) as unknown as Context;
-    stepFrame(program, context, cursor, out);
+    computeFrame(program, context, cursor, out);
     return out;
   };
 }

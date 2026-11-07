@@ -5,7 +5,7 @@
 @desc   Think inside of the box
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { drawbox } from "glyph-engine";
 const { sin, cos, floor } = Math;
 
@@ -13,10 +13,10 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   // Basic background pattern
-  return (coord.x + coord.y) % 2 ? "·" : " ";
+  out.char = (coord.x + coord.y) % 2 ? "·" : " ";
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

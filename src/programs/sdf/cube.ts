@@ -5,7 +5,7 @@
 @desc   The cursor controls box thickness and exp
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import  { vec2 as v2 ,vec3 as v3, drawbox,num,sdf } from "glyph-engine";
 
 
@@ -79,7 +79,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.01;
   const m = min(context.cols, context.rows);
@@ -105,15 +105,11 @@ export function main(
   if (idx == 0) {
     const x = coord.x % bgMatrixDim.x;
     const y = coord.y % bgMatrixDim.y;
-    return {
-      char: d < 0 ? " " : bgMatrix[y]![x],
-      color: "black",
-    };
+    out.char = d < 0 ? " " : bgMatrix[y]![x];
+    out.color = "black";
   } else {
-    return {
-      char: density[idx],
-      color: "royalblue",
-    };
+    out.char = density[idx];
+    out.color = "royalblue";
   }
 }
 

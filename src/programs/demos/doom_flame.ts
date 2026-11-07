@@ -6,7 +6,7 @@
 */
 
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { drawbox,num } from "glyph-engine";
 
 const { drawInfo }= drawbox;
@@ -59,15 +59,13 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const u = data[coord.index]!;
-  if (u === 0) return; // Inserts a space
+  if (u === 0) return; // Leaves the space
 
-  return {
-    char: flame[clamp(u!, 0, flame.length - 1)],
-    fontWeight: u > 20 ? 700 : 100,
-  };
+  out.char = flame[clamp(u!, 0, flame.length - 1)];
+  out.fontWeight = u > 20 ? 700 : 100;
 }
 
 // Random int betweem a and b, inclusive!

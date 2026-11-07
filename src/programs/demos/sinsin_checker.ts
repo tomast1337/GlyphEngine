@@ -5,7 +5,7 @@
 @desc   Checker variation
 */
 import { drawbox } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 const { drawInfo } = drawbox;
 
 const pattern = [" _000111_ ", ".+abc+.      "];
@@ -18,7 +18,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.001;
   const x = coord.x - context.cols / 2;
@@ -26,12 +26,10 @@ export function main(
   const o = sin(x * y * 0.0017 + y * 0.0033 + t) * 40;
   const i = floor(Math.abs(x + y + o));
   const c = (floor(coord.x * 0.09) + floor(coord.y * 0.09)) % 2;
-  return {
-    char: pattern[c]![i % pattern[c]!.length],
-    color: "black", //col[c],
-    // backgroundColor : col[(c+1)%2],
-    fontWeight: weights[c],
-  };
+  out.char = pattern[c]![i % pattern[c]!.length];
+  out.color = "black"; //col[c],
+  // out.background = col[(c+1)%2];
+  out.fontWeight = weights[c];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

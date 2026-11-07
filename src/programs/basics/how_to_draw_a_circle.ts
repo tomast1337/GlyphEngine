@@ -6,12 +6,12 @@
 */
 
 import { drawbox, vec2 } from "glyph-engine";
-import  type { Buffer, Context, Coord, Cursor, Style } from "glyph-engine";
+import  type { Buffer, CellOut, Context, Coord, Cursor, Style } from "glyph-engine";
 export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   // contex.metrics.aspect holds the font (or cell) aspect ratio
   const aspectRatio = cursor.pressed ? 1 : context.metrics.aspect;
@@ -28,7 +28,7 @@ export function main(
   const l = vec2.length(st);
 
   // 0.7 is the radius of the circle
-  return l < 0.7 ? "X" : ".";
+  out.char = l < 0.7 ? "X" : ".";
 }
 
 // Draw some info

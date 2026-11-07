@@ -5,7 +5,7 @@
 @desc   Draw a smooth circle with exp()
 */
 
-import type { Buffer, Context, Coord, Cursor, Style } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor, Style } from "glyph-engine";
 import { sort,sdf } from "glyph-engine";
 
 const density = sort.sort("/\\MXYZabc!?=-. ", "Simple Console", false);
@@ -16,7 +16,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.002;
   const m = Math.min(context.cols, context.rows);
@@ -32,9 +32,7 @@ export function main(
   const c = 1.0 - Math.exp(-5 * Math.abs(d));
   const index = Math.floor(c * density.length);
 
-  return {
-    char: coord.x % 2 ? "│" : density[index],
-    backgroundColor: "black",
-    color: "white",
-  };
+  out.char = coord.x % 2 ? "│" : density[index];
+  out.background = "black";
+  out.color = "white";
 }

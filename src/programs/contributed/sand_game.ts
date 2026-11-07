@@ -5,7 +5,7 @@
 @desc   Click to drop sand
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { vec2 } from "glyph-engine";
 
 let prevFrame: Buffer;
@@ -34,17 +34,16 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   if (cursor.pressed) {
     if (vec2.dist(coord, cursor) < 3) {
-      return {
-        char: Math.random() > 0.5 ? newParticle() : " ",
+      out.char = Math.random() > 0.5 ? newParticle() : " ";
 
-        backgroundColor: "white",
-        color: "rgb(179, 158, 124)",
-        fontWeight: 500,
-      };
+      out.background = "white";
+      out.color = "rgb(179, 158, 124)";
+      out.fontWeight = 500;
+      return;
     }
   }
 
@@ -64,21 +63,19 @@ export function main(
   const frame = context.frame;
 
   if (y >= context.rows - 1) {
-    return {
-      char: "GROUND_".charAt(x % 7),
-      backgroundColor: "rgb(138, 162, 70)",
-      color: "rgb(211, 231, 151)",
-      fontWeight: 700,
-    };
+    out.char = "GROUND_".charAt(x % 7);
+    out.background = "rgb(138, 162, 70)";
+    out.color = "rgb(211, 231, 151)";
+    out.fontWeight = 700;
+    return;
   }
 
   if (x >= context.cols - 1 || x <= 0) {
-    return {
-      char: "WALL".charAt(y % 4),
-      backgroundColor: "rgb(247, 187, 39)",
-      color: "white",
-      fontWeight: 700,
-    };
+    out.char = "WALL".charAt(y % 4);
+    out.background = "rgb(247, 187, 39)";
+    out.color = "white";
+    out.fontWeight = 700;
+    return;
   }
 
   let char = " ";
@@ -108,12 +105,10 @@ export function main(
     }
   }
 
-  return {
-    char,
-    backgroundColor: "white",
-    color: "rgb(179, 158, 124)",
-    fontWeight: 500,
-  };
+  out.char = char;
+  out.background = "white";
+  out.color = "rgb(179, 158, 124)";
+  out.fontWeight = 500;
 }
 
 function alive(char: string) {

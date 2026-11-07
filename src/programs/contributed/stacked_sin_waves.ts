@@ -5,7 +5,7 @@
 @desc   noob at frag shaders
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 const chars = "█▓▒░ ".split("");
 
@@ -13,7 +13,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.002;
   const x = coord.x;
@@ -28,7 +28,7 @@ export function main(
   const v3 = v2 + wave(t, y, [0.167, 0.054, 0.147], [4, 6, 7]) * 0.4;
   const i = x > v3 ? 4 : x > v2 ? 3 : x > v1 ? 2 : x > v0 ? 1 : 0;
 
-  return chars[i];
+  out.char = chars[i];
 }
 
 function wave(

@@ -6,7 +6,7 @@
 */
 
 import { drawbox,num,sdf,vec2 } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 const { drawInfo } = drawbox;
 const { fract, map, smoothstep } = num;
 const { sdCircle } = sdf;
@@ -18,7 +18,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.001;
   const m = Math.min(context.cols, context.rows);
@@ -49,11 +49,9 @@ export function main(
 
   const index = Math.floor(c * (density.length - 1));
 
-  return {
-    char: density[index],
-    color: k == 0 ? "orangered" : "royalblue",
-    // backgroundColor : coord.y % 2 ? 'white' : 'cornsilk'
-  };
+  out.char = density[index];
+  out.color = k == 0 ? "orangered" : "royalblue";
+  // out.background = coord.y % 2 ? 'white' : 'cornsilk';
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

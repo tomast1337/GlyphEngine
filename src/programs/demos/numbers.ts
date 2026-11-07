@@ -5,7 +5,7 @@
 @desc   Fun with integers
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { color,num } from "glyph-engine";
 const { CGA } = color;
 const { map } = num;
@@ -37,7 +37,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const f = context.frame;
 
@@ -66,8 +66,6 @@ export function main(
   }
 
   let color = num % CGA.length;
-  return {
-    char: ".▇"[char],
-    color: char ? CGA[color]!.hex : CGA[5]!.hex,
-  };
+  out.char = ".▇"[char];
+  out.color = (char ? CGA[color]!.hex : CGA[5]!.hex)!;
 }

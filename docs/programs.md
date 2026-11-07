@@ -2,80 +2,56 @@
 
 A program is a module (or plain object) passed to `run()`. The engine calls its functions every frame, and a renderer (`text`, `canvas` or `webgl`) draws the result as a grid of character cells.
 
-There are two ways to fill the grid:
-
-- **`main()`**: called once per cell; returns that cell. Simple, and the style of the original play.core.
-- **`frame()`**: called once per frame; writes every cell into typed arrays. More verbose, much faster on big grids.
-
-A program uses one or the other. If it exports `frame()`, then `pre()`, `main()` and `post()` are ignored.
-
 ## main(): one call per cell
+
+Like a fragment shader: `main()` runs once for every cell and writes that cell into `out`.
 
 ```ts
 import { run } from "glyph-engine";
 
 run({
-  main(coord, context, cursor, buffer, userData) {
-    return { char: "#", color: "red" }; // or just "#"
+  main(coord, context, cursor, out, userData) {
+    const v = Math.sin(coord.x * 0.1 + context.time * 0.001); // -1..1
+    out.char = v > 0 ? "#" : ".";
+    out.color = "white"; // any CSS colour
+    out.background.r = (v + 1) * 127; // or channels 0-255
+    out.background.g = 0;
+    out.background.b = 128;
   },
 });
 ```
 
-`main()` receives the cell's position (`coord.x`, `coord.y`, `coord.index`) and returns one of:
+`coord` is the cell's position: `coord.x`, `coord.y` and `coord.index` (`x + y * cols`).
 
-- a string: the glyph (`"#"`, `"👋"`)
-- a cell object: `{ char, color, backgroundColor, fontWeight }`, colours as any CSS string
-- nothing (`undefined` / `null`): an empty cell
+`out` is the cell. The engine resets it before each cell and stores it right after, so writing it allocates nothing:
 
-Two optional functions run around it, once per frame:
+| field | holds | starts as |
+|---|---|---|
+| `out.char` | the glyph, a string (`"#"`, `"👋"`, `"👩‍💻"`) | `" "` |
+| `out.color` | text colour | the cell's colour last frame (`settings.color` at first) |
+| `out.background` | background colour | the cell's background last frame (`settings.backgroundColor` at first) |
+| `out.fontWeight` | `"bold"`, `"700"`, `700` … | unset: keeps the cell's weight |
 
-- `pre(context, cursor, buffer, userData)`: before the cells. Compute values shared by every cell here (positions, rotations, colours) instead of recomputing them in each `main()` call.
+Colours can be set three ways:
+
+- a CSS string: `out.color = "tomato"`. Repeating the same string is cheap.
+- a packed number: `out.color = rgba(255, 99, 71)`, or `cssColor("tomato")` computed once.
+- channels: `out.color.r = 255`, `.g`, `.b`, `.a` (0-255). Values outside the range are clamped, so shader-style maths needs no clamping.
+
+`out.color = 0` goes back to the settings colour.
+
+## pre() and post()
+
+Two optional functions run around the cells, once per frame:
+
+- `pre(context, cursor, buffer, userData)`: before the cells. Compute values shared by every cell here (positions, rotations, colours) instead of recomputing them in each `main()` call; that took `sdf/rectangles` from 79 to 13 ms per frame.
 - `post(context, cursor, buffer, userData)`: after the cells. Draw on top, e.g. `drawbox.drawInfo(context, cursor, buffer)` for the FPS box.
 
-`buffer` is the grid as an array of cell objects (index `x + y * cols`). It keeps its cells between frames, so `pre()` can read the previous frame (see `contributed/game_of_life`). `main()` overwrites every cell each frame.
+`buffer` is the grid seen as an array of cell objects (index `x + y * cols`), `{ char, color, backgroundColor, fontWeight }`. Reading it in `pre()` gives what `main()` wrote last frame (see `contributed/game_of_life`); assigning a whole cell writes it (`buffer[i] = { char: "#" }`). Each access converts one cell, and changing a cell object you read has no effect.
 
-## frame(): one call per frame
+## Other functions and arguments
 
-```ts
-import { run, rgba, cssColor, setChar, type Frame } from "glyph-engine";
-
-const red = cssColor("red"); // pack colours once, reuse the number
-
-run({
-  frame(context, cursor, out: Frame, userData) {
-    for (let k = 0; k < out.cols * out.rows; k++) {
-      out.chars[k] = 0x23; // "#" as a code point
-      out.fg[k] = red;
-      out.bg[k] = rgba(0, 0, k % 256);
-    }
-    setChar(out, 0, "👩‍💻"); // a glyph made of several code points
-  },
-});
-```
-
-`out` holds the grid as typed arrays, one entry per cell, index `k = x + y * cols`:
-
-| array | holds | 0 means |
-|---|---|---|
-| `chars` (`Uint32Array`) | the glyph as a Unicode code point | empty cell |
-| `fg` (`Uint32Array`) | text colour, packed `0xRRGGBBAA` | `settings.color` |
-| `bg` (`Uint32Array`) | background colour | `settings.backgroundColor` |
-| `weight` (`Uint8Array`) | font weight / 100 (7 = bold) | `settings.fontWeight` |
-
-Helpers:
-
-- `rgba(r, g, b, a = 255)`: pack channels (0-255) into a colour.
-- `cssColor("tomato")`: pack any CSS colour (cached). Call it once, outside the loop.
-- `setChar(out, k, s)` / `getChar(out, k)`: write / read a glyph as a string. Needed for glyphs made of several code points (ZWJ emoji, flags); single code points can go straight into `chars`.
-- `asBuffer(out)`: the frame seen as a buffer of cell objects, so buffer helpers work on it: `drawbox.drawInfo(context, cursor, asBuffer(out))`. Each access converts one cell: fine for a box or a line of text, slow for the whole grid.
-
-The frame keeps its content: cells you don't write keep last frame's value (see `frame/rain`). It is replaced by a fresh, empty one when the grid is resized.
-
-## Both APIs
-
-These work the same way with `main()` and `frame()` programs:
-
-- `boot(context, buffer, userData)`: once, before the first frame. Receives the buffer, or the frame for `frame()` programs.
+- `boot(context, buffer, userData)`: once, before the first frame.
 - `pointerMove`, `pointerDown`, `pointerUp` `(context, cursor, buffer, userData)`: after a frame in which the pointer moved, was pressed or released.
 - `settings`: exported object merged over the `run()` settings, e.g. `{ fps: 60, renderer: "canvas", color: "white", backgroundColor: "black" }`.
 - `context`: `frame`, `time` (ms), `delta` (ms since the previous frame), `cols`, `rows`, `width`, `height`, `metrics` (font metrics, `aspect` = cell width / height), `settings`.
@@ -90,31 +66,13 @@ The frame rate is not fixed: `settings.fps` is a cap, and a slow machine or a he
 - or step by the time since the last frame: `x += speed * context.delta / 1000`
 - fading or decay per frame: `value *= Math.pow(perSecond, context.delta / 1000)`
 
-`frame/rain` does both; change its `fps` setting and the rain keeps its speed. Simulations meant to advance one step per frame (`contributed/game_of_life`, `contributed/sand_game`) can keep using the frame count.
+`demos/rain` does both; change its `fps` setting and the rain keeps its speed. Simulations meant to advance one step per frame (`contributed/game_of_life`, `contributed/sand_game`) can keep using the frame count.
 
 `delta` is 0 on the first frame. It is large after the tab was hidden (the browser pauses frames), so cap it if a jump would break something: `Math.min(context.delta, 100)`.
 
-## How they differ
-
-| | `main()` | `frame()` |
-|---|---|---|
-| called | once per cell | once per frame |
-| glyph | string | code point (`setChar()` for strings) |
-| colour | CSS string per cell | packed number, packed once |
-| per-frame values | computed in `pre()` | computed before the cell loop |
-| cells not written | every cell is written each frame | keep last frame's value |
-| drawing helpers | take the buffer directly | through `asBuffer(out)` |
-| cost per cell | a call, a cell object, then a conversion to the renderers' format | an array write |
-
-Under the hood both end in the same place: renderers draw the typed-array frame. A `main()` program's buffer is converted into it after `post()`.
-
-## Which one to use
-
-Start with `main()`: it reads like a fragment shader and is enough for most programs. Most examples in the playground use it.
-
-Use `frame()` when the grid is big or the maths per cell heavy and the frame rate drops. The API overhead of `main()` is roughly 1-2 ms per frame at 300×100 cells. If a `main()` program is much slower than that, first move the values that are the same for every cell into `pre()` (that took `sdf/rectangles` from 79 to 13 ms); `frame()` then saves the rest.
-
 ## Examples
 
-- `main()`: most of the playground, e.g. `basics/simple_output`, `sdf/balls`, `contributed/game_of_life`.
-- `frame()`: the **frame** group (`hello_frame`, `colors_and_weight`, `balls`, `rain`) and `demos/plasma`. `frame/balls` and `sdf/balls` draw the same picture, one with each API.
+- `basics/simple_output`, `basics/colors_and_weight`: the `out` fields.
+- `demos/plasma`: colour channels, per-frame values in `pre()`.
+- `contributed/game_of_life`: reading last frame through the buffer.
+- `demos/rain`: time-based animation with `delta`.

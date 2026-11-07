@@ -6,7 +6,7 @@
 */
 
 import { drawbox, num } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 export const settings = { fps: 60 };
 
 const { cos } = Math;
@@ -35,7 +35,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   // Hold the mouse button to switch the direction
   // of the gradient and observe the drop in FPS.
@@ -46,11 +46,9 @@ export function main(
 
   const direction = cursor.pressed ? coord.x : coord.y;
 
-  return {
-    char: context.frame % 10,
-    color: colors[direction],
-    backgroundColor: backgrounds[direction],
-  };
+  out.char = String(context.frame % 10);
+  out.color = colors[direction]!;
+  out.background = backgrounds[direction]!;
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

@@ -6,7 +6,7 @@
 */
 
 import { drawbox } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 const chars = "¯_(ツ)_/¯.::.ᕦ(ò_óˇ)ᕤ ".split("");
 
@@ -18,7 +18,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.0001;
 
@@ -41,10 +41,8 @@ export function main(
   ];
 
   const i = Math.round(Math.abs(x + y + o)) % chars.length;
-  return {
-    char: chars[i],
-    color: colors[i % colors.length],
-  };
+  out.char = chars[i];
+  out.color = colors[i % colors.length]!;
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

@@ -6,7 +6,9 @@ test("main() writes stay per cell after post() put one object in several cells",
   let first = true;
   const step = makeRunner(
     {
-      main: (coord) => "ab"[coord.index],
+      main: (coord, _ctx, _cur, out) => {
+        out.char = "ab"[coord.index];
+      },
       post: (_ctx, _cur, buffer) => {
         // Like setRect: the same object in two cells, on the first frame only.
         if (first) buffer[0] = buffer[1] = { char: "#" };
@@ -36,7 +38,8 @@ test("main() writes the out slot: glyphs, CSS / channel colours, clamping, defau
           out.color = "#000000"; // equal to the default but assigned: kept
           out.fontWeight = "bold";
         } else if (coord.index === 2) {
-          return { char: "x", backgroundColor: "#00ff00" };
+          out.char = "x";
+          out.background = "#00ff00";
         }
         // index 3: untouched, a space with default colours
       },

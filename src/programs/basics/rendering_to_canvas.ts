@@ -4,7 +4,7 @@
 @title  Canvas renderer
 @desc   Rendering to a canvas element
 */
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 // A few extra fields are available when choosing the canvas renderer:
 // The offset (from top, left) and the size of the canvas element.
 export const settings = {
@@ -32,11 +32,11 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const { x, y } = coord;
   const f = context.frame;
   const l = chars.length;
   const c = context.cols;
-  return y % 2 ? chars[(y + x + f) % l] : chars[(y + c - x + f) % l];
+  out.char = y % 2 ? chars[(y + x + f) % l] : chars[(y + c - x + f) % l];
 }
