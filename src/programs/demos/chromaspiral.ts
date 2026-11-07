@@ -19,13 +19,29 @@ const { min, sin, cos, floor } = Math;
 const density = "#Wabc:+-. ";
 const colors = ["deeppink", "black", "red", "blue", "orange", "yellow"];
 
+// Per frame, the same for every cell: the three spiral offsets and the
+// wave shift. Computed once in pre(), not per cell.
+let t = 0;
+let s = 0;
+const offsets = [vec2(0, 0), vec2(0, 0), vec2(0, 0)];
+const tmp = vec2(0, 0); // scratch, reused
+
+export function pre(context: Context) {
+  t = context.time * 0.0002;
+  s = cos(t) * 2.0;
+  for (let i = 0; i < 3; i++) {
+    const o = i * 3;
+    offsets[i]!.x = sin(t * 3 + o);
+    offsets[i]!.y = cos(t * 2 + o);
+  }
+}
+
 export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
   buffer: Buffer
 ) {
-  const t = context.time * 0.0002;
   const m = min(context.cols, context.rows);
   const a = context.metrics.aspect;
 
@@ -34,18 +50,14 @@ export function main(
     y: (2.0 * (coord.y - context.rows / 2)) / m,
   };
 
-  for (let i = 0; i < 3; i++) {
-    const o = i * 3;
-    const v = vec2(sin(t * 3 + o), cos(t * 2 + o));
+  for (const v of offsets) {
     add(st, v, st);
-
-    const ang = -t + length(subN(st, 0.5));
+    const ang = -t + length(subN(st, 0.5, tmp));
     rot(st, ang, st);
   }
 
   mulN(st, 0.6, st);
 
-  const s = cos(t) * 2.0;
   let c = sin(st.x * 3.0 + s) + sin(st.y * 21);
   c = map(sin(c * 0.5), -1, 1, 0, 1);
 
