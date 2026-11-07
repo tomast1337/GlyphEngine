@@ -87,7 +87,7 @@ function createState(gl: WebGL2RenderingContext) {
       perRow: 0,
       capacity: 0,
       next: 1, // slot 0 stays empty: spaces and blank cells
-      glyphs: new Map<string, number>(),
+      glyphs: new Map<string | number, Map<unknown, number>>(), // weight -> char -> slot
       colored: new Uint8Array(0),
     },
     colors: new Map<string, number>(),
@@ -121,13 +121,18 @@ function draw(s: GLState, context: Context, buffer: Buffer) {
 
   const data = s.cells;
   const colored = s.atlas.colored;
+  // Neighbouring cells usually share colours: skip the Map lookup on repeats.
+  let lastFg: string | undefined = "", lastFgV = fg;
+  let lastBg: string | undefined = "", lastBgV = bg;
   for (let i = 0, n = cols * rows; i < n; i++) {
     const cell = buffer[i]!;
     const slot = glyphSlot(s, cell.char, cell.fontWeight || fontWeight, fontSize, m.fontFamily);
     const o = i * 4;
     data[o] = slot;
-    data[o + 1] = cell.color ? packColor(s, cell.color) : fg;
-    data[o + 2] = cell.backgroundColor ? packColor(s, cell.backgroundColor) : bg;
+    if (cell.color !== lastFg) lastFgV = (lastFg = cell.color) ? packColor(s, lastFg) : fg;
+    if (cell.backgroundColor !== lastBg) lastBgV = (lastBg = cell.backgroundColor) ? packColor(s, lastBg) : bg;
+    data[o + 1] = lastFgV;
+    data[o + 2] = lastBgV;
     data[o + 3] = colored[slot] ? FLAG_COLOR_GLYPH : 0;
   }
 
@@ -208,8 +213,7 @@ function ensureAtlas(s: GLState, slotW: number, slotH: number, font: string) {
 function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize: number, family: string) {
   if (char === " " || char === "" || char == null) return 0;
   const a = s.atlas;
-  const key = weight + " " + char;
-  let slot = a.glyphs.get(key);
+  let slot = a.glyphs.get(weight)?.get(char);
   if (slot !== undefined) return slot;
 
   // shortcut: when full, start over; cells already written this frame could point
@@ -237,7 +241,9 @@ function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize:
   const y = Math.floor(slot / a.perRow) * a.slotH;
   gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, gl.RGBA, gl.UNSIGNED_BYTE, s.scratch);
 
-  a.glyphs.set(key, slot);
+  let byChar = a.glyphs.get(weight);
+  if (!byChar) a.glyphs.set(weight, (byChar = new Map()));
+  byChar.set(char, slot);
   return slot;
 }
 
