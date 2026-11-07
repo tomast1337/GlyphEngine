@@ -98,7 +98,10 @@ export function run(
     if (settings.restoreState) {
       storage.restore(LOCAL_STORAGE_KEY_STATE, state);
       state.cycle++; // Keep track of the cycle count for debugging purposes
+      // The loop stores at most once per second; save the latest state on leave
+      addEventListener("pagehide", () => storage.store(LOCAL_STORAGE_KEY_STATE, state));
     }
+    let lastStore = -Infinity;
 
     // If element is not provided create a default element based
     // on the renderer settings.
@@ -278,7 +281,10 @@ export function run(
       timeSample = t - (delta % interval); // adjust timeSample
       state.time = t + timeOffset; // increment time + initial offs
       state.frame++; // increment frame counter
-      storage.store(LOCAL_STORAGE_KEY_STATE, state); // store state
+      if (settings.restoreState && t - lastStore >= 1000) {
+        storage.store(LOCAL_STORAGE_KEY_STATE, state);
+        lastStore = t;
+      }
 
       // Cursor update
       const cursor = {
