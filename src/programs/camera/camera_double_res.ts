@@ -5,8 +5,8 @@
 @desc   Doubled vertical resolution input from camera
 */
 
-import  { color,canvas,camera,drawbox } from "glyph-engine";
-import type{ Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
+import { camera, canvas, color, drawbox } from 'glyph-engine';
+import type { Buffer, CellOut, Context, Coord, Cursor } from 'glyph-engine';
 
 const cam = camera.default.init();
 const can = new canvas.default();
@@ -26,33 +26,27 @@ pal.push(color.CSS3.lightblue!);
 const data: color.AugmentedPaletteElement[] = [];
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
-  const a = context.metrics.aspect;
+    const a = context.metrics.aspect;
 
-  // The canvas is resized to the double of the height of the context
-  can.resize(context.cols, context.rows * 2);
+    // The canvas is resized to the double of the height of the context
+    can.resize(context.cols, context.rows * 2);
 
-  // Also the aspect ratio needs to be doubled
-  can
-    .cover(cam, a * 2)
-    .quantize(pal)
-    .mirrorX()
-    .writeTo(data);
+    // Also the aspect ratio needs to be doubled
+    can.cover(cam, a * 2)
+        .quantize(pal)
+        .mirrorX()
+        .writeTo(data);
 }
 
-export function main(
-  coord: Coord,
-  context: Context,
-  cursor: Cursor,
-  out: CellOut
-) {
-  // Coord also contains the index of each cell:
-  const idx = coord.y * context.cols * 2 + coord.x;
-  const upper = data[idx]!;
-  const lower = data[idx + context.cols]!;
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
+    // Coord also contains the index of each cell:
+    const idx = coord.y * context.cols * 2 + coord.x;
+    const upper = data[idx]!;
+    const lower = data[idx + context.cols]!;
 
-  out.char = "▄";
-  out.color = lower.hex!;
-  out.background = upper.hex!;
+    out.char = '▄';
+    out.color = lower.hex!;
+    out.background = upper.hex!;
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

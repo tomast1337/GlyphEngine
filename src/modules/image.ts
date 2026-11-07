@@ -15,53 +15,46 @@ const color = img.get(10, 10)
 
 */
 
-import Canvas from "./canvas";
-import Load from "./load";
+import Canvas from './canvas';
+import Load from './load';
 
 export default {
-  load,
+    load,
 };
 
 function load(path: string) {
-  const source = document.createElement("canvas");
-  source.width = 1;
-  source.height = 1;
+    const source = document.createElement('canvas');
+    source.width = 1;
+    source.height = 1;
 
-  const can = new Canvas(source);
+    const can = new Canvas(source);
 
-  Load.image(path)
-    .then((img: unknown) => {
-      if (!img) {
-        console.warn("Image " + path + " could not be loaded.");
-        return;
-      }
+    Load.image(path)
+        .then((img: unknown) => {
+            if (!img) {
+                console.warn('Image ' + path + ' could not be loaded.');
+                return;
+            }
 
-      const imageElement = img as HTMLImageElement;
-      console.log(
-        "Image " +
-          path +
-          " loaded. Size: " +
-          imageElement.width +
-          "×" +
-          imageElement.height
-      );
-      can.resize(imageElement.width, imageElement.height);
-      can.copy(
-        imageElement,
-        // add by now
-        0,
-        0,
-        imageElement.width,
-        imageElement.height,
-        0,
-        0,
-        imageElement.width,
-        imageElement.height
-      );
-    })
-    .catch((err) => {
-      console.warn("There was an error loading image " + path + ".");
-    });
+            const imageElement = img as HTMLImageElement;
+            console.log('Image ' + path + ' loaded. Size: ' + imageElement.width + '×' + imageElement.height);
+            can.resize(imageElement.width, imageElement.height);
+            can.copy(
+                imageElement,
+                // add by now
+                0,
+                0,
+                imageElement.width,
+                imageElement.height,
+                0,
+                0,
+                imageElement.width,
+                imageElement.height,
+            );
+        })
+        .catch((err) => {
+            console.warn('There was an error loading image ' + path + '.');
+        });
 
-  return can;
+    return can;
 }

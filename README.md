@@ -15,13 +15,13 @@ Builds the examples and serves them at http://localhost:3000 (`PORT=4000 bun run
 ## Writing programs
 
 ```ts
-import { run } from "glyph-engine";
+import { run } from 'glyph-engine';
 
 run({
-  main(coord, context, cursor, out) {
-    out.char = "#";
-    out.color = "red";
-  },
+    main(coord, context, cursor, out) {
+        out.char = '#';
+        out.color = 'red';
+    },
 });
 ```
 

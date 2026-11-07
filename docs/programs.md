@@ -7,17 +7,17 @@ A program is a module (or plain object) passed to `run()`. The engine calls its 
 Like a fragment shader: `main()` runs once for every cell and writes that cell into `out`.
 
 ```ts
-import { run } from "glyph-engine";
+import { run } from 'glyph-engine';
 
 run({
-  main(coord, context, cursor, out, userData) {
-    const v = Math.sin(coord.x * 0.1 + context.time * 0.001); // -1..1
-    out.char = v > 0 ? "#" : ".";
-    out.color = "white"; // any CSS colour
-    out.background.r = (v + 1) * 127; // or channels 0-255
-    out.background.g = 0;
-    out.background.b = 128;
-  },
+    main(coord, context, cursor, out, userData) {
+        const v = Math.sin(coord.x * 0.1 + context.time * 0.001); // -1..1
+        out.char = v > 0 ? '#' : '.';
+        out.color = 'white'; // any CSS colour
+        out.background.r = (v + 1) * 127; // or channels 0-255
+        out.background.g = 0;
+        out.background.b = 128;
+    },
 });
 ```
 
@@ -25,12 +25,12 @@ run({
 
 `out` is the cell. The engine resets it before each cell and stores it right after, so writing it allocates nothing:
 
-| field | holds | starts as |
-|---|---|---|
-| `out.char` | the glyph, a string (`"#"`, `"👋"`, `"👩‍💻"`) | `" "` |
-| `out.color` | text colour | the cell's colour last frame (`settings.color` at first) |
-| `out.background` | background colour | the cell's background last frame (`settings.backgroundColor` at first) |
-| `out.fontWeight` | `"bold"`, `"700"`, `700` … | unset: keeps the cell's weight |
+| field            | holds                                       | starts as                                                              |
+| ---------------- | ------------------------------------------- | ---------------------------------------------------------------------- |
+| `out.char`       | the glyph, a string (`"#"`, `"👋"`, `"👩‍💻"`) | `" "`                                                                  |
+| `out.color`      | text colour                                 | the cell's colour last frame (`settings.color` at first)               |
+| `out.background` | background colour                           | the cell's background last frame (`settings.backgroundColor` at first) |
+| `out.fontWeight` | `"bold"`, `"700"`, `700` …                  | unset: keeps the cell's weight                                         |
 
 Colours can be set three ways:
 
@@ -75,7 +75,7 @@ The frame rate is not fixed: `settings.fps` is a cap, and a slow machine or a he
 A program can also export its `main()` in WGSL. With `renderer: "webgpu"` it runs on the GPU, one invocation per cell, and the JS `main()` is skipped. Without WebGPU the JS `main()` runs instead, so keep both. A program with only `wgsl` stops with an error.
 
 ```ts
-export const glyphs = " .:-=+*#"; // every glyph the WGSL may draw
+export const glyphs = ' .:-=+*#'; // every glyph the WGSL may draw
 export const wgsl = /* wgsl */ `
 fn main(coord: vec2f, ctx: Context, out: ptr<function, Cell>) {
   let v = sin(coord.x * 0.1 + ctx.time * 0.001) * 0.5 + 0.5; // 0..1
@@ -102,11 +102,11 @@ Limits:
 
 Speed, `demos/plasma`, a full frame including the GPU finishing, on a Radeon RX 580:
 
-| grid | JS `main()` + webgl | WGSL + webgpu |
-|---|---|---|
-| 300×100 | 5.7 ms | 2.5 ms |
-| 500×200 | 18.0 ms | 2.6 ms |
-| 1000×400 | 70.8 ms | 3.3 ms |
+| grid     | JS `main()` + webgl | WGSL + webgpu |
+| -------- | ------------------- | ------------- |
+| 300×100  | 5.7 ms              | 2.5 ms        |
+| 500×200  | 18.0 ms             | 2.6 ms        |
+| 1000×400 | 70.8 ms             | 3.3 ms        |
 
 ## Examples
 

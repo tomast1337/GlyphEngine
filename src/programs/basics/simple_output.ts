@@ -5,10 +5,10 @@
 @desc   The smallest program possible?
 */
 
-import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from 'glyph-engine';
 
 export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
-  out.char = "?";
+    out.char = '?';
 }
 
 // Shorter:
