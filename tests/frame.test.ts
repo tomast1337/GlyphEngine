@@ -30,3 +30,10 @@ test('asBuffer reads and writes cells as objects', () => {
     expect(b[1]).toEqual({ char: 'x', color: 'rgb(255,0,0)', fontWeight: '700' });
     expect(getChar(f, 1)).toBe('x');
 });
+
+test('without a browser canvas, colour names and #rgb still parse', () => {
+    expect(cssColor('white')).toBe(0xffffffff);
+    expect(cssColor('RoyalBlue')).toBe(0x4169e1ff);
+    expect(cssColor('#f80')).toBe(0xff8800ff);
+    expect(cssColor('notacolour')).toBe(0);
+});

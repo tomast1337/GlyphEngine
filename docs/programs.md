@@ -2,7 +2,9 @@
 
 A program is a module (or plain object) passed to `run()`. The engine calls its functions every frame, and a renderer (`text`, `canvas`, `webgl` or `webgpu`) draws the result as a grid of character cells.
 
-Programs import from `@glyph-engine/core` (types, `drawbox`, `num`, `vec2`, `sdf`, colours), which works under any runner. Only programs using browser modules (`camera`, `canvas`, `sort`, `image`, `exportframe`…) import from `@glyph-engine/web`.
+Programs import from `@glyph-engine/core` (types, `drawbox`, `num`, `vec2`, `sdf`, colours), which works under any runner. Only programs using browser modules (`camera`, `canvas`, `sort`, `image`, `exportframe`…) import from `@glyph-engine/web`, and those run only in the browser.
+
+In the terminal (`@glyph-engine/tui`), cells are taken to be twice as tall as wide (`context.metrics.aspect` is 0.5), the mouse is the cursor, and translucent colours draw opaque.
 
 ## main(): one call per cell
 

@@ -8,6 +8,7 @@ with the added npm package support, and typescript support.
 
 - `@glyph-engine/core` (`packages/core`): frames, the `out` slot, `computeFrame()` and the modules programs use (`drawbox`, `num`, `vec2`, `sdf`…). No DOM: it runs anywhere.
 - `@glyph-engine/web` (`packages/web`): `run()` in the browser with the text, canvas, WebGL2 and WebGPU renderers, and the browser-only modules (`camera`, `canvas`, `sort`, `image`…). It re-exports the core.
+- `@glyph-engine/tui` (`packages/tui`): `run()` in a terminal, with 24-bit colour and the mouse as the cursor. Needs Bun. It re-exports the core.
 
 The examples live in `programs/`. `bun run build` builds both packages into their `dist/`.
 
@@ -18,6 +19,14 @@ bun run dev
 ```
 
 Builds the examples and serves them at http://localhost:3000 (`PORT=4000 bun run dev` to change the port). Pick an example on the right, edit its source in the middle and press Ctrl+Enter to run it. `bun run build:examples` only builds the static files into `out/`.
+
+## Terminal
+
+```
+bun run tui demos/plasma
+```
+
+Runs an example in the terminal (any path under `programs/`, without `.ts`). Ctrl+C quits. Needs a terminal with 24-bit colour and mouse reporting (most do: kitty, WezTerm, Alacritty, GNOME Terminal, Windows Terminal). Programs that use browser modules (`camera`, `canvas`, `sort`…) only run in the browser.
 
 ## Writing programs
 

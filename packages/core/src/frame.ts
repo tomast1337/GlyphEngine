@@ -4,6 +4,7 @@
 @category core
 */
 
+import { cssNames } from './cssnames';
 import type { Buffer, Cell } from './modules/buffer';
 
 // chars[i] >= GRAPHEME: index into frame.graphemes (glyphs made of several code points)
@@ -50,7 +51,7 @@ export function cssColor(css: string): number {
     if (v !== undefined) return v;
     if (normalizer === undefined) {
         // A browser canvas turns any CSS colour into "#rrggbb" or "rgba(r, g, b, a)".
-        // Without one (tests, terminal) only those two forms and rgb() are understood.
+        // Without one (tests, terminal) colour names, #rgb, #rrggbb, rgb() and rgba() are.
         // Typed here so the core needs no DOM types.
         type Canvas = { getContext(type: '2d'): { fillStyle: unknown } | null };
         const g = globalThis as { OffscreenCanvas?: new (w: number, h: number) => Canvas; document?: { createElement(tag: 'canvas'): Canvas } };
@@ -61,6 +62,10 @@ export function cssColor(css: string): number {
         normalizer.fillStyle = '#00000000'; // an invalid string leaves this value
         normalizer.fillStyle = css;
         s = String(normalizer.fillStyle);
+    } else {
+        const name = cssNames.get(css.toLowerCase());
+        if (name) s = '#' + name;
+        else if (/^#[0-9a-f]{3}$/i.test(css)) s = '#' + css[1]! + css[1] + css[2] + css[2] + css[3] + css[3];
     }
     v = 0;
     if (/^#[0-9a-f]{6}$/i.test(s)) {

@@ -25,7 +25,8 @@
         // Workspace packages resolve to their sources: no build needed to run or test
         "paths": {
             "@glyph-engine/core": ["./packages/core/src/index.ts"],
-            "@glyph-engine/web": ["./packages/web/src/index.ts"]
+            "@glyph-engine/web": ["./packages/web/src/index.ts"],
+            "@glyph-engine/tui": ["./packages/tui/src/index.ts"]
         }
     },
     "include": ["packages/*/src", "programs", "script", "tests"],
