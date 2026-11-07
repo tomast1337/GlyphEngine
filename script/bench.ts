@@ -1,10 +1,10 @@
 // Engine benchmark: runs programs in headless Chromium and prints ms per frame.
-// Usage: bun run bench [frames]
+// Usage: bun run bench [frames] [cols] [rows]
 import { chromium } from "playwright";
 
-const COLS = 200;
-const ROWS = 60;
 const FRAMES = Number(process.argv[2] ?? 200);
+const COLS = Number(process.argv[3] ?? 200);
+const ROWS = Number(process.argv[4] ?? 60);
 const WARMUP = 20;
 
 const build = await Bun.build({ entrypoints: [import.meta.dir + "/bench-page.ts"], target: "browser" });
@@ -31,11 +31,11 @@ try {
   );
 
   console.log(`${COLS}x${ROWS}, ${FRAMES} frames (${WARMUP} warmup), mean ms/frame\n`);
-  console.log("program".padEnd(10) + "compute".padStart(10) + "canvas".padStart(10) + "text".padStart(10));
+  console.log("program".padEnd(10) + "compute".padStart(10) + "canvas".padStart(10) + "webgl".padStart(10) + "text".padStart(10));
   for (const [name, r] of Object.entries(results as Record<string, Record<string, number>>)) {
-    console.log(name.padEnd(10) + [r.compute, r.canvas, r.text].map((n) => n!.toFixed(2).padStart(10)).join(""));
+    console.log(name.padEnd(10) + [r.compute, r.canvas, r.webgl, r.text].map((n) => n!.toFixed(2).padStart(10)).join(""));
   }
-  console.log("\ncanvas/text = full engine frame (getContext, storage, compute, render).");
+  console.log("\ncanvas/webgl/text = full engine frame (getContext, storage, compute, render).");
 } finally {
   await browser.close();
 }

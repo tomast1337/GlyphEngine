@@ -36,7 +36,7 @@ async function bench(cols: number, rows: number, frames: number, warmup: number)
     r.compute = mean(times);
 
     // Full engine frame through run(), per renderer
-    for (const renderer of ["canvas", "text"]) {
+    for (const renderer of ["canvas", "webgl", "text"]) {
       document.body.replaceChildren();
       queue = [];
       run(program, { cols, rows, renderer });

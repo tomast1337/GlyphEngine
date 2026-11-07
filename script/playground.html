@@ -92,7 +92,7 @@
     let blobURL;
 
     // Renderers the engine knows (keys of `renderers` in src/run.ts). Add new backends here.
-    const RENDERERS = { text: "DOM (text)", canvas: "Canvas" };
+    const RENDERERS = { text: "DOM (text)", canvas: "Canvas", webgl: "WebGL2" };
     const select = document.getElementById("renderer");
     select.add(new Option("Auto", ""));
     for (const [key, label] of Object.entries(RENDERERS)) select.add(new Option(label, key));
