@@ -1,8 +1,9 @@
 import { expect, test } from 'bun:test';
 
-import canvasRenderer from '../src/core/canvasrenderer';
-import { createFrame, setChar, weightCode } from '../src/core/frame';
-import type { Context } from '../src/program';
+import { createFrame, setChar, weightCode } from '@glyph-engine/core';
+import type { Context } from '@glyph-engine/core';
+
+import canvasRenderer from '../packages/web/src/canvasrenderer';
 
 // A one-row frame from cells like { char, fontWeight }.
 function frameOf(cells: { char: string; fontWeight?: string }[]) {

@@ -18,5 +18,9 @@ jobs:
               run: bun fmt --check
             - name: Typecheck
               run: bunx tsc --noEmit -p .
+            - name: Core has no DOM
+              run: bunx tsc --noEmit -p packages/core
             - name: Test
               run: bun test
+            - name: Build
+              run: bun run build

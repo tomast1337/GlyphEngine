@@ -1,8 +1,9 @@
 import { afterAll, expect, test } from 'bun:test';
 
-import { createFrame, setChar } from '../src/core/frame';
-import textRenderer from '../src/core/textrenderer';
-import type { Context } from '../src/program';
+import { createFrame, setChar } from '@glyph-engine/core';
+import type { Context } from '@glyph-engine/core';
+
+import textRenderer from '../packages/web/src/textrenderer';
 
 // Minimal fake of the DOM bits the text renderer touches.
 type FakeNode = { style: object; innerHTML: string };

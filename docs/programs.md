@@ -1,13 +1,15 @@
 # Writing programs
 
-A program is a module (or plain object) passed to `run()`. The engine calls its functions every frame, and a renderer (`text`, `canvas` or `webgl`) draws the result as a grid of character cells.
+A program is a module (or plain object) passed to `run()`. The engine calls its functions every frame, and a renderer (`text`, `canvas`, `webgl` or `webgpu`) draws the result as a grid of character cells.
+
+Programs import from `@glyph-engine/core` (types, `drawbox`, `num`, `vec2`, `sdf`, colours), which works under any runner. Only programs using browser modules (`camera`, `canvas`, `sort`, `image`, `exportframe`…) import from `@glyph-engine/web`.
 
 ## main(): one call per cell
 
 Like a fragment shader: `main()` runs once for every cell and writes that cell into `out`.
 
 ```ts
-import { run } from 'glyph-engine';
+import { run } from '@glyph-engine/web';
 
 run({
     main(coord, context, cursor, out, userData) {

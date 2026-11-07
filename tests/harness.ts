@@ -1,8 +1,7 @@
-import { createFrame } from '../src/core/frame';
-import type { Context, Cursor, Program } from '../src/program';
+import type { Context, Cursor, Program } from '@glyph-engine/core';
 // Runs a program without the DOM: fixed metrics, fixed time step, no input.
 // Shared by the snapshot tests and the benchmark's computation timing.
-import { computeFrame } from '../src/run';
+import { computeFrame, createFrame } from '@glyph-engine/core';
 
 const metrics = {
     aspect: 0.5,

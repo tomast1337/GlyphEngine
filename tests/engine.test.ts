@@ -2,9 +2,10 @@
 // update them (bun test --update-snapshots) only for an intended output change.
 import { expect, test } from 'bun:test';
 
-import { getChar } from '../src/core/frame';
-import * as donut from '../src/programs/demos/donut';
-import * as plasma from '../src/programs/demos/plasma';
+import { getChar } from '@glyph-engine/core';
+
+import * as donut from '../programs/demos/donut';
+import * as plasma from '../programs/demos/plasma';
 import { makeRunner } from './harness';
 
 const programs = { plasma, donut };

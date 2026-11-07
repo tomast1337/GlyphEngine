@@ -1,8 +1,9 @@
-import type { Program } from '../src/program';
-import * as donut from '../src/programs/demos/donut';
-import * as plasma from '../src/programs/demos/plasma';
+import type { Program } from '@glyph-engine/core';
 // Browser entry for script/bench.ts. Bundled and loaded into headless Chromium.
-import { run } from '../src/run';
+import { run } from '@glyph-engine/web';
+
+import * as donut from '../programs/demos/donut';
+import * as plasma from '../programs/demos/plasma';
 import { makeRunner } from '../tests/harness';
 
 const programs: Record<string, Program> = { plasma, donut };
