@@ -25,6 +25,7 @@ export function makeRunner(program: Program, cols: number, rows: number) {
     const context = Object.freeze({
       frame,
       time: frame * interval,
+      delta: frame === 1 ? 0 : interval,
       cols,
       rows,
       metrics,
