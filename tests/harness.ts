@@ -2,7 +2,6 @@
 // Shared by the snapshot tests and the benchmark's computation timing.
 import { stepFrame } from "../src/run";
 import { createFrame } from "../src/core/frame";
-import type { Buffer } from "../src/modules/buffer";
 import type { Context, Cursor, Program } from "../src/program";
 
 const metrics = { aspect: 0.5, cellWidth: 8, lineHeight: 16, fontFamily: "monospace", fontSize: 13 };
@@ -11,12 +10,6 @@ const cursor = { x: 0, y: 0, pressed: false, p: { x: 0, y: 0, pressed: false } }
 export function makeRunner(program: Program, cols: number, rows: number) {
   const settings = { fps: 30, ...program.settings } as Context["settings"];
   const interval = 1000 / settings.fps;
-  const buffer: Buffer = Array.from({ length: cols * rows }, () => ({
-    char: " ",
-    color: settings.color,
-    backgroundColor: settings.backgroundColor,
-    fontWeight: settings.fontWeight,
-  }));
   const out = createFrame(cols, rows);
   let frame = 0;
   // One engine frame; returns the frame the renderers would draw.
@@ -34,7 +27,7 @@ export function makeRunner(program: Program, cols: number, rows: number) {
       settings,
       runtime: Object.freeze({ cycle: 0, fps: settings.fps }),
     }) as unknown as Context;
-    stepFrame(program, context, cursor, buffer, out);
+    stepFrame(program, context, cursor, out);
     return out;
   };
 }

@@ -38,7 +38,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   // Clear the buffers
   const num = width * height;
   for (let k = 0; k < num; k++) {
-    buffer[k]!.char = " "; // char buffer
+    buffer[k] = { char: " " }; // char buffer
     z[k] = 0; // z buffer
   }
 
@@ -74,7 +74,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
             cp * ct * sB));
       if (y < height && y >= 0 && x >= 0 && x < width && D > z[o]!) {
         z[o] = D;
-        buffer[o]!.char = ".,-~:;=!*#$@"[N > 0 ? N : 0]!;
+        buffer[o] = { char: ".,-~:;=!*#$@"[N > 0 ? N : 0]! };
       }
     }
   }

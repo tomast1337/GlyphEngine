@@ -24,15 +24,14 @@ const DAMP = 0.95; // Pencil damping
 const RADIUS = 15; // Pencil radius
 
 let cols: number, rows: number;
+let values = new Float64Array(0); // pencil intensity per cell
 
-export function pre(context: Context, cursor: Cursor, buffer: Buffer<{ value: number }>) {
+export function pre(context: Context, cursor: Cursor) {
   // Detect window resize
   if (cols != context.cols || rows != context.rows) {
     cols = context.cols;
     rows = context.rows;
-    for (let i = 0; i < cols * rows; i++) {
-      buffer[i]!.value = 0;
-    }
+    values = new Float64Array(cols * rows);
   }
 
   const a = context.metrics.aspect; // Shortcut
@@ -54,7 +53,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer<{ value: nu
         const y = (p.y - j) / a;
         const l = 1 - length({ x, y }) / RADIUS;
         const idx = i + cols * j;
-        buffer[idx]!.value = Math.max(buffer[idx]!.value, l);
+        values[idx] = Math.max(values[idx]!, l);
       }
     }
   }
@@ -66,12 +65,11 @@ const density = " .:░▒▓█Ñ#+-".split("");
 export function main(
   coord: Coord,
   context: Context,
-  cursor: Cursor,
-  buffer: Buffer<{ value: number }>
+  cursor: Cursor
 ) {
   const i = coord.index;
-  const v = smoothstep(0, 0.9, buffer[i]!.value);
-  buffer[i]!.value *= 0.99;
+  const v = smoothstep(0, 0.9, values[i]!);
+  values[i]! *= 0.99;
   const idx = Math.floor(v * (density.length - 1));
   return density[idx];
 }

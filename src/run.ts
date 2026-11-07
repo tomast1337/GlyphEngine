@@ -9,8 +9,10 @@ import webglRenderer from "./core/webglrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
-import { createFrame, fromBuffer, type Frame } from "./core/frame";
-import type { Buffer, Cell } from "./modules/buffer";
+import { asBuffer, createFrame, cssColor, getChar, setChar, weightCode, type Frame } from "./core/frame";
+import { CellOut } from "./core/out";
+import type { Buffer } from "./modules/buffer";
+import type { CellValue } from "./program";
 import type { Context, Cursor, Metrics, Pointer, Program, Settings, State } from "./program";
 import type{ RenderModes } from "./core";
 
@@ -213,21 +215,8 @@ export function run(
     // FPS object (keeps some state for precise FPS measure)
     const fps = new FPS();
 
-    // A cell with no value at all is just a space
-    const EMPTY_CELL = " ";
-
-    // Default cell style inserted in case of undefined / null
-    const DEFAULT_CELL_STYLE = Object.freeze({
-      color: settings.color,
-      backgroundColor: settings.backgroundColor,
-      fontWeight: settings.fontWeight,
-    });
-
-    // Buffer needed for the final DOM rendering,
-    // each array entry represents a cell.
-    const buffer: Buffer = [];
-    // What the renderers draw: frame() programs write it directly, others
-    // through `buffer` (copied in every frame).
+    // What the renderers draw. main() writes it through the `out` slot,
+    // frame() programs directly; pre(), post() and events see it as a buffer.
     let frame: Frame = createFrame(0, 0);
     const usesFrame = typeof program.frame == "function";
 
@@ -243,12 +232,10 @@ export function run(
       rect = el.getBoundingClientRect();
       new ResizeObserver(() => (rect = el.getBoundingClientRect())).observe(el);
       const context = getContext(state, settings, metrics, fps, rect);
-      if (usesFrame) {
-        // frame() programs get a sized frame already in boot()
-        frame = createFrame((cols = context.cols), (rows = context.rows));
-      }
+      // Programs get a sized frame already in boot()
+      frame = createFrame((cols = context.cols), (rows = context.rows));
       if (typeof program.boot == "function") {
-        program.boot(context, usesFrame ? frame : buffer, userData);
+        program.boot(context, usesFrame ? frame : bufferOf(frame), userData);
       }
       requestAnimationFrame(loop);
     }
@@ -313,21 +300,15 @@ export function run(
       pointer.ppressed = pointer.pressed;
 
       // 1. --------------------------------------------------------------
-      // In case of resize / init normalize the buffer
+      // In case of resize: a fresh, empty frame
       if (cols != context.cols || rows != context.rows) {
         cols = context.cols;
         rows = context.rows;
         frame = createFrame(cols, rows);
-        if (!usesFrame) {
-          buffer.length = context.cols * context.rows;
-          for (let i = 0; i < buffer.length; i++) {
-            buffer[i] = { ...DEFAULT_CELL_STYLE, char: EMPTY_CELL };
-          }
-        }
       }
 
       // 2-4. ------------------------------------------------------------
-      stepFrame(program, context, cursor, buffer, frame, userData);
+      stepFrame(program, context, cursor, frame, userData);
 
       // 5. --------------------------------------------------------------
       renderer.render(context, frame);
@@ -337,7 +318,7 @@ export function run(
       while (eventQueue.length > 0) {
         const type = eventQueue.shift();
         if (type && typeof program[type] == "function") {
-          program[type](context, cursor, usesFrame ? frame : buffer, userData);
+          program[type](context, cursor, usesFrame ? frame : bufferOf(frame), userData);
         }
       }
 
@@ -354,83 +335,106 @@ export function run(
 
 // -- Helpers ------------------------------------------------------------------
 
-// One program step into `frame`: frame() programs write it directly; others run
-// pre(), main() per cell and post() on `buffer`, which is then copied into it.
-export function stepFrame(
-  program: Program,
-  context: Context,
-  cursor: Cursor,
-  buffer: Buffer,
-  frame: Frame,
-  userData: object = {}
-) {
+// One program step into `frame`: frame() programs write it directly; others
+// run pre(), main() per cell and post().
+export function stepFrame(program: Program, context: Context, cursor: Cursor, frame: Frame, userData: object = {}) {
   if (typeof program.frame == "function") {
     program.frame(context, cursor, frame, userData);
   } else {
-    computeFrame(program, context, cursor, buffer, userData);
-    fromBuffer(buffer, frame, context.settings);
+    computeFrame(program, context, cursor, frame, userData);
   }
 }
 
-// Per buffer: the cell objects computeFrame created (and may write in place).
-const ownedCells = new WeakMap<Buffer, Cell[]>();
+// The frame as a buffer of cell objects, for pre(), post(), boot() and events
+// (drawInfo() and other buffer helpers work on it). One view per frame.
+const views = new WeakMap<Frame, Buffer>();
+export function bufferOf(frame: Frame): Buffer {
+  let b = views.get(frame);
+  if (!b) views.set(frame, (b = asBuffer(frame)));
+  return b;
+}
 
-// Runs pre(), main() for every cell and post() on an already sized buffer.
+// Runs pre(), main() for every cell and post(), writing into `frame`.
 // No DOM access: used by the render loop, the tests and the benchmark.
-export function computeFrame(
-  program: Program,
-  context: Context,
-  cursor: Cursor,
-  buffer: Buffer,
-  userData: object = {}
-) {
-  // A cell with no value at all is just a space
-  const EMPTY_CELL = " ";
+export function computeFrame(program: Program, context: Context, cursor: Cursor, frame: Frame, userData: object = {}) {
+  const buffer = bufferOf(frame);
+  frame.html.clear();
 
-  // Call pre(), if defined
   if (typeof program.pre == "function") {
     program.pre(context, cursor, buffer, userData);
   }
 
-  // Call main(), if defined
   if (typeof program.main == "function") {
-    let own = ownedCells.get(buffer);
-    if (!own) ownedCells.set(buffer, (own = []));
-    for (let j = 0; j < context.rows; j++) {
-      const offs = j * context.cols;
-      for (let i = 0; i < context.cols; i++) {
-        const idx = i + offs;
-        // Override content:
-        // buffer[idx] = program.main({x:i, y:j, index:idx}, context, cursor, buffer, userData)
-        const out = program.main(
-          { x: i, y: j, index: idx },
-          context,
-          cursor,
-          buffer,
-          userData
-        );
-        // Write into a cell object the engine owns instead of allocating one
-        // per cell per frame. Cells the program put in the buffer itself are
-        // copied first: they may be shared (setRect puts one object in many cells).
-        let cell = buffer[idx]!;
-        if (cell !== own[idx]) buffer[idx] = own[idx] = cell = { ...cell };
-        if (typeof out == "object" && out !== null) {
-          Object.assign(cell, out);
-        } else {
-          cell.char = out == null ? EMPTY_CELL : String(out);
-        }
-        // Fix undefined / null / etc.
-        if (cell.char === undefined || cell.char === null) {
-          cell.char = EMPTY_CELL;
+    const { chars, fg, bg, weight } = frame;
+    const settings = context.settings;
+    // Packed settings colours, for cells still at their default (0). Opaque
+    // black when unset, so setting one channel never yields a transparent colour.
+    const dFg = (settings.color && cssColor(settings.color)) || 0x000000ff;
+    const dBg = (settings.backgroundColor && cssColor(settings.backgroundColor)) || 0x000000ff;
+    const dWeight = weightCode(settings.fontWeight);
+    const out = new CellOut();
+    const color = out.color;
+    const background = out.background;
+    const coord = { x: 0, y: 0, index: 0 }; // reused for every cell
+
+    for (let y = 0, k = 0; y < context.rows; y++) {
+      for (let x = 0; x < context.cols; x++, k++) {
+        coord.x = x;
+        coord.y = y;
+        coord.index = k;
+        // Reset the slot: an empty glyph, the cell's current colours
+        out.char = " ";
+        out.fontWeight = undefined;
+        const f0 = fg[k]!, b0 = bg[k]!;
+        const fl = f0 || dFg, bl = b0 || dBg;
+        color.unpack(fl);
+        background.unpack(bl);
+        color.dirty = background.dirty = false;
+
+        const ret = program.main(coord, context, cursor, out, userData);
+        if (ret != null) applyReturn(out, ret, frame, k);
+
+        // Pack the slot into the frame
+        const c = out.char;
+        if (typeof c == "string" && c.length === 1) chars[k] = c.charCodeAt(0);
+        else if (c == null) chars[k] = 32;
+        else setChar(frame, k, c);
+        const fp = color.pack(), bp = background.pack();
+        // Untouched: keep 0 (= default) as 0.
+        // shortcut: channel writes that land exactly on the default when the
+        // settings colour is unset stay "default"; track channel writes if it bites.
+        fg[k] = fp === fl && !color.dirty ? f0 : fp;
+        bg[k] = bp === bl && !background.dirty ? b0 : bp;
+        const w = out.fontWeight;
+        if (w !== undefined) {
+          const wc = weightCode(w);
+          weight[k] = wc === dWeight ? 0 : wc;
         }
       }
     }
   }
 
-  // Call post(), if defined
   if (typeof program.post == "function") {
     program.post(context, cursor, buffer, userData);
   }
+}
+
+// What main() returned, applied to the slot. Returning is the short form
+// (return "#"); a returned cell object is the play.core form.
+function applyReturn(out: CellOut, ret: NonNullable<CellValue>, frame: Frame, k: number) {
+  if (typeof ret != "object") {
+    out.char = String(ret);
+    return;
+  }
+  // A missing field keeps the cell's value; a field set to undefined resets it.
+  if (ret.char != null) out.char = String(ret.char);
+  else if (!("char" in ret)) out.char = getChar(frame, k);
+  if (ret.color !== undefined) out.color = ret.color;
+  else if ("color" in ret) out.color = 0;
+  if (ret.backgroundColor !== undefined) out.background = ret.backgroundColor;
+  else if ("backgroundColor" in ret) out.background = 0;
+  if (ret.fontWeight !== undefined) out.fontWeight = ret.fontWeight;
+  if (ret.beginHTML || ret.endHTML) frame.html.set(k, { begin: ret.beginHTML, end: ret.endHTML });
 }
 
 // Build / update the 'context' object (immutable)

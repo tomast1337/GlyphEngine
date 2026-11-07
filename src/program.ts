@@ -3,6 +3,7 @@
 import type { Frame } from "./core/frame";
 import type { Buffer, Cell } from "./modules/buffer";
 import type { RenderModes } from "./core/renderer";
+import type { CellOut } from "./core/out";
 import type { Vec2 } from "./modules/vec2";
 
 export interface Settings {
@@ -45,16 +46,18 @@ export interface Metrics {
   _update: () => void;
 }
 
-// What main() may return for a cell: a glyph, a cell, or nothing (a space).
+// What main() may return: a glyph (short for out.char = …), a cell object
+// (the play.core form), or nothing (use what was written into `out`).
 export type CellValue = string | number | Partial<Cell> | null | undefined | void;
 
 // userData: whatever object was passed to run() ({} by default).
 // Method syntax on purpose: TypeScript checks method parameters bivariantly, so
 // a program may declare narrower ones (buffer: Buffer, data: MyData).
 export type Program = {
-  boot?(context: Context, buffer: Buffer | Frame, userData: object): void; // Frame for frame() programs
+  boot?(context: Context, buffer: Buffer | Frame, userData: object): void; // the frame for frame() programs, else a buffer view of it
   pre?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
-  main?(position: Coord, context: Context, cursor: Cursor, buffer: Buffer, userData: object): CellValue;
+  // Called for every cell; writes the cell into `out` (or returns it).
+  main?(position: Coord, context: Context, cursor: Cursor, out: CellOut, userData: object): CellValue;
   post?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
   // Fast API: fills the whole frame (typed arrays) in one call. When present,
   // pre(), main() and post() are not called; boot() and events get the frame.
