@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { afterAll, expect, test } from 'bun:test';
 
 import { createFrame, setChar } from '../src/core/frame';
 import textRenderer from '../src/core/textrenderer';
@@ -22,6 +22,10 @@ function fakeElement() {
 }
 Object.assign(globalThis, {
     document: { createElement: (): FakeNode => ({ style: {}, innerHTML: '' }) },
+});
+// Other test files share this global: a leftover fake breaks cssColor() there.
+afterAll(() => {
+    delete (globalThis as { document?: unknown }).document;
 });
 
 const row = (s: string) => {
