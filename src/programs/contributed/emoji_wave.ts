@@ -14,11 +14,7 @@ export const settings = {
 
 const { sin, cos, floor } = Math;
 // Split by grapheme, not UTF-16 unit: indexing the string would cut emoji in half.
-// Emoji are two cells wide: an empty cell after each keeps them from overlapping
-// on canvas/WebGL, and adds no width in the DOM renderer.
-const density = Array.from(new Intl.Segmenter().segment("☆ ☺︎ 👀 🌈 🌮🌮 🌈 👀 ☺︎ ☆"), (s) => s.segment).flatMap((g) =>
-  /\p{Emoji_Presentation}/u.test(g) ? [g, ""] : [g]
-);
+const density = Array.from(new Intl.Segmenter().segment("☆ ☺︎ 👀 🌈 🌮🌮 🌈 👀 ☺︎ ☆"), (s) => s.segment);
 
 export function main(
   coord: Coord,

@@ -1,8 +1,8 @@
 #version 300 es
 // Draws the whole character grid: one fragment = one screen pixel.
 // Finds its cell, reads the cell texel, samples the glyph atlas, mixes fg/bg.
-// Layering matches the canvas renderer, which draws cells left to right:
-// left neighbour's glyph overflow, then this cell's background, then its glyph.
+// Layering: this cell's background, the left neighbour's glyph overflow (right
+// half of a wide glyph), then this cell's glyph.
 precision highp float;
 precision highp int;
 precision highp usampler2D;
@@ -53,15 +53,14 @@ void main() {
   vec3 color = u_background.rgb;
   vec2 local = px - vec2(cell) * u_cellSize;
 
-  if (cell.x > 0) {
-    uvec4 left = texelFetch(u_cells, cell - ivec2(1, 0), 0);
-    color = drawGlyph(color, left, local + vec2(u_cellSize.x, 0.0));
-  }
-
   uvec4 c = texelFetch(u_cells, cell, 0);
   if (c.z != u_backgroundPacked) {
     vec4 bg = unpack(c.z); // translucent backgrounds blend, as with Canvas2D
     color = mix(color, bg.rgb, bg.a);
+  }
+  if (cell.x > 0) {
+    uvec4 left = texelFetch(u_cells, cell - ivec2(1, 0), 0);
+    color = drawGlyph(color, left, local + vec2(u_cellSize.x, 0.0));
   }
   outColor = vec4(drawGlyph(color, c, local), 1.0);
 }
