@@ -12,12 +12,14 @@ export default {
   render,
 } as Render;
 
-const backBuffer: Buffer = [];
-
-let cols: number, rows: number;
+// Per element, so several text-rendered programs on one page don't share state.
+const states = new WeakMap<HTMLElement, { backBuffer: Buffer; cols: number; rows: number }>();
 
 function render(context: Context, buffer: Buffer) {
   const element = context.settings.element as HTMLElement;
+  let state = states.get(element);
+  if (!state) states.set(element, (state = { backBuffer: [], cols: 0, rows: 0 }));
+  const backBuffer = state.backBuffer;
 
   // Set the most used styles to the container
   // element.style.backgroundColor = context.settings.background
@@ -25,11 +27,12 @@ function render(context: Context, buffer: Buffer) {
   // element.style.fontWeight = context.settings.weight
 
   // Detect resize
-  if (context.rows != rows || context.cols != cols) {
-    cols = context.cols;
-    rows = context.rows;
+  if (context.rows != state.rows || context.cols != state.cols) {
+    state.cols = context.cols;
+    state.rows = context.rows;
     backBuffer.length = 0;
   }
+  const { cols, rows } = state;
 
   // DOM rows update: expand lines if necessary
   // TODO: also benchmark a complete 'innerHTML' rewrite, could be faster?
