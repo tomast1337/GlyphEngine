@@ -15,7 +15,8 @@
         }
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "bun test",
+        "bench": "bun run script/bench.ts",
         "build": "bun run clean && bun build src/index.ts --target browser --outdir dist && bun run build:types",
         "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
         "prepublishOnly": "bun run build",
@@ -24,7 +25,8 @@
         "dev": "bun run build:examples -- --watch"
     },
     "devDependencies": {
-        "@types/bun": "latest"
+        "@types/bun": "latest",
+        "playwright": "^1.65.0"
     },
     "peerDependencies": {
         "typescript": "^5"
