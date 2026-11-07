@@ -263,6 +263,9 @@ export function run(
     // Used to track window resize
     let cols: number, rows: number;
 
+    // Timestamp of the last frame that ran, for context.delta
+    let lastFrameT: number | undefined;
+
     // Main program loop
     function loop(t: number) {
       // Timing
@@ -274,7 +277,8 @@ export function run(
       }
 
       // Snapshot of context data
-      const context = getContext(state, settings, metrics, fps, rect);
+      const context = getContext(state, settings, metrics, fps, rect, lastFrameT === undefined ? 0 : t - lastFrameT);
+      lastFrameT = t;
 
       // FPS update
       fps.update(t);
@@ -437,13 +441,15 @@ function getContext(
   settings: Settings,
   metrics: Metrics,
   fps: FPS,
-  rect: DOMRect
+  rect: DOMRect,
+  delta = 0
 ): Context {
   const cols = settings.cols || Math.floor(rect.width / metrics.cellWidth);
   const rows = settings.rows || Math.floor(rect.height / metrics.lineHeight);
   return Object.freeze({
     frame: state.frame,
     time: state.time,
+    delta,
     cols,
     rows,
     metrics,

@@ -78,9 +78,21 @@ These work the same way with `main()` and `frame()` programs:
 - `boot(context, buffer, userData)`: once, before the first frame. Receives the buffer, or the frame for `frame()` programs.
 - `pointerMove`, `pointerDown`, `pointerUp` `(context, cursor, buffer, userData)`: after a frame in which the pointer moved, was pressed or released.
 - `settings`: exported object merged over the `run()` settings, e.g. `{ fps: 60, renderer: "canvas", color: "white", backgroundColor: "black" }`.
-- `context`: `frame`, `time` (ms), `cols`, `rows`, `width`, `height`, `metrics` (font metrics, `aspect` = cell width / height), `settings`.
+- `context`: `frame`, `time` (ms), `delta` (ms since the previous frame), `cols`, `rows`, `width`, `height`, `metrics` (font metrics, `aspect` = cell width / height), `settings`.
 - `cursor`: `x`, `y` in cells (fractional) and `pressed`.
 - `userData`: the object passed as third argument to `run()`, `{}` by default. Shared by every call; a place for program state.
+
+## Animating at any frame rate
+
+The frame rate is not fixed: `settings.fps` is a cap, and a slow machine or a heavy program runs below it. Animation tied to the frame count (`context.frame`, "one row per frame") then slows down with it. Tie it to time instead:
+
+- position from time: `x = speed * context.time / 1000`
+- or step by the time since the last frame: `x += speed * context.delta / 1000`
+- fading or decay per frame: `value *= Math.pow(perSecond, context.delta / 1000)`
+
+`frame/rain` does both; change its `fps` setting and the rain keeps its speed. Simulations meant to advance one step per frame (`contributed/game_of_life`, `contributed/sand_game`) can keep using the frame count.
+
+`delta` is 0 on the first frame. It is large after the tab was hidden (the browser pauses frames), so cap it if a jump would break something: `Math.min(context.delta, 100)`.
 
 ## How they differ
 

@@ -79,6 +79,9 @@ export type Context = {
   width: number;
   frame: number;
   time: number;
+  // Milliseconds since the previous frame (0 on the first). Multiply speeds by
+  // it so animations run at the same pace whatever the frame rate.
+  delta: number;
   cols: number;
   rows: number;
   metrics: Metrics;
