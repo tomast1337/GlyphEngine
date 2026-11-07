@@ -3,6 +3,7 @@ import canvasRenderer from "./core/canvasrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
+import { computeFrame } from "./run";
 import type {
   Buffer,
   Context,
@@ -236,46 +237,8 @@ export default async function runner(
       }
     }
 
-    // 2. --------------------------------------------------------------
-    // Call pre(), if defined
-    if (typeof program.pre == "function") {
-      program.pre(context, cursor, buffer, userData);
-    }
-
-    // 3. --------------------------------------------------------------
-    // Call main(), if defined
-    if (typeof program.main == "function") {
-      for (let j = 0; j < context.rows; j++) {
-        const offs = j * context.cols;
-        for (let i = 0; i < context.cols; i++) {
-          const idx = i + offs;
-          // Override content:
-          // buffer[idx] = program.main({x:i, y:j, index:idx}, context, cursor, buffer, userData)
-          const out = program.main(
-            { x: i, y: j, index: idx },
-            context,
-            cursor,
-            buffer,
-            userData
-          );
-          if (typeof out == "object" && out !== null) {
-            buffer[idx] = { ...buffer[idx], ...out };
-          } else {
-            buffer[idx] = { ...buffer[idx], char: out };
-          }
-          // Fix undefined / null / etc.
-          if (buffer[idx]!.char === undefined || buffer[idx]!.char === null) {
-            buffer[idx]!.char = EMPTY_CELL;
-          }
-        }
-      }
-    }
-
-    // 4. --------------------------------------------------------------
-    // Call post(), if defined
-    if (typeof program.post == "function") {
-      program.post(context, cursor, buffer, userData);
-    }
+    // 2-4. ------------------------------------------------------------
+    computeFrame(program, context, cursor, buffer, userData);
 
     // 5. --------------------------------------------------------------
     renderer.render(context, buffer);

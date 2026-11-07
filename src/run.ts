@@ -11,6 +11,7 @@ import RUNNER_VERSION from "./core/version";
 import type {
   Buffer,
   Context,
+  Cursor,
   Metrics,
   Pointer,
   Program,
@@ -311,46 +312,8 @@ export function run(
         }
       }
 
-      // 2. --------------------------------------------------------------
-      // Call pre(), if defined
-      if (typeof program.pre == "function") {
-        program.pre(context, cursor, buffer, userData);
-      }
-
-      // 3. --------------------------------------------------------------
-      // Call main(), if defined
-      if (typeof program.main == "function") {
-        for (let j = 0; j < context.rows; j++) {
-          const offs = j * context.cols;
-          for (let i = 0; i < context.cols; i++) {
-            const idx = i + offs;
-            // Override content:
-            // buffer[idx] = program.main({x:i, y:j, index:idx}, context, cursor, buffer, userData)
-            const out = program.main(
-              { x: i, y: j, index: idx },
-              context,
-              cursor,
-              buffer,
-              userData
-            );
-            if (typeof out == "object" && out !== null) {
-              buffer[idx] = { ...buffer[idx], ...out };
-            } else {
-              buffer[idx] = { ...buffer[idx], char: out };
-            }
-            // Fix undefined / null / etc.
-            if (buffer[idx]!.char === undefined || buffer[idx]!.char === null) {
-              buffer[idx]!.char = EMPTY_CELL;
-            }
-          }
-        }
-      }
-
-      // 4. --------------------------------------------------------------
-      // Call post(), if defined
-      if (typeof program.post == "function") {
-        program.post(context, cursor, buffer, userData);
-      }
+      // 2-4. ------------------------------------------------------------
+      computeFrame(program, context, cursor, buffer, userData);
 
       // 5. --------------------------------------------------------------
       renderer.render(context, buffer);
@@ -376,6 +339,57 @@ export function run(
 }
 
 // -- Helpers ------------------------------------------------------------------
+
+// Runs pre(), main() for every cell and post() on an already sized buffer.
+// No DOM access: used by the render loop, the tests and the benchmark.
+export function computeFrame(
+  program: Program,
+  context: Context,
+  cursor: Cursor,
+  buffer: Buffer,
+  userData: any = {}
+) {
+  // A cell with no value at all is just a space
+  const EMPTY_CELL = " ";
+
+  // Call pre(), if defined
+  if (typeof program.pre == "function") {
+    program.pre(context, cursor, buffer, userData);
+  }
+
+  // Call main(), if defined
+  if (typeof program.main == "function") {
+    for (let j = 0; j < context.rows; j++) {
+      const offs = j * context.cols;
+      for (let i = 0; i < context.cols; i++) {
+        const idx = i + offs;
+        // Override content:
+        // buffer[idx] = program.main({x:i, y:j, index:idx}, context, cursor, buffer, userData)
+        const out = program.main(
+          { x: i, y: j, index: idx },
+          context,
+          cursor,
+          buffer,
+          userData
+        );
+        if (typeof out == "object" && out !== null) {
+          buffer[idx] = { ...buffer[idx], ...out };
+        } else {
+          buffer[idx] = { ...buffer[idx], char: out };
+        }
+        // Fix undefined / null / etc.
+        if (buffer[idx]!.char === undefined || buffer[idx]!.char === null) {
+          buffer[idx]!.char = EMPTY_CELL;
+        }
+      }
+    }
+  }
+
+  // Call post(), if defined
+  if (typeof program.post == "function") {
+    program.post(context, cursor, buffer, userData);
+  }
+}
 
 // Build / update the 'context' object (immutable)
 // A bit of spaghetti... but the context object needs to be ready for
