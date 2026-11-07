@@ -1,0 +1,22 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.4 # bun fmt needs a recent Bun; bump on purpose
+            - run: bun install --frozen-lockfile
+            - name: Format
+              run: bun fmt --check
+            - name: Typecheck
+              run: bunx tsc --noEmit -p .
+            - name: Test
+              run: bun test
