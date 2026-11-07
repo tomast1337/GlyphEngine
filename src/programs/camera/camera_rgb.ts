@@ -49,14 +49,14 @@ export function main(
   buffer: Buffer
 ) {
   // Coord also contains the index of each cell
-  const color = data[coord.index];
+  const px = data[coord.index];
   // Add some chars to the output
-  const index = Math.floor(color.v * (density.length - 1));
+  const index = Math.floor(px.v * (density.length - 1));
   return {
     char: density[index],
     color: "white",
     // convert {r,g,b} obj to a valid CSS hex string
-    backgroundColor: color.rgb2hex(color),
+    backgroundColor: color.rgb2hex(px),
   };
 }
 
