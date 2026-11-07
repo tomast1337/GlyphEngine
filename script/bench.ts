@@ -35,7 +35,8 @@ try {
   for (const [name, r] of Object.entries(results as Record<string, Record<string, number>>)) {
     console.log(name.padEnd(10) + [r.compute, r.canvas, r.webgl, r.text].map((n) => n!.toFixed(2).padStart(10)).join(""));
   }
-  console.log("\ncanvas/webgl/text = full engine frame (getContext, storage, compute, render).");
+  console.log("\ncanvas/webgl/text = full engine frame (getContext, storage, compute, render),");
+  console.log("measured as JS time; the browser lays out and paints between frames, untimed.");
 } finally {
   await browser.close();
 }

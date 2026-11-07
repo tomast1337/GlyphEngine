@@ -7,6 +7,10 @@ import * as donut from "../src/programs/demos/donut";
 const programs = { plasma, donut } as Record<string, any>;
 
 // Manual requestAnimationFrame: the benchmark decides when a frame runs.
+// The real one is kept to let the browser lay out and paint between measured
+// frames, as it does in a live page; otherwise DOM work piles up across frames.
+const realRAF = window.requestAnimationFrame.bind(window);
+const painted = () => new Promise((r) => realRAF(() => setTimeout(r, 0)));
 let queue: FrameRequestCallback[] = [];
 window.requestAnimationFrame = (cb) => (queue.push(cb), 0);
 function pump(t: number) {
@@ -47,6 +51,7 @@ async function bench(cols: number, rows: number, frames: number, warmup: number)
       for (let i = 0; i < 3 + warmup; i++) pump((t += 1000));
       const times: number[] = [];
       for (let i = 0; i < frames; i++) {
+        await painted();
         const t0 = performance.now();
         pump((t += 1000));
         times.push(performance.now() - t0);
