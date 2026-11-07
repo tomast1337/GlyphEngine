@@ -1,7 +1,7 @@
 // Browser entry for script/bench.ts. Bundled and loaded into headless Chromium.
 import { run } from "../src/run";
 import { makeRunner } from "../tests/harness";
-import type { Program } from "../src/modules/types";
+import type { Program } from "../src/program";
 import * as plasma from "../src/programs/demos/plasma";
 import * as donut from "../src/programs/demos/donut";
 

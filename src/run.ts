@@ -10,17 +10,8 @@ import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
 import { createFrame, fromBuffer, type Frame } from "./core/frame";
-import type {
-  Buffer,
-  Cell,
-  Context,
-  Cursor,
-  Metrics,
-  Pointer,
-  Program,
-  Settings,
-  State,
-} from "./modules";
+import type { Buffer, Cell } from "./modules/buffer";
+import type { Context, Cursor, Metrics, Pointer, Program, Settings, State } from "./program";
 import type{ RenderModes } from "./core";
 
 export { RUNNER_VERSION };

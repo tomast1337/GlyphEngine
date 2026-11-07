@@ -13,7 +13,20 @@ const v = get(10, 10, buffer, cols, rows)
 
 */
 
-import type { Buffer, Cell } from "./types";
+export type Cell = {
+  char: string;
+  beginHTML?: string; // text renderer only: raw HTML around the glyph
+  endHTML?: string;
+  color?: string;
+  backgroundColor?: string;
+  fontWeight?: string;
+  shadowStyle?: string;
+  borderStyle?: string;
+  shadowX?: number;
+  shadowY?: number;
+};
+// Extra: fields a program keeps in its own cells, e.g. Buffer<{ value: number }>
+export type Buffer<Extra extends object = object> = Array<Cell & Extra>;
 
 // Safe get function to read from a buffer
 export function get(  x: number,  y: number,  target: Buffer,  targetCols: number,  targetRows: number): Cell | {} {

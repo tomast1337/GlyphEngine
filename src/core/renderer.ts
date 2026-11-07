@@ -1,4 +1,4 @@
-import type { Context } from "../modules/types";
+import type { Context } from "../program";
 import type { Frame } from "./frame";
 
 export type RenderModes = string;

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import canvasRenderer from "../src/core/canvasrenderer";
-import type { Context } from "../src/modules/types";
+import type { Context } from "../src/program";
 import { createFrame, setChar, weightCode } from "../src/core/frame";
 
 // A one-row frame from cells like { char, fontWeight }.
