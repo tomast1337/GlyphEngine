@@ -11,6 +11,7 @@ import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
 import type {
   Buffer,
+  Cell,
   Context,
   Cursor,
   Metrics,
@@ -345,6 +346,9 @@ export function run(
 
 // -- Helpers ------------------------------------------------------------------
 
+// Per buffer: the cell objects computeFrame created (and may write in place).
+const ownedCells = new WeakMap<Buffer, Cell[]>();
+
 // Runs pre(), main() for every cell and post() on an already sized buffer.
 // No DOM access: used by the render loop, the tests and the benchmark.
 export function computeFrame(
@@ -364,6 +368,8 @@ export function computeFrame(
 
   // Call main(), if defined
   if (typeof program.main == "function") {
+    let own = ownedCells.get(buffer);
+    if (!own) ownedCells.set(buffer, (own = []));
     for (let j = 0; j < context.rows; j++) {
       const offs = j * context.cols;
       for (let i = 0; i < context.cols; i++) {
@@ -377,14 +383,19 @@ export function computeFrame(
           buffer,
           userData
         );
+        // Write into a cell object the engine owns instead of allocating one
+        // per cell per frame. Cells the program put in the buffer itself are
+        // copied first: they may be shared (setRect puts one object in many cells).
+        let cell = buffer[idx]!;
+        if (cell !== own[idx]) buffer[idx] = own[idx] = cell = { ...cell };
         if (typeof out == "object" && out !== null) {
-          buffer[idx] = { ...buffer[idx], ...out };
+          Object.assign(cell, out);
         } else {
-          buffer[idx] = { ...buffer[idx], char: out };
+          cell.char = out;
         }
         // Fix undefined / null / etc.
-        if (buffer[idx]!.char === undefined || buffer[idx]!.char === null) {
-          buffer[idx]!.char = EMPTY_CELL;
+        if (cell.char === undefined || cell.char === null) {
+          cell.char = EMPTY_CELL;
         }
       }
     }

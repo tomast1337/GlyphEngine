@@ -254,7 +254,6 @@ export function drawInfo(
   target: Buffer,
   style?: Partial<Style>
 ) {
-    console.info("drawInfo", context, cursor, target, style);
   let info = "";
   info += "FPS         " + Math.round(context.runtime.fps) + "\n";
   info += "frame       " + context.frame + "\n";
