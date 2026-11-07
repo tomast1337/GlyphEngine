@@ -1,3 +1,4 @@
+import type { Frame } from "../core/frame";
 import { type RenderModes } from "../core/types";
 import { type Vec2 } from "./vec2";
 
@@ -31,7 +32,7 @@ export interface Metrics {
 }
 
 export type Program = {
-  boot?: (context: Context, buffer: any[], userData: any) => void;
+  boot?: (context: Context, buffer: any /* Buffer, or Frame for frame() programs */, userData: any) => void;
   pre?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
   main?: (
     position: Coord,
@@ -41,6 +42,9 @@ export type Program = {
     userData: any
   ) => any;
   post?: (context: Context, cursor: any, buffer: any[], userData: any) => void;
+  // Fast API: fills the whole frame (typed arrays) in one call. When present,
+  // pre(), main() and post() are not called; boot() and events get the frame.
+  frame?: (context: Context, cursor: any, frame: Frame, userData: any) => void;
   settings?: Settings;
   [key: string]: any;
 };

@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { makeRunner } from "./harness";
+import { getChar } from "../src/core/frame";
 
 test("main() writes stay per cell after post() put one object in several cells", () => {
   let first = true;
@@ -16,5 +17,6 @@ test("main() writes stay per cell after post() put one object in several cells",
     1
   );
   step();
-  expect(step().map((c) => c.char)).toEqual(["a", "b"]);
+  const frame = step();
+  expect([getChar(frame, 0), getChar(frame, 1)]).toEqual(["a", "b"]);
 });

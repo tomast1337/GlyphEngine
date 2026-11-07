@@ -4,17 +4,18 @@
 @category renderer
 */
 
-import type { Buffer, Context } from "../modules/types";
+import type { Context } from "../modules/types";
 import type { Render } from "./types";
 import { fitCanvas } from "./canvassize";
 import { cellSpan } from "./cellspan";
+import { colorString, cssColor, getChar, weightString, type Frame } from "./frame";
 
 export default {
   preferredElementNodeName: "CANVAS",
   render,
 } as Render;
 
-function render(context: Context, buffer: Buffer) {
+function render(context: Context, frame: Frame) {
   const canvas = context.settings.element as HTMLCanvasElement;
 
   const scale = devicePixelRatio;
@@ -66,6 +67,13 @@ function render(context: Context, buffer: Buffer) {
     ctx.translate(ox, oy);
   }
 
+  const { chars, fg: fgs, bg: bgs, weight } = frame;
+  // Cells with the canvas background need no rect (as when cells held strings)
+  const bgPacked = cssColor(bg);
+  // Font string per weight code (0 = settings.fontWeight)
+  const fonts: string[] = [];
+  const fontOf = (w: number) => (fonts[w] ??= (w ? weightString(w) : fontWeight) + ff);
+
   // Center patch with cell bg color...
   // a bit painful and needs some opt.
   if (settings.textAlign == "center") {
@@ -76,9 +84,8 @@ function render(context: Context, buffer: Buffer) {
 
       // Find width
       for (let i = 0; i < c; i++) {
-        const cell = buffer[offs + i]!;
-        ctx.font = (cell.fontWeight || fontWeight) + ff;
-        const w = ctx.measureText(cell.char).width;
+        ctx.font = fontOf(weight[offs + i]!);
+        const w = ctx.measureText(getChar(frame, offs + i)).width;
         totalWidth += w;
         widths[i] = w;
       }
@@ -86,15 +93,15 @@ function render(context: Context, buffer: Buffer) {
       let ox = (canvas.width / scale - totalWidth) * 0.5;
       const y = j * ch;
       for (let i = 0; i < c; i++) {
-        const cell = buffer[offs + i]!;
+        const k = offs + i;
         const x = ox;
-        if (cell.backgroundColor && cell.backgroundColor != bg) {
-          ctx.fillStyle = cell.backgroundColor || bg;
+        if (bgs[k] && bgs[k] !== bgPacked) {
+          ctx.fillStyle = colorString(bgs[k]!);
           ctx.fillRect(Math.round(x), y, Math.ceil(widths[i]!), ch);
         }
-        ctx.font = (cell.fontWeight || fontWeight) + ff;
-        ctx.fillStyle = cell.color || fg;
-        ctx.fillText(cell.char, ox, y);
+        ctx.font = fontOf(weight[k]!);
+        ctx.fillStyle = fgs[k] ? colorString(fgs[k]!) : fg;
+        ctx.fillText(getChar(frame, k), ox, y);
 
         ox += widths[i]!;
       }
@@ -108,24 +115,28 @@ function render(context: Context, buffer: Buffer) {
       // rest of the row right (and the last cells off it), like the text renderer.
       let col = 0;
       for (let i = 0; i < c && col < c; i++) {
-        const cell = buffer[j * c + i]!;
+        const k = j * c + i;
         const x = col * cw;
         const y = j * ch;
-        const space = cell.char === " ";
-        if (!space) {
+        const cp = chars[k]!;
+        const empty = cp === 32 || cp === 0;
+        let char = "";
+        let span = 1;
+        if (!empty) {
           // Parsing a font string is slow; most neighbouring cells share one.
-          const next = (cell.fontWeight || fontWeight) + ff;
+          const next = fontOf(weight[k]!);
           if (next !== font) ctx.font = font = next;
+          char = getChar(frame, k);
+          if (cp >= 0x1100) span = cellSpan(ctx, font, char, cw);
         }
-        const span = space ? 1 : cellSpan(ctx, font, cell.char, cw);
         col += span;
-        if (cell.backgroundColor && cell.backgroundColor != bg) {
-          ctx.fillStyle = cell.backgroundColor || bg;
+        if (bgs[k] && bgs[k] !== bgPacked) {
+          ctx.fillStyle = colorString(bgs[k]!);
           ctx.fillRect(Math.round(x), y, Math.ceil(cw * span), ch);
         }
-        if (space) continue;
-        ctx.fillStyle = cell.color || fg;
-        ctx.fillText(cell.char, x, y);
+        if (empty) continue;
+        ctx.fillStyle = fgs[k] ? colorString(fgs[k]!) : fg;
+        ctx.fillText(char, x, y);
       }
     }
   }
