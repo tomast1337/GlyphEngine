@@ -5,35 +5,30 @@
 @desc   From wingdings icons to unicode emojis
 		Inspired by emojis evolution
 */
-import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from 'glyph-engine';
 
 export const settings = {
-  color: "white",
-  backgroundColor: "rgb(100, 0, 300)",
+    color: 'white',
+    backgroundColor: 'rgb(100, 0, 300)',
 };
 
 const { sin, cos, floor } = Math;
 // Split by grapheme, not UTF-16 unit: indexing the string would cut emoji in half.
-const density = Array.from(new Intl.Segmenter().segment("☆ ☺︎ 👀 🌈 🌮🌮 🌈 👀 ☺︎ ☆"), (s) => s.segment);
+const density = Array.from(new Intl.Segmenter().segment('☆ ☺︎ 👀 🌈 🌮🌮 🌈 👀 ☺︎ ☆'), (s) => s.segment);
 
-export function main(
-  coord: Coord,
-  context: Context,
-  cursor: Cursor,
-  out: CellOut
-) {
-  const t = context.time * 0.0008;
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
+    const t = context.time * 0.0008;
 
-  const x = coord.x;
-  const y = coord.y;
+    const x = coord.x;
+    const y = coord.y;
 
-  const c = context.cols;
-  const posCenter = floor((c - density.length) * 0.5);
+    const c = context.cols;
+    const posCenter = floor((c - density.length) * 0.5);
 
-  const wave = sin(y * cos(t)) * 5;
+    const wave = sin(y * cos(t)) * 5;
 
-  const i = floor(x + wave) - posCenter;
+    const i = floor(x + wave) - posCenter;
 
-  // Note: “undefined” is rendered as a space…
-  out.char = density[i];
+    // Note: “undefined” is rendered as a space…
+    out.char = density[i];
 }

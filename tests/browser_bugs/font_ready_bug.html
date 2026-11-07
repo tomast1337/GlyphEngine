@@ -1,26 +1,25 @@
-<!DOCTYPE html>
-<html lang="en" >
-<head>
-	<meta charset="utf-8">
-	<title>fonts.ready bug</title>
-	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
-	<!-- alternative load:
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>fonts.ready bug</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet" />
+        <!-- alternative load:
 	<style>@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap');</style>
 	-->
-	<style type="text/css" media="screen">
-		span {
-			/*font-family: monospace;*/
-			/*font-family: monospace, monospace;*/
-			font-family: 'Roboto Mono', monospace;
-		}
-	</style>
-</head>
-<body>
+        <style type="text/css" media="screen">
+            span {
+                /*font-family: monospace;*/
+                /*font-family: monospace, monospace;*/
+                font-family: 'Roboto Mono', monospace;
+            }
+        </style>
+    </head>
+    <body>
+        Console output only.<br />
+        <a href="https://bugs.webkit.org/show_bug.cgi?id=217047">bugs.webkit.org/show_bug.cgi?id=217047</a>
 
-	Console output only.<br>
-	<a href="https://bugs.webkit.org/show_bug.cgi?id=217047">bugs.webkit.org/show_bug.cgi?id=217047</a>
-
-	<!--
+        <!--
 	***************************************
 	Safari / WebKit
 	***************************************
@@ -51,28 +50,25 @@
 	comment line 67 (leave the test element displayed)
 	-->
 
-	<script type="module">
+        <script type="module">
+            console.log('a ' + calcWidth().toFixed(2));
 
-		console.log('a ' + calcWidth().toFixed(2))
+            document.fonts.ready.then(() => {
+                console.log('b ' + calcWidth().toFixed(2));
+            });
 
-		document.fonts.ready.then(()=>{
-			console.log('b ' +  calcWidth().toFixed(2))
-		})
+            function calcWidth(el) {
+                const test = document.createElement('span');
+                document.body.appendChild(test); // Must be visible!
 
-		function calcWidth(el) {
+                test.innerHTML = ''.padStart(100, 'X');
+                const w = test.getBoundingClientRect().width;
+                test.innerHTML += '<br>Measured width: ' + w.toFixed(2) + '<br>';
 
-			const test = document.createElement('span')
-			document.body.appendChild(test) // Must be visible!
+                document.body.removeChild(test); // If this line is commented the measure works on the first run!
 
-			test.innerHTML = ''.padStart(100, 'X')
-			const w = test.getBoundingClientRect().width
-			test.innerHTML += '<br>Measured width: ' + w.toFixed(2) + '<br>'
-
-			document.body.removeChild(test) // If this line is commented the measure works on the first run!
-
-			return w
-		}
-
-	</script>
-</body>
+                return w;
+            }
+        </script>
+    </body>
 </html>

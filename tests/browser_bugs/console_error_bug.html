@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="en" >
-<head>
-	<meta charset="utf-8">
-	<title>Console error bug</title>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Console error bug</title>
+    </head>
+    <body>
+        Console output only.<br />
+        <a href="https://bugs.webkit.org/show_bug.cgi?id=218275">bugs.webkit.org/show_bug.cgi?id=218275</a>
 
-	Console output only.<br>
-	<a href="https://bugs.webkit.org/show_bug.cgi?id=218275">bugs.webkit.org/show_bug.cgi?id=218275</a>
-
-	<!--
+        <!--
 	***************************************
 	Safari / WebKit
 	***************************************
@@ -19,12 +18,12 @@
 	Check the console for the two errors.
 	-->
 
-	<script>
-		function a( // <-- some syntax error here
-	</script>
+        <script>
+            function a( // <-- some syntax error here
+        </script>
 
-	<script type="module">
-		function b( // <-- some syntax error here
-	</script>
-</body>
+        <script type="module">
+            function b( // <-- some syntax error here
+        </script>
+    </body>
 </html>

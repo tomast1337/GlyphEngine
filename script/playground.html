@@ -1,111 +1,188 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GlyphEngine Playground</title>
-  <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; }
-    body {
-      display: grid;
-      grid-template-columns: 1fr 1fr 240px;
-      font: 13px/1.4 ui-monospace, "Simple Console", monospace;
-      background: #fff;
-      color: #222;
-    }
-    #output { border: 0; width: 100%; height: 100%; display: block; }
-    #code { border-left: 1px solid #ddd; background: #fafafa; overflow: hidden; }
-    #code .cm-editor { height: 100%; }
-    #code .cm-editor.cm-focused { outline: none; }
-    #code .cm-scroller { font: inherit; }
-    nav { background: #111; color: #ddd; padding: 0.5em 1em; overflow-y: auto; }
-    nav h1 { font-size: inherit; margin: 0 0 0.5em; }
-    nav button {
-      font: inherit; color: inherit; background: none; border: 1px solid #555;
-      padding: 0.2em 0.6em; cursor: pointer; margin-bottom: 0.5em;
-    }
-    nav button:hover { background: #333; }
-    nav .group { color: #777; margin-top: 0.8em; }
-    nav a { display: block; color: #bbb; text-decoration: none; padding-left: 1em; }
-    nav a:hover, nav a.active { color: #fff; background: #333; }
-    nav kbd { color: #777; font: inherit; }
-    nav p { color: #999; margin: 0 0 0.8em; }
-    nav p a { display: inline; padding: 0; color: #ddd; text-decoration: underline; }
-    nav label { display: block; margin-bottom: 0.5em; color: #999; }
-    nav select { font: inherit; color: #ddd; background: #111; border: 1px solid #555; }
-    @media (max-width: 800px) {
-      body { grid-template-columns: 1fr; grid-template-rows: 50vh 50vh auto; }
-    }
-  </style>
-</head>
-<body>
-  <iframe id="output" title="Program output"></iframe>
-  <div id="code" aria-label="Program source"></div>
-  <nav>
-    <h1>GlyphEngine</h1>
-    <p>
-      A fork of <a href="https://github.com/ertdfgcvb/play.core" target="_blank" rel="noopener">play.core</a>
-      by ertdfgcvb (<a href="https://play.ertdfgcvb.xyz" target="_blank" rel="noopener">original playground</a>),
-      with TypeScript and npm package support.
-      <a href="https://github.com/tomast1337/GlyphEngine" target="_blank" rel="noopener">Source</a>
-    </p>
-    <button id="run">Run</button> <kbd>Ctrl+Enter</kbd>
-    <label>Renderer <select id="renderer"></select></label>
-    <div id="list"></div>
-  </nav>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>GlyphEngine Playground</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+            }
+            body {
+                display: grid;
+                grid-template-columns: 1fr 1fr 240px;
+                font:
+                    13px/1.4 ui-monospace,
+                    'Simple Console',
+                    monospace;
+                background: #fff;
+                color: #222;
+            }
+            #output {
+                border: 0;
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            #code {
+                border-left: 1px solid #ddd;
+                background: #fafafa;
+                overflow: hidden;
+            }
+            #code .cm-editor {
+                height: 100%;
+            }
+            #code .cm-editor.cm-focused {
+                outline: none;
+            }
+            #code .cm-scroller {
+                font: inherit;
+            }
+            nav {
+                background: #111;
+                color: #ddd;
+                padding: 0.5em 1em;
+                overflow-y: auto;
+            }
+            nav h1 {
+                font-size: inherit;
+                margin: 0 0 0.5em;
+            }
+            nav button {
+                font: inherit;
+                color: inherit;
+                background: none;
+                border: 1px solid #555;
+                padding: 0.2em 0.6em;
+                cursor: pointer;
+                margin-bottom: 0.5em;
+            }
+            nav button:hover {
+                background: #333;
+            }
+            nav .group {
+                color: #777;
+                margin-top: 0.8em;
+            }
+            nav a {
+                display: block;
+                color: #bbb;
+                text-decoration: none;
+                padding-left: 1em;
+            }
+            nav a:hover,
+            nav a.active {
+                color: #fff;
+                background: #333;
+            }
+            nav kbd {
+                color: #777;
+                font: inherit;
+            }
+            nav p {
+                color: #999;
+                margin: 0 0 0.8em;
+            }
+            nav p a {
+                display: inline;
+                padding: 0;
+                color: #ddd;
+                text-decoration: underline;
+            }
+            nav label {
+                display: block;
+                margin-bottom: 0.5em;
+                color: #999;
+            }
+            nav select {
+                font: inherit;
+                color: #ddd;
+                background: #111;
+                border: 1px solid #555;
+            }
+            @media (max-width: 800px) {
+                body {
+                    grid-template-columns: 1fr;
+                    grid-template-rows: 50vh 50vh auto;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <iframe id="output" title="Program output"></iframe>
+        <div id="code" aria-label="Program source"></div>
+        <nav>
+            <h1>GlyphEngine</h1>
+            <p>
+                A fork of
+                <a href="https://github.com/ertdfgcvb/play.core" target="_blank" rel="noopener">play.core</a>
+                by ertdfgcvb (<a href="https://play.ertdfgcvb.xyz" target="_blank" rel="noopener">original playground</a>), with TypeScript and npm package support.
+                <a href="https://github.com/tomast1337/GlyphEngine" target="_blank" rel="noopener">Source</a>
+            </p>
+            <button id="run">Run</button> <kbd>Ctrl+Enter</kbd>
+            <label
+                >Renderer
+                <select id="renderer"></select
+            ></label>
+            <div id="list"></div>
+        </nav>
 
-  <!-- CodeMirror from esm.sh. "*" leaves dependency imports bare so this map
+        <!-- CodeMirror from esm.sh. "*" leaves dependency imports bare so this map
        loads every package once (two copies of @codemirror/state break it). -->
-  <script type="importmap">
-    {
-      "imports": {
-        "codemirror": "https://esm.sh/*codemirror@6.0.2",
-        "@codemirror/": "https://esm.sh/*@codemirror/",
-        "@lezer/": "https://esm.sh/*@lezer/",
-        "@marijn/find-cluster-break": "https://esm.sh/*@marijn/find-cluster-break",
-        "style-mod": "https://esm.sh/*style-mod",
-        "w3c-keyname": "https://esm.sh/*w3c-keyname",
-        "crelt": "https://esm.sh/*crelt"
-      }
-    }
-  </script>
-  <script type="module">
-    import { EditorView, basicSetup } from "codemirror";
-    import { keymap } from "@codemirror/view";
-    import { Prec } from "@codemirror/state";
-    import { indentWithTab } from "@codemirror/commands";
-    import { javascript } from "@codemirror/lang-javascript";
+        <script type="importmap">
+            {
+                "imports": {
+                    "codemirror": "https://esm.sh/*codemirror@6.0.2",
+                    "@codemirror/": "https://esm.sh/*@codemirror/",
+                    "@lezer/": "https://esm.sh/*@lezer/",
+                    "@marijn/find-cluster-break": "https://esm.sh/*@marijn/find-cluster-break",
+                    "style-mod": "https://esm.sh/*style-mod",
+                    "w3c-keyname": "https://esm.sh/*w3c-keyname",
+                    "crelt": "https://esm.sh/*crelt"
+                }
+            }
+        </script>
+        <script type="module">
+            import { EditorView, basicSetup } from 'codemirror';
+            import { keymap } from '@codemirror/view';
+            import { Prec } from '@codemirror/state';
+            import { indentWithTab } from '@codemirror/commands';
+            import { javascript } from '@codemirror/lang-javascript';
 
-    const output = document.getElementById("output");
-    const editor = new EditorView({
-      parent: document.getElementById("code"),
-      extensions: [
-        basicSetup,
-        javascript(),
-        keymap.of([indentWithTab]),
-        Prec.highest(keymap.of([{ key: "Mod-Enter", run: () => (run(), true) }])),
-      ],
-    });
-    const list = document.getElementById("list");
-    const engineURL = new URL("glyph-engine.js", location.href).href;
-    let blobURL;
+            const output = document.getElementById('output');
+            const editor = new EditorView({
+                parent: document.getElementById('code'),
+                extensions: [basicSetup, javascript(), keymap.of([indentWithTab]), Prec.highest(keymap.of([{ key: 'Mod-Enter', run: () => (run(), true) }]))],
+            });
+            const list = document.getElementById('list');
+            const engineURL = new URL('glyph-engine.js', location.href).href;
+            let blobURL;
 
-    // Renderers the engine knows (keys of `renderers` in src/run.ts). Add new backends here.
-    const RENDERERS = { text: "DOM (text)", canvas: "Canvas", webgl: "WebGL2", webgpu: "WebGPU" };
-    const select = document.getElementById("renderer");
-    select.add(new Option("Auto", ""));
-    for (const [key, label] of Object.entries(RENDERERS)) select.add(new Option(label, key));
-    select.onchange = run;
-    // Called by the output iframe with the example's own renderer, shown on "Auto".
-    window.showRenderer = (key) => (select.options[0].text = `Auto (${RENDERERS[key] ?? key})`);
+            // Renderers the engine knows (keys of `renderers` in src/run.ts). Add new backends here.
+            const RENDERERS = {
+                text: 'DOM (text)',
+                canvas: 'Canvas',
+                webgl: 'WebGL2',
+                webgpu: 'WebGPU',
+            };
+            const select = document.getElementById('renderer');
+            select.add(new Option('Auto', ''));
+            for (const [key, label] of Object.entries(RENDERERS)) select.add(new Option(label, key));
+            select.onchange = run;
+            // Called by the output iframe with the example's own renderer, shown on "Auto".
+            window.showRenderer = (key) => (select.options[0].text = `Auto (${RENDERERS[key] ?? key})`);
 
-    // Each run gets a fresh iframe document: stops the old loop and resets program state.
-    function run() {
-      if (blobURL) URL.revokeObjectURL(blobURL);
-      blobURL = URL.createObjectURL(new Blob([editor.state.doc.toString()], { type: "text/javascript" }));
-      output.srcdoc = `<!doctype html><html><head><meta charset="utf-8">
-<script type="importmap">${JSON.stringify({ imports: { "glyph-engine": engineURL } })}<\/script>
+            // Each run gets a fresh iframe document: stops the old loop and resets program state.
+            function run() {
+                if (blobURL) URL.revokeObjectURL(blobURL);
+                blobURL = URL.createObjectURL(new Blob([editor.state.doc.toString()], { type: 'text/javascript' }));
+                output.srcdoc = `<!doctype html><html><head><meta charset="utf-8">
+<script type="importmap">${JSON.stringify({ imports: { 'glyph-engine': engineURL } })}<\/script>
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; font: 14px/1.2 "Simple Console", monospace; }
   pre, canvas { display: block; margin: 0; width: 100vw; height: 100vh; font: inherit; }
@@ -126,33 +203,39 @@
   parent.showRenderer(auto);
   run({ ...program, settings: { ...program.settings, renderer } }).catch(show);
 <\/script></body></html>`;
-    }
+            }
 
-    async function load(file) {
-      const res = await fetch("programs/" + file);
-      if (!res.ok) return;
-      editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: await res.text() } });
-      for (const a of list.querySelectorAll("a")) a.classList.toggle("active", a.hash === "#" + file);
-      run();
-    }
+            async function load(file) {
+                const res = await fetch('programs/' + file);
+                if (!res.ok) return;
+                editor.dispatch({
+                    changes: {
+                        from: 0,
+                        to: editor.state.doc.length,
+                        insert: await res.text(),
+                    },
+                });
+                for (const a of list.querySelectorAll('a')) a.classList.toggle('active', a.hash === '#' + file);
+                run();
+            }
 
-    const examples = await (await fetch("examples.json")).json();
-    let group;
-    for (const ex of examples) {
-      if (ex.group !== group) {
-        group = ex.group;
-        list.insertAdjacentHTML("beforeend", `<div class="group">${group}</div>`);
-      }
-      const a = document.createElement("a");
-      a.href = "#" + ex.file;
-      a.textContent = ex.title;
-      if (ex.author) a.title = "by " + ex.author;
-      list.append(a);
-    }
+            const examples = await (await fetch('examples.json')).json();
+            let group;
+            for (const ex of examples) {
+                if (ex.group !== group) {
+                    group = ex.group;
+                    list.insertAdjacentHTML('beforeend', `<div class="group">${group}</div>`);
+                }
+                const a = document.createElement('a');
+                a.href = '#' + ex.file;
+                a.textContent = ex.title;
+                if (ex.author) a.title = 'by ' + ex.author;
+                list.append(a);
+            }
 
-    document.getElementById("run").onclick = run;
-    addEventListener("hashchange", () => load(location.hash.slice(1)));
-    load(location.hash.slice(1) || examples[0].file);
-  </script>
-</body>
+            document.getElementById('run').onclick = run;
+            addEventListener('hashchange', () => load(location.hash.slice(1)));
+            load(location.hash.slice(1) || examples[0].file);
+        </script>
+    </body>
 </html>

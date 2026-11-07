@@ -30,35 +30,35 @@ Load.image('assets/1/colors.png').then( img => {
 export default { json, image, text };
 
 function image(url: string) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => {
-      console.log("Loader: error loading image " + url);
-      resolve(null);
-    };
-    img.src = url;
-  });
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => {
+            console.log('Loader: error loading image ' + url);
+            resolve(null);
+        };
+        img.src = url;
+    });
 }
 
 function text(url: string) {
-  return fetch(url)
-    .then((response) => {
-      return response.text();
-    })
-    .catch((err) => {
-      console.log("Loader: error loading text " + url);
-      return "";
-    });
+    return fetch(url)
+        .then((response) => {
+            return response.text();
+        })
+        .catch((err) => {
+            console.log('Loader: error loading text ' + url);
+            return '';
+        });
 }
 
 function json(url: string) {
-  return fetch(url)
-    .then((response) => {
-      return response.json();
-    })
-    .catch((err) => {
-      console.log("Loader: error loading json " + url);
-      return {};
-    });
+    return fetch(url)
+        .then((response) => {
+            return response.json();
+        })
+        .catch((err) => {
+            console.log('Loader: error loading json ' + url);
+            return {};
+        });
 }

@@ -5,53 +5,46 @@
 @desc   Inspired by Ernst Jandl, 1964
 */
 
-
-
-import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
-import { drawbox,num,vec2 } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from 'glyph-engine';
+import { drawbox, num, vec2 } from 'glyph-engine';
 
 const { PI, atan2, floor, cos, max } = Math;
 
 function polygon(center: vec2.Vec2, edges: number, time: number) {
-  time = time || 0;
-  // from https://observablehq.com/@riccardoscalco/draw-regular-polygons-by-means-of-functions
-  const p = center;
-  const N = edges;
-  const a = (atan2(p.x, p.y) + 2 + time * PI) / (2 * PI);
-  const b = (floor(a * N) + 0.5) / N;
-  const c = vec2.length(p) * cos((a - b) * 2 * PI);
-  return num.smoothstep(0.3, 0.31, c);
+    time = time || 0;
+    // from https://observablehq.com/@riccardoscalco/draw-regular-polygons-by-means-of-functions
+    const p = center;
+    const N = edges;
+    const a = (atan2(p.x, p.y) + 2 + time * PI) / (2 * PI);
+    const b = (floor(a * N) + 0.5) / N;
+    const c = vec2.length(p) * cos((a - b) * 2 * PI);
+    return num.smoothstep(0.3, 0.31, c);
 }
 
-export function main(
-  coord: Coord,
-  context: Context,
-  cursor: Cursor,
-  out: CellOut
-) {
-  const m = max(context.cols, context.rows);
-  const a = context.metrics.aspect;
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
+    const m = max(context.cols, context.rows);
+    const a = context.metrics.aspect;
 
-  const st = {
-    x: (2.0 * (coord.x - context.cols / 2)) / m,
-    y: (2.0 * (coord.y - context.rows / 2)) / m / a,
-  };
+    const st = {
+        x: (2.0 * (coord.x - context.cols / 2)) / m,
+        y: (2.0 * (coord.y - context.rows / 2)) / m / a,
+    };
 
-  const centerT = vec2.add(st, vec2.vec2(0, cos(context.time * 0.0021) * 0.5));
-  const colorT = polygon(centerT, 3, context.time * 0.0002);
+    const centerT = vec2.add(st, vec2.vec2(0, cos(context.time * 0.0021) * 0.5));
+    const colorT = polygon(centerT, 3, context.time * 0.0002);
 
-  const triangle = colorT <= 0.1 ? 1 : 0;
+    const triangle = colorT <= 0.1 ? 1 : 0;
 
-  const centerQ = vec2.add(st, vec2.vec2(cos(context.time * 0.0023) * 0.5, 0));
-  const colorQ = polygon(centerQ, 4, -context.time * 0.0004);
-  const quadrato = colorQ <= 0.1 ? 2 : 0;
-  const i = triangle + quadrato;
-  const chars = [" ", "e", "o", "ö"];
+    const centerQ = vec2.add(st, vec2.vec2(cos(context.time * 0.0023) * 0.5, 0));
+    const colorQ = polygon(centerQ, 4, -context.time * 0.0004);
+    const quadrato = colorQ <= 0.1 ? 2 : 0;
+    const i = triangle + quadrato;
+    const chars = [' ', 'e', 'o', 'ö'];
 
-  const colors = ["white", "#527EA8", "#BB2A1C", "#DFA636"];
-  out.char = chars[i];
-  out.color = colors[i]!;
-  out.fontWeight = "100";
+    const colors = ['white', '#527EA8', '#BB2A1C', '#DFA636'];
+    out.char = chars[i];
+    out.color = colors[i]!;
+    out.fontWeight = '100';
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

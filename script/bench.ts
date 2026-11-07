@@ -1,15 +1,19 @@
 // Engine benchmark: runs programs in headless Chromium and prints ms per frame.
 // Usage: bun run bench [frames] [cols] [rows]
-import { chromium } from "playwright";
-import type {} from "./bench-page"; // the window.bench type
+import { chromium } from 'playwright';
+
+import type {} from './bench-page'; // the window.bench type
 
 const FRAMES = Number(process.argv[2] ?? 200);
 const COLS = Number(process.argv[3] ?? 200);
 const ROWS = Number(process.argv[4] ?? 60);
 const WARMUP = 20;
 
-const build = await Bun.build({ entrypoints: [import.meta.dir + "/bench-page.ts"], target: "browser" });
-if (!build.success) throw new AggregateError(build.logs, "bench bundle failed");
+const build = await Bun.build({
+    entrypoints: [import.meta.dir + '/bench-page.ts'],
+    target: 'browser',
+});
+if (!build.success) throw new AggregateError(build.logs, 'bench bundle failed');
 const script = await build.outputs[0]!.text();
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -20,24 +24,23 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 
 const browser = await chromium.launch();
 try {
-  const page = await browser.newPage({ viewport: { width: COLS * 10, height: ROWS * 20 } });
-  page.on("pageerror", (e) => console.error("page error:", e.message));
-  // A real origin, so localStorage behaves as on a live site
-  await page.route("http://bench.local/", (r) => r.fulfill({ contentType: "text/html", body: html }));
-  await page.goto("http://bench.local/");
-  await page.addScriptTag({ content: script });
-  const results = await page.evaluate(
-    ([c, r, f, w]) => window.bench(c, r, f, w),
-    [COLS, ROWS, FRAMES, WARMUP] as const
-  );
+    const page = await browser.newPage({
+        viewport: { width: COLS * 10, height: ROWS * 20 },
+    });
+    page.on('pageerror', (e) => console.error('page error:', e.message));
+    // A real origin, so localStorage behaves as on a live site
+    await page.route('http://bench.local/', (r) => r.fulfill({ contentType: 'text/html', body: html }));
+    await page.goto('http://bench.local/');
+    await page.addScriptTag({ content: script });
+    const results = await page.evaluate(([c, r, f, w]) => window.bench(c, r, f, w), [COLS, ROWS, FRAMES, WARMUP] as const);
 
-  console.log(`${COLS}x${ROWS}, ${FRAMES} frames (${WARMUP} warmup), mean ms/frame\n`);
-  console.log("program".padEnd(10) + "compute".padStart(10) + "canvas".padStart(10) + "webgl".padStart(10) + "text".padStart(10));
-  for (const [name, r] of Object.entries(results as Record<string, Record<string, number>>)) {
-    console.log(name.padEnd(10) + [r.compute, r.canvas, r.webgl, r.text].map((n) => n!.toFixed(2).padStart(10)).join(""));
-  }
-  console.log("\ncanvas/webgl/text = full engine frame (getContext, storage, compute, render),");
-  console.log("measured as JS time; the browser lays out and paints between frames, untimed.");
+    console.log(`${COLS}x${ROWS}, ${FRAMES} frames (${WARMUP} warmup), mean ms/frame\n`);
+    console.log('program'.padEnd(10) + 'compute'.padStart(10) + 'canvas'.padStart(10) + 'webgl'.padStart(10) + 'text'.padStart(10));
+    for (const [name, r] of Object.entries(results as Record<string, Record<string, number>>)) {
+        console.log(name.padEnd(10) + [r.compute, r.canvas, r.webgl, r.text].map((n) => n!.toFixed(2).padStart(10)).join(''));
+    }
+    console.log('\ncanvas/webgl/text = full engine frame (getContext, storage, compute, render),');
+    console.log('measured as JS time; the browser lays out and paints between frames, untimed.');
 } finally {
-  await browser.close();
+    await browser.close();
 }
