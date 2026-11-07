@@ -24,7 +24,7 @@ exports[`plasma: output after 5 frames 1`] = `
     "+cccccc++->><::........::<>>-++cccccc++-",
     "+ccccc++--><::..      ..::<>--++ccccc++-",
   ],
-  "styles": "f5ba4eaadc538f4e",
+  "styles": "67f8e1a72fb2d693",
 }
 `;
 
@@ -52,6 +52,6 @@ exports[`donut: output after 5 frames 1`] = `
     ";;===!!!****####$$$$$$#####***!!!!!===;;",
     "::;;==!!!!!!*****######******!!!!===;;;;",
   ],
-  "styles": "e722236a70bad3a2",
+  "styles": "e6d74d3980249e40",
 }
 `;

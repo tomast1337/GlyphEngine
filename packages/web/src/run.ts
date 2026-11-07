@@ -2,7 +2,7 @@
 Runner
 */
 
-import { bufferOf, computeFrame, type Context, createFrame, FPS, type Frame, type Metrics, type Pointer, type Program, type Settings, type State } from '@glyph-engine/core';
+import { type Host, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
 
 import canvasRenderer from './canvasrenderer';
 import type { Render, RenderModes } from './renderer';
@@ -77,7 +77,6 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             // The loop stores at most once per second; save the latest state on leave
             addEventListener('pagehide', () => storage.store(LOCAL_STORAGE_KEY_STATE, state));
         }
-        let lastStore = -Infinity;
 
         // If element is not provided create a default element based
         // on the renderer settings.
@@ -102,7 +101,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
         // Eventqueue
         // Stores events and pops them at the end of the renderloop
         // TODO: needed?
-        const eventQueue: ('pointerMove' | 'pointerDown' | 'pointerUp')[] = [];
+        const eventQueue: PointerEventName[] = [];
 
         // Input pointer updated by DOM events
         const pointer: Pointer = {
@@ -186,19 +185,6 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             // requestAnimationFrame(loop)
         });
 
-        // FPS object (keeps some state for precise FPS measure)
-        const fps = new FPS();
-
-        // What the renderers draw. main() writes it through the `out` slot;
-        // pre(), post(), boot() and events see it as a buffer.
-        let frame: Frame = createFrame(0, 0);
-
-        // Metrics object, calc once (below)
-        let metrics: Metrics;
-
-        // Element size, refreshed only on resize: reading it every frame forces layout
-        let rect: DOMRect;
-
         // Set when the program's WGSL main() runs on the GPU instead of main().
         let gpu: Omit<GpuStep, 'cursor'> | undefined;
 
@@ -213,138 +199,26 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
         }
 
         function boot() {
-            metrics = calcMetrics(settings.element as HTMLElement);
             const el = settings.element as HTMLElement;
-            rect = el.getBoundingClientRect();
+            // Element size, refreshed only on resize: reading it every frame forces layout
+            let rect = el.getBoundingClientRect();
             new ResizeObserver(() => (rect = el.getBoundingClientRect())).observe(el);
-            const context = getContext(state, settings, metrics, fps, rect);
-            // Programs get a sized frame already in boot()
-            frame = createFrame((cols = context.cols), (rows = context.rows));
-            if (typeof program.boot == 'function') {
-                program.boot(context, bufferOf(frame), userData);
-            }
-            requestAnimationFrame(loop);
-        }
-
-        // Time sample to calculate precise offset
-        let timeSample = 0;
-        // Previous time step to increment state.time (with state.time initial offset)
-        let ptime = 0;
-        const interval = 1000 / settings.fps;
-        const timeOffset = state.time;
-
-        // Used to track window resize
-        let cols: number, rows: number;
-
-        // Timestamp of the last frame that ran, for context.delta
-        let lastFrameT: number | undefined;
-
-        // Main program loop
-        function loop(t: number) {
-            // Timing
-            const delta = t - timeSample;
-            if (delta < interval) {
-                // Skip the frame
-                if (!settings.once) requestAnimationFrame(loop);
-                return;
-            }
-
-            // Snapshot of context data
-            const context = getContext(state, settings, metrics, fps, rect, lastFrameT === undefined ? 0 : t - lastFrameT);
-            lastFrameT = t;
-
-            // FPS update
-            fps.update(t);
-
-            // Timing update
-            timeSample = t - (delta % interval); // adjust timeSample
-            state.time = t + timeOffset; // increment time + initial offs
-            state.frame++; // increment frame counter
-            if (settings.restoreState && t - lastStore >= 1000) {
-                storage.store(LOCAL_STORAGE_KEY_STATE, state);
-                lastStore = t;
-            }
-
-            // Cursor update
-            const cursor = {
-                // The canvas might be slightly larger than the number
-                // of cols/rows, min is required!
-                x: Math.min(context.cols - 1, pointer.x / metrics.cellWidth),
-                y: Math.min(context.rows - 1, pointer.y / metrics.lineHeight),
-                pressed: pointer.pressed,
-                p: {
-                    // state of previous frame
-                    x: pointer.px / metrics.cellWidth,
-                    y: pointer.py / metrics.lineHeight,
-                    pressed: pointer.ppressed,
-                },
+            const host: Host = {
+                requestFrame: (cb) => requestAnimationFrame(cb),
+                metrics: calcMetrics(el),
+                size: () => rect,
+                pointer,
+                events: eventQueue,
+                render: (context, frame, cursor) => renderer.render(context, frame, gpu && { ...gpu, cursor }),
+                onGpu: !!gpu,
+                storeState: (state) => storage.store(LOCAL_STORAGE_KEY_STATE, state),
             };
-
-            // Pointer: store previous state
-            pointer.px = pointer.x;
-            pointer.py = pointer.y;
-            pointer.ppressed = pointer.pressed;
-
-            // 1. --------------------------------------------------------------
-            // In case of resize: a fresh, empty frame
-            if (cols != context.cols || rows != context.rows) {
-                cols = context.cols;
-                rows = context.rows;
-                frame = createFrame(cols, rows);
-            }
-
-            // 2-4. ------------------------------------------------------------
-            computeFrame(program, context, cursor, frame, userData, !!gpu);
-
-            // 5. --------------------------------------------------------------
-            renderer.render(context, frame, gpu && { ...gpu, cursor });
-
-            // 6. --------------------------------------------------------------
-            // Queued events
-            while (eventQueue.length > 0) {
-                const type = eventQueue.shift();
-                if (type && typeof program[type] == 'function') {
-                    program[type](context, cursor, bufferOf(frame), userData);
-                }
-            }
-
-            // 7. --------------------------------------------------------------
-            // Loop (eventually)
-            if (!settings.once) requestAnimationFrame(loop);
-
-            // The end of the first frame is reached without errors
-            // the promise can be resolved.
-            resolve(context);
+            startLoop(program, settings, userData, state, host, resolve);
         }
     });
 }
 
 // -- Helpers ------------------------------------------------------------------
-
-// Build / update the 'context' object (immutable)
-// A bit of spaghetti... but the context object needs to be ready for
-// the boot function and also to be updated at each frame.
-function getContext(state: State, settings: WebSettings, metrics: Metrics, fps: FPS, rect: DOMRect, delta = 0): Context {
-    const cols = settings.cols || Math.floor(rect.width / metrics.cellWidth);
-    const rows = settings.rows || Math.floor(rect.height / metrics.lineHeight);
-    return Object.freeze({
-        frame: state.frame,
-        time: state.time,
-        delta,
-        cols,
-        rows,
-        metrics,
-        width: rect.width,
-        height: rect.height,
-        settings,
-        // Runtime & debug data
-        runtime: Object.freeze({
-            cycle: state.cycle,
-            fps: fps.fps,
-            // updatedRowNum
-        }),
-    }) as Context;
-}
 
 // Disables selection for an HTML element
 function disableSelect(el: HTMLElement) {

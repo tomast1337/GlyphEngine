@@ -1,0 +1,14 @@
+// Declarations for dist/. @glyph-engine/* resolve to the built packages here.
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "rootDir": "src",
+        "outDir": "dist",
+        "allowImportingTsExtensions": false,
+        "paths": {}
+    },
+    "include": ["src"]
+}

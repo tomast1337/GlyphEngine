@@ -3,6 +3,7 @@
 export * from './computeframe';
 export { default as FPS } from './fps';
 export * from './frame';
+export * from './loop';
 export * from './out';
 export type * from './program';
 export { default as RUNNER_VERSION } from './version';
