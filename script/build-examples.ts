@@ -1,6 +1,6 @@
 // Builds the playground into ./out:
 //   index.html         single page: output, editable source, example list
-//   glyph-engine.js    the engine bundle (programs import "glyph-engine")
+//   glyph-engine.js    the engine bundle: @glyph-engine/web, which includes core
 //   programs/**.js     each example with types stripped, comments kept
 //   examples.json      list for the sidebar
 // Usage: bun run build:examples [--watch]   (--watch also serves on $PORT, default 3000)
@@ -34,19 +34,19 @@ async function build() {
     fs.rmSync(outDir, { recursive: true, force: true });
 
     const engine = await Bun.build({
-        entrypoints: ['./src/index.ts'],
+        entrypoints: ['./packages/web/src/index.ts'],
         outdir: outDir,
         naming: 'glyph-engine.js',
         target: 'browser',
     });
     if (!engine.success) throw new AggregateError(engine.logs, 'engine build failed');
 
-    const paths = [...new Bun.Glob('src/programs/**/*.ts').scanSync('.')].sort();
+    const paths = [...new Bun.Glob('programs/**/*.ts').scanSync('.')].sort();
     const examples = [];
 
     for (const path of paths) {
         const src = await Bun.file(path).text();
-        const file = path.replace('src/programs/', '').replace(/\.ts$/, '.js');
+        const file = path.replace('programs/', '').replace(/\.ts$/, '.js');
         await Bun.write(`${outDir}/programs/${file}`, stripTypes(src));
         examples.push({
             file,
@@ -73,7 +73,8 @@ if (process.argv.includes('--watch')) {
         timer = setTimeout(() => build().catch((e) => console.error('Rebuild failed:', e)), 100);
     };
 
-    fs.watch('./src', { recursive: true }, rebuild);
+    fs.watch('./packages', { recursive: true }, rebuild);
+    fs.watch('./programs', { recursive: true }, rebuild);
     fs.watch('./script/playground.html', rebuild);
 
     const server = Bun.serve({
@@ -85,5 +86,5 @@ if (process.argv.includes('--watch')) {
         },
     });
 
-    console.log(`Watching ./src, serving http://localhost:${server.port}/`);
+    console.log(`Watching ./packages and ./programs, serving http://localhost:${server.port}/`);
 }

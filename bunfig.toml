@@ -7,4 +7,4 @@ trailingComma = "all"
 sortImports = true # sorted and grouped: built-ins, packages, then relative paths
 
 [test]
-root = "tests" # src/programs/basics/performance_test.ts is a program, not a test
+root = "tests" # programs/basics/performance_test.ts is a program, not a test

@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 
-import { asBuffer, colorString, createFrame, cssColor, getChar, rgba, setChar } from '../src/core/frame';
+import { asBuffer, colorString, createFrame, cssColor, getChar, rgba, setChar } from '@glyph-engine/core';
 
 test('chars: code points, graphemes and empty cells round-trip', () => {
     const f = createFrame(4, 1);

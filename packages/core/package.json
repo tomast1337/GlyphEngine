@@ -1,0 +1,19 @@
+{
+    "name": "@glyph-engine/core",
+    "version": "1.0.0",
+    "description": "Platform-free core of GlyphEngine: frames, the out slot, computeFrame() and the modules programs use.",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "rm -rf dist && bun build src/index.ts --target browser --outdir dist && tsc -p tsconfig.build.json",
+        "prepublishOnly": "bun run build"
+    }
+}

@@ -4,6 +4,13 @@ This is a fork of [play.core](https://github.com/ertdfgcvb/play.core)
 
 with the added npm package support, and typescript support.
 
+## Packages
+
+- `@glyph-engine/core` (`packages/core`): frames, the `out` slot, `computeFrame()` and the modules programs use (`drawbox`, `num`, `vec2`, `sdf`…). No DOM: it runs anywhere.
+- `@glyph-engine/web` (`packages/web`): `run()` in the browser with the text, canvas, WebGL2 and WebGPU renderers, and the browser-only modules (`camera`, `canvas`, `sort`, `image`…). It re-exports the core.
+
+The examples live in `programs/`. `bun run build` builds both packages into their `dist/`.
+
 ## Playground
 
 ```
@@ -15,7 +22,7 @@ Builds the examples and serves them at http://localhost:3000 (`PORT=4000 bun run
 ## Writing programs
 
 ```ts
-import { run } from 'glyph-engine';
+import { run } from '@glyph-engine/web';
 
 run({
     main(coord, context, cursor, out) {

@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 
-import { getChar } from '../src/core/frame';
+import { getChar } from '@glyph-engine/core';
+
 import { makeRunner } from './harness';
 
 test('main() writes stay per cell after post() put one object in several cells', () => {
@@ -56,8 +57,8 @@ test('main() writes the out slot: glyphs, CSS / channel colours, clamping, defau
 });
 
 test('on the GPU, main() is skipped and the frame holds only what post() drew', async () => {
-    const { computeFrame } = await import('../src/run');
-    const { createFrame } = await import('../src/core/frame');
+    const { computeFrame } = await import('@glyph-engine/core');
+    const { createFrame } = await import('@glyph-engine/core');
     const frame = createFrame(3, 1);
     let calls = 0;
     const program = {

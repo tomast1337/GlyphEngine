@@ -1,0 +1,9 @@
+// The core must run anywhere: checked without DOM or Bun types.
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "lib": ["ESNext"],
+        "types": []
+    },
+    "include": ["src"]
+}
