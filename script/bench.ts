@@ -1,6 +1,7 @@
 // Engine benchmark: runs programs in headless Chromium and prints ms per frame.
 // Usage: bun run bench [frames] [cols] [rows]
 import { chromium } from "playwright";
+import type {} from "./bench-page"; // the window.bench type
 
 const FRAMES = Number(process.argv[2] ?? 200);
 const COLS = Number(process.argv[3] ?? 200);
@@ -26,8 +27,8 @@ try {
   await page.goto("http://bench.local/");
   await page.addScriptTag({ content: script });
   const results = await page.evaluate(
-    ([c, r, f, w]) => (window as any).bench(c, r, f, w),
-    [COLS, ROWS, FRAMES, WARMUP]
+    ([c, r, f, w]) => window.bench(c, r, f, w),
+    [COLS, ROWS, FRAMES, WARMUP] as const
   );
 
   console.log(`${COLS}x${ROWS}, ${FRAMES} frames (${WARMUP} warmup), mean ms/frame\n`);

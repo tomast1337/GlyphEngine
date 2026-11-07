@@ -32,7 +32,7 @@ test("fromBuffer stores settings defaults as 0", () => {
       { char: "c", beginHTML: "<a>", endHTML: "</a>" },
     ],
     f,
-    settings as any
+    settings
   );
   expect([...f.fg]).toEqual([0, 0xff0000ff, 0]);
   expect([...f.bg]).toEqual([0, 0x00ff00ff, 0]);
@@ -52,7 +52,7 @@ test("asBuffer reads and writes cells as objects", () => {
 test("README frame() example runs", () => {
   const step = makeRunner(
     {
-      frame(_context: any, _cursor: any, out: any) {
+      frame(_context, _cursor, out) {
         const red = cssColor("#ff0000");
         for (let k = 0; k < out.cols * out.rows; k++) {
           out.chars[k] = 0x23;
@@ -61,7 +61,7 @@ test("README frame() example runs", () => {
         }
         setChar(out, 0, "👩‍💻");
       },
-    } as any,
+    },
     3,
     2
   );

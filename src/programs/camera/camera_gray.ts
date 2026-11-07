@@ -5,7 +5,7 @@
 @desc   Grayscale input from camera
 */
 
-import  { canvas,camera,drawbox,sort } from "glyph-engine";
+import  { canvas,camera,drawbox,sort,color } from "glyph-engine";
 import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
 
 const cam = camera.default.init();
@@ -15,7 +15,7 @@ const can = new canvas.default();
 
 const density = sort.sort(" .x?▂▄▆█", "Simple Console", false);
 
-const data: Buffer = [];
+const data: color.RGB[] = [];
 
 export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
   const a = context.metrics.aspect;
@@ -29,7 +29,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
     .cover(cam, a)
     .mirrorX()
     .normalize()
-    .writeTo(data as any);
+    .writeTo(data);
 }
 
 export function main(
@@ -40,7 +40,7 @@ export function main(
 ) {
   // Coord also contains the index of each cell:
   const color = data[coord.index]!;
-  const index = Math.floor(color.v * (density.length - 1));
+  const index = Math.floor(color.v! * (density.length - 1)); // v: set by normalize()
   return density[index];
 }
 

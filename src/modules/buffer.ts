@@ -29,25 +29,24 @@ export function get(  x: number,  y: number,  target: Buffer,  targetCols: numbe
 // The value to be set is a single character or a 'cell' object like:
 // { char, color, backgroundColor, fontWeight }
 // which can overwrite the buffer (set) or partially merged (merge)
-export function set(  val: any,  x: number,  y: number,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
+export function set(  val: Cell,  x: number,  y: number,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
     if (x < 0 || x >= targetCols) return 
 	if (y < 0 || y >= targetRows) return
 	const i = x + y * targetCols
 	target[i] = val
 }
 
-export function merge(  val: any,  x: number,  y: number,  target: Buffer,  targetCols: number,  targetRows: number) {
+export function merge(  val: Partial<Cell>,  x: number,  y: number,  target: Buffer,  targetCols: number,  targetRows: number) {
     if (x < 0 || x >= targetCols) return
 	if (y < 0 || y >= targetRows) return
 	const i = x + y * targetCols
 
-	// Flatten:
-	const cell = typeof target[i] == 'object' ? target[i] : { char : target[i] }
+	const cell = target[i] ?? { char : ' ' }
 
 	target[i] = { ...cell, ...val }
 }
 
-export function setRect(  val: any,  x: number,  y: number,  w: number,  h: number,  target: Buffer,  targetCols?: number,  targetRows?: number) {
+export function setRect(  val: Cell,  x: number,  y: number,  w: number,  h: number,  target: Buffer,  targetCols?: number,  targetRows?: number) {
     for (let j=y; j<y+h; j++ ) {
 		for (let i=x; i<x+w; i++ ) {
 			set(val, i, j, target, targetCols, targetRows)
@@ -55,7 +54,7 @@ export function setRect(  val: any,  x: number,  y: number,  w: number,  h: numb
 	}
 }
 
-export function mergeRect(  val: any,  x: number,  y: number,  w: number,  h: number,  target: Buffer,  targetCols: number,  targetRows: number) {
+export function mergeRect(  val: Partial<Cell>,  x: number,  y: number,  w: number,  h: number,  target: Buffer,  targetCols: number,  targetRows: number) {
     for (let j=y; j<y+h; j++ ) {
 		for (let i=x; i<x+w; i++ ) {
 			merge(val, i, j, target, targetCols, targetRows)
@@ -72,15 +71,15 @@ export function mergeRect(  val: any,  x: number,  y: number,  w: number,  h: nu
 //      etc...
 //	}
 // or just as a string into the target buffer.
-export function mergeText(  textObj: any,  x: number,  y: number,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
-    let text: string, mergeObj: Record<string, any>
+export function mergeText(  textObj: string | ({ text: string } & Partial<Cell>),  x: number,  y: number,  target: Buffer,  targetCols: number = 0,  targetRows: number = 0) {
+    let text: string, mergeObj: Partial<Cell> = {}
 	// An object has been passed as argument, expect a 'text' field
 	if (typeof textObj == "object") {
 		text = textObj.text
 		// Extract all the fields to be merged...
-		mergeObj = {...textObj}
-		// ...but emove text field
-		delete mergeObj.text
+		// ...but remove the text field
+		const { text: _, ...rest } = textObj
+		mergeObj = rest
 	}
 	// A string has been passed as argument
 	else {

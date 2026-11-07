@@ -10,7 +10,7 @@ const programs = { plasma, donut };
 
 for (const [name, program] of Object.entries(programs)) {
   test(`${name}: output after 5 frames`, () => {
-    const step = makeRunner(program as any, 40, 20);
+    const step = makeRunner(program, 40, 20);
     for (let i = 0; i < 4; i++) step();
     const frame = step();
     // Chars as readable rows; styles as one hash to keep the snapshot small.

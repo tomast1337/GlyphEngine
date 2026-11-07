@@ -3,13 +3,13 @@ Save and restore a JSON object to and from local storage.
 */
 
 interface Storage {
-  store: (key: string, obj: any) => boolean;
-  restore: (key: string, target?: any) => any;
+  store: (key: string, obj: unknown) => boolean;
+  restore: <T extends object>(key: string, target: T) => T;
   clear: (key: string) => void;
 }
 
 const storage: Storage = {
-  store: function (key: string, obj: any): boolean {
+  store: function (key: string, obj: unknown): boolean {
     try {
       localStorage.setItem(key, JSON.stringify(obj));
       return true;
@@ -17,7 +17,7 @@ const storage: Storage = {
       return false;
     }
   },
-  restore: function (key: string, target: any = {}): any {
+  restore: function <T extends object>(key: string, target: T): T {
     const obj = JSON.parse(localStorage.getItem(key) || "{}");
     Object.assign(target, obj);
     return target;

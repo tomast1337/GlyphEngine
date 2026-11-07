@@ -279,9 +279,9 @@ export default class Canvas {
 
   // -- Helpers --------------------------------------------------------------
 
-  writeTo(buf: RGB) {
+  writeTo(buf: RGB[]) {
     if (Array.isArray(buf)) {
-      for (let i = 0; i < this.pixels.length; i++) buf[i] = this.pixels[i];
+      for (let i = 0; i < this.pixels.length; i++) buf[i] = this.pixels[i]!;
     }
     return this;
   }

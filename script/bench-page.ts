@@ -1,10 +1,11 @@
 // Browser entry for script/bench.ts. Bundled and loaded into headless Chromium.
 import { run } from "../src/run";
 import { makeRunner } from "../tests/harness";
+import type { Program } from "../src/modules/types";
 import * as plasma from "../src/programs/demos/plasma";
 import * as donut from "../src/programs/demos/donut";
 
-const programs = { plasma, donut } as Record<string, any>;
+const programs: Record<string, Program> = { plasma, donut };
 
 // Manual requestAnimationFrame: the benchmark decides when a frame runs.
 // The real one is kept to let the browser lay out and paint between measured
@@ -63,4 +64,9 @@ async function bench(cols: number, rows: number, frames: number, warmup: number)
   return results;
 }
 
-(window as any).bench = bench;
+declare global {
+  interface Window {
+    bench: typeof bench;
+  }
+}
+window.bench = bench;

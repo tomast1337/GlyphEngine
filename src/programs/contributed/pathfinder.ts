@@ -32,7 +32,7 @@ export function pre(context: Context, cursor: Cursor, buffer: Buffer) {
               char: choose(roads),
               color: "white",
             }
-          : (" " as any);
+          : { char: " " };
     }
     width = context.cols;
     height = context.rows;

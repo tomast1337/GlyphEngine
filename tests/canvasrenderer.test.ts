@@ -16,7 +16,7 @@ function frameOf(cells: { char: string; fontWeight?: string }[]) {
 // Fake 2d context: records ctx.font at every fillText.
 function fakeCanvas() {
   const fonts: string[] = [];
-  const ctx: any = {
+  const ctx = {
     font: "",
     fillRect() {},
     save() {},
@@ -32,7 +32,7 @@ function fakeCanvas() {
 }
 
 test("canvas renderer uses settings.fontWeight for cells without their own", () => {
-  (globalThis as any).devicePixelRatio = 1;
+  Object.assign(globalThis, { devicePixelRatio: 1 });
   const { fonts, canvas } = fakeCanvas();
   const context = {
     cols: 2,
@@ -49,9 +49,9 @@ test("canvas renderer uses settings.fontWeight for cells without their own", () 
 });
 
 test("canvas renderer gives wide glyphs two cells, pushing the row right", () => {
-  (globalThis as any).devicePixelRatio = 1;
+  Object.assign(globalThis, { devicePixelRatio: 1 });
   const drawn: [string, number][] = [];
-  const ctx: any = {
+  const ctx = {
     font: "",
     fillRect() {},
     save() {},
