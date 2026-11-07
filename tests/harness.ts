@@ -1,6 +1,7 @@
 // Runs a program without the DOM: fixed metrics, fixed time step, no input.
 // Shared by the snapshot tests and the benchmark's computation timing.
-import { computeFrame } from "../src/run";
+import { stepFrame } from "../src/run";
+import { createFrame } from "../src/core/frame";
 import type { Buffer, Context, Cursor, Program } from "../src/modules/types";
 
 const metrics = { aspect: 0.5, cellWidth: 8, lineHeight: 16, fontFamily: "monospace", fontSize: 13 };
@@ -15,8 +16,9 @@ export function makeRunner(program: Program, cols: number, rows: number) {
     backgroundColor: settings.backgroundColor,
     fontWeight: settings.fontWeight,
   }));
+  const out = createFrame(cols, rows);
   let frame = 0;
-  // One engine frame; returns the buffer it wrote to.
+  // One engine frame; returns the frame the renderers would draw.
   return function step() {
     frame++;
     const context = Object.freeze({
@@ -30,7 +32,7 @@ export function makeRunner(program: Program, cols: number, rows: number) {
       settings,
       runtime: Object.freeze({ cycle: 0, fps: settings.fps }),
     }) as unknown as Context;
-    computeFrame(program, context, cursor, buffer);
-    return buffer;
+    stepFrame(program, context, cursor, buffer, out);
+    return out;
   };
 }

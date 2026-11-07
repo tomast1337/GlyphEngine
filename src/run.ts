@@ -9,6 +9,7 @@ import webglRenderer from "./core/webglrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
+import { createFrame, fromBuffer, type Frame } from "./core/frame";
 import type {
   Buffer,
   Cell,
@@ -233,6 +234,10 @@ export function run(
     // Buffer needed for the final DOM rendering,
     // each array entry represents a cell.
     const buffer: Buffer = [];
+    // What the renderers draw: frame() programs write it directly, others
+    // through `buffer` (copied in every frame).
+    let frame: Frame = createFrame(0, 0);
+    const usesFrame = typeof program.frame == "function";
 
     // Metrics object, calc once (below)
     let metrics: Metrics;
@@ -246,8 +251,12 @@ export function run(
       rect = el.getBoundingClientRect();
       new ResizeObserver(() => (rect = el.getBoundingClientRect())).observe(el);
       const context = getContext(state, settings, metrics, fps, rect);
+      if (usesFrame) {
+        // frame() programs get a sized frame already in boot()
+        frame = createFrame((cols = context.cols), (rows = context.rows));
+      }
       if (typeof program.boot == "function") {
-        program.boot(context, buffer, userData);
+        program.boot(context, usesFrame ? frame : buffer, userData);
       }
       requestAnimationFrame(loop);
     }
@@ -312,24 +321,27 @@ export function run(
       if (cols != context.cols || rows != context.rows) {
         cols = context.cols;
         rows = context.rows;
-        buffer.length = context.cols * context.rows;
-        for (let i = 0; i < buffer.length; i++) {
-          buffer[i] = { ...DEFAULT_CELL_STYLE, char: EMPTY_CELL };
+        frame = createFrame(cols, rows);
+        if (!usesFrame) {
+          buffer.length = context.cols * context.rows;
+          for (let i = 0; i < buffer.length; i++) {
+            buffer[i] = { ...DEFAULT_CELL_STYLE, char: EMPTY_CELL };
+          }
         }
       }
 
       // 2-4. ------------------------------------------------------------
-      computeFrame(program, context, cursor, buffer, userData);
+      stepFrame(program, context, cursor, buffer, frame, userData);
 
       // 5. --------------------------------------------------------------
-      renderer.render(context, buffer);
+      renderer.render(context, frame);
 
       // 6. --------------------------------------------------------------
       // Queued events
       while (eventQueue.length > 0) {
         const type = eventQueue.shift();
         if (type && typeof program[type] == "function") {
-          program[type](context, cursor, buffer);
+          program[type](context, cursor, usesFrame ? frame : buffer);
         }
       }
 
@@ -345,6 +357,24 @@ export function run(
 }
 
 // -- Helpers ------------------------------------------------------------------
+
+// One program step into `frame`: frame() programs write it directly; others run
+// pre(), main() per cell and post() on `buffer`, which is then copied into it.
+export function stepFrame(
+  program: Program,
+  context: Context,
+  cursor: Cursor,
+  buffer: Buffer,
+  frame: Frame,
+  userData: any = {}
+) {
+  if (typeof program.frame == "function") {
+    program.frame(context, cursor, frame, userData);
+  } else {
+    computeFrame(program, context, cursor, buffer, userData);
+    fromBuffer(buffer, frame, context.settings);
+  }
+}
 
 // Per buffer: the cell objects computeFrame created (and may write in place).
 const ownedCells = new WeakMap<Buffer, Cell[]>();

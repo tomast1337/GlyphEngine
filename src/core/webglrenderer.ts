@@ -4,11 +4,12 @@
 @category renderer
 */
 
-import type { Buffer, Context } from "../modules/types";
+import type { Context } from "../modules/types";
 import type { Render } from "./types";
 import canvasRenderer from "./canvasrenderer";
 import { fitCanvas } from "./canvassize";
 import { cellSpan } from "./cellspan";
+import { cssColor, getChar, GRAPHEME, weightString, type Frame } from "./frame";
 import vertSource from "./shaders/grid.vert" with { type: "text" };
 import fragSource from "./shaders/grid.frag" with { type: "text" };
 
@@ -30,7 +31,7 @@ const states = new WeakMap<HTMLCanvasElement, GLState | typeof FALLBACK>();
 const ATLAS_UNIT = 1; // texture unit of the glyph atlas; the cell texture uses unit 0
 const FLAG_COLOR_GLYPH = 1; // keep in sync with grid.frag
 
-function render(context: Context, buffer: Buffer) {
+function render(context: Context, frame: Frame) {
   const canvas = context.settings.element as HTMLCanvasElement;
   let state = states.get(canvas);
   if (!state) {
@@ -50,9 +51,9 @@ function render(context: Context, buffer: Buffer) {
     }
     states.set(canvas, state);
   }
-  if (state === FALLBACK) return canvasRenderer.render(context, buffer);
+  if (state === FALLBACK) return canvasRenderer.render(context, frame);
   if (state.gl.isContextLost()) return;
-  draw(state, context, buffer);
+  draw(state, context, frame);
 }
 
 function createState(gl: WebGL2RenderingContext) {
@@ -88,18 +89,17 @@ function createState(gl: WebGL2RenderingContext) {
       perRow: 0,
       capacity: 0,
       next: 1, // slot 0 stays empty: spaces and blank cells
-      glyphs: new Map<string | number, Map<unknown, number>>(), // weight -> char -> slot
+      glyphs: new Map<number, Map<number | string, number>>(), // weight code -> code point (or grapheme) -> slot
       colored: new Uint8Array(0),
       wide: new Uint8Array(0), // per slot: glyph covers two cells
     },
-    colors: new Map<string, number>(),
     // Rasterizes one glyph at a time and normalizes CSS colours.
     scratch,
     scratchCtx: scratch.getContext("2d", { willReadFrequently: true })!,
   };
 }
 
-function draw(s: GLState, context: Context, buffer: Buffer) {
+function draw(s: GLState, context: Context, frame: Frame) {
   const { gl, uniforms } = s;
   const canvas = gl.canvas as HTMLCanvasElement;
   const settings = context.settings;
@@ -117,37 +117,35 @@ function draw(s: GLState, context: Context, buffer: Buffer) {
   ensureCells(s, cols, rows);
 
   // Same defaults as the canvas renderer
-  const bg = packColor(s, settings.backgroundColor || "white");
-  const fg = packColor(s, settings.color || "black");
-  const fontWeight = settings.fontWeight || "400";
+  const bg = cssColor(settings.backgroundColor || "white");
+  const fg = cssColor(settings.color || "black");
+  const fontWeight = String(settings.fontWeight || "400");
 
   const data = s.cells;
   const { colored, wide } = s.atlas;
-  // Neighbouring cells usually share colours: skip the Map lookup on repeats.
-  let lastFg: string | undefined = "", lastFgV = fg;
-  let lastBg: string | undefined = "", lastBgV = bg;
+  const { fg: fgs, bg: bgs } = frame;
   for (let j = 0; j < rows; j++) {
     // Wide glyphs take two columns and push the rest of the row right (the last
     // cells fall off), like the text renderer; the shader just sees a grid.
     const row = j * cols;
     let col = 0;
     for (let i = 0; i < cols && col < cols; i++) {
-      const cell = buffer[row + i]!;
-      const slot = glyphSlot(s, cell.char, cell.fontWeight || fontWeight, fontSize, m.fontFamily);
-      if (cell.color !== lastFg) lastFgV = (lastFg = cell.color) ? packColor(s, lastFg) : fg;
-      if (cell.backgroundColor !== lastBg) lastBgV = (lastBg = cell.backgroundColor) ? packColor(s, lastBg) : bg;
+      const k = row + i;
+      const slot = glyphSlot(s, frame, k, fontWeight, fontSize, m.fontFamily);
+      const f = fgs[k] || fg; // 0 = settings default
+      const b = bgs[k] || bg;
       let o = (row + col++) * 4;
       data[o] = slot;
-      data[o + 1] = lastFgV;
-      data[o + 2] = lastBgV;
+      data[o + 1] = f;
+      data[o + 2] = b;
       data[o + 3] = colored[slot] ? FLAG_COLOR_GLYPH : 0;
       if (wide[slot] && col < cols) {
         // Continuation cell: no glyph, same background; the shader draws the
         // glyph's right half as overflow from its left neighbour.
         o = (row + col++) * 4;
         data[o] = 0;
-        data[o + 1] = lastFgV;
-        data[o + 2] = lastBgV;
+        data[o + 1] = f;
+        data[o + 2] = b;
         data[o + 3] = 0;
       }
     }
@@ -227,11 +225,15 @@ function ensureAtlas(s: GLState, slotW: number, slotH: number, font: string) {
   setNearest(gl);
 }
 
-// Atlas slot for a (char, weight) pair; draws and uploads it on first use.
-function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize: number, family: string) {
-  if (char === " " || char === "" || char == null) return 0;
+// Atlas slot for the glyph in cell k; draws and uploads it on first use.
+function glyphSlot(s: GLState, frame: Frame, k: number, defaultWeight: string, fontSize: number, family: string) {
+  const code = frame.chars[k]!;
+  if (code === 32 || code === 0) return 0;
+  const weight = frame.weight[k]!;
+  // Grapheme indices belong to one frame (a resize makes a new one): key those by string.
+  const key = code >= GRAPHEME ? getChar(frame, k) : code;
   const a = s.atlas;
-  let slot = a.glyphs.get(weight)?.get(char);
+  let slot = a.glyphs.get(weight)?.get(key);
   if (slot !== undefined) return slot;
 
   // shortcut: when full, start over; cells already written this frame could point
@@ -246,12 +248,13 @@ function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize:
 
   const ctx = s.scratchCtx;
   ctx.clearRect(0, 0, a.slotW, a.slotH);
-  ctx.font = weight + " " + fontSize + "px " + family;
+  ctx.font = (weight ? weightString(weight) : defaultWeight) + " " + fontSize + "px " + family;
+  const char = getChar(frame, k);
   ctx.textBaseline = "top";
   ctx.fillStyle = "white";
-  ctx.fillText(String(char), 0, 0);
+  ctx.fillText(char, 0, 0);
   a.colored[slot] = isColorGlyph(ctx.getImageData(0, 0, a.slotW, a.slotH).data) ? 1 : 0;
-  a.wide[slot] = cellSpan(ctx, ctx.font, String(char), a.slotW / 2) - 1; // slots are two cells wide
+  a.wide[slot] = cellSpan(ctx, ctx.font, char, a.slotW / 2) - 1; // slots are two cells wide
 
   const { gl } = s;
   gl.activeTexture(gl.TEXTURE0 + ATLAS_UNIT);
@@ -263,7 +266,7 @@ function glyphSlot(s: GLState, char: unknown, weight: string | number, fontSize:
 
   let byChar = a.glyphs.get(weight);
   if (!byChar) a.glyphs.set(weight, (byChar = new Map()));
-  byChar.set(char, slot);
+  byChar.set(key, slot);
   return slot;
 }
 
@@ -273,28 +276,6 @@ function isColorGlyph(px: Uint8ClampedArray) {
     if (px[i + 3]! > 0 && (px[i] !== px[i + 1] || px[i + 1] !== px[i + 2])) return true;
   }
   return false;
-}
-
-// CSS colour string to 0xRRGGBBAA. The browser normalizes any CSS colour to
-// "#rrggbb" or "rgba(r, g, b, a)"; results are cached per string.
-function packColor(s: GLState, css: string): number {
-  let v = s.colors.get(css);
-  if (v !== undefined) return v;
-  const ctx = s.scratchCtx;
-  ctx.fillStyle = "#000"; // an invalid string leaves this value
-  ctx.fillStyle = css;
-  const n = ctx.fillStyle as string;
-  if (n[0] === "#") {
-    v = ((parseInt(n.slice(1), 16) << 8) | 255) >>> 0;
-  } else {
-    const [r = 0, g = 0, b = 0, alpha = 1] = n.slice(n.indexOf("(") + 1, -1).split(",").map(Number);
-    v = ((r << 24) | (g << 16) | (b << 8) | Math.round(alpha * 255)) >>> 0;
-  }
-  // shortcut: animated programs can make new colour strings every frame; drop the
-  // whole cache past this size rather than tracking use.
-  if (s.colors.size > 65536) s.colors.clear();
-  s.colors.set(css, v);
-  return v;
 }
 
 function setUnpack(gl: WebGL2RenderingContext, premultiply: boolean) {

@@ -6,56 +6,57 @@
 Plasma primer: https://www.bidouille.org/prog/plasma
 */
 
-import  { vec2 as v2, num,color,drawbox } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
-const { vec2, dot, add, sub, length } = v2;
+import { num, drawbox, rgba, cssColor, asBuffer } from "glyph-engine";
+import type { Context, Cursor, Frame } from "glyph-engine";
 const { map } = num;
-const { css } = color;
 const { drawInfo } = drawbox;
 export const settings = { fps: 60 };
 
-const { sin, cos, floor, PI } = Math;
+const { sin, cos, floor, sqrt, PI } = Math;
 const density = "$?01▄abc+-><:. ";
+// Code point per density step; one extra space for the top of the range
+const glyphs = [...density, " "].map((c) => c.codePointAt(0)!);
 
 const PI23 = (PI * 2) / 3;
 const PI43 = (PI * 4) / 3;
 
-export function main(
-  coord: Coord,
-  context: Context,
-  cursor: Cursor,
-  buffer: Buffer
-) {
+// Fast API: fills the whole frame in one call (see README, "frame() programs").
+export function frame(context: Context, cursor: Cursor, out: Frame) {
   const t1 = context.time * 0.0009;
   const t2 = context.time * 0.0003;
   const m = Math.min(context.cols, context.rows);
   const a = context.metrics.aspect;
+  const cx = sin(-t1);
+  const cy = cos(-t1);
+  const dx = sin(t1);
+  const dy = cos(t1);
+  const white = cssColor("white");
 
-  let st = {
-    x: ((2.0 * (coord.x - context.cols / 2)) / m) * a,
-    y: (2.0 * (coord.y - context.rows / 2)) / m,
-  };
-  const center = vec2(sin(-t1), cos(-t1));
-  const v1 = sin(dot(coord, vec2(sin(t1), cos(t1))) * 0.08);
-  const v2 = cos(length(sub(st, center)) * 4.0);
-  const v3 = v1 + v2;
-  const idx = floor(map(v3, -2, 2, 0, 1) * density.length);
-
-  // Colors are quantized for performance:
   // lower value = harder gradient, better performance
   const quant = 2;
   const mult = 255 / (quant - 1);
-  const r = floor(map(sin(v3 * PI + t1), -1, 1, 0, quant)) * mult;
-  const g = floor(map(sin(v3 * PI23 + t2), -1, 1, 0, quant)) * mult;
-  const b = floor(map(sin(v3 * PI43 - t1), -1, 1, 0, quant)) * mult;
 
-  return {
-    char: density[idx],
-    color: "white",
-    backgroundColor: css(r, g, b), // r, g, b are floats
-  };
-}
+  const { chars, fg, bg } = out;
+  for (let y = 0, k = 0; y < context.rows; y++) {
+    for (let x = 0; x < context.cols; x++, k++) {
+      const stx = ((2.0 * (x - context.cols / 2)) / m) * a;
+      const sty = (2.0 * (y - context.rows / 2)) / m;
+      const v1 = sin((x * dx + y * dy) * 0.08);
+      const ex = stx - cx;
+      const ey = sty - cy;
+      const v2 = cos(sqrt(ex * ex + ey * ey) * 4.0);
+      const v3 = v1 + v2;
+      const idx = floor(map(v3, -2, 2, 0, 1) * density.length);
 
-export function post(context: Context, cursor: Cursor, buffer: Buffer) {
-  drawInfo(context, cursor, buffer);
+      const r = floor(map(sin(v3 * PI + t1), -1, 1, 0, quant)) * mult;
+      const g = floor(map(sin(v3 * PI23 + t2), -1, 1, 0, quant)) * mult;
+      const b = floor(map(sin(v3 * PI43 - t1), -1, 1, 0, quant)) * mult;
+
+      chars[k] = glyphs[idx]!;
+      fg[k] = white;
+      bg[k] = rgba(r, g, b);
+    }
+  }
+
+  drawInfo(context, cursor, asBuffer(out));
 }
