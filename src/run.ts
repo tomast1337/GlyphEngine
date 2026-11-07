@@ -2,9 +2,10 @@
 Runner
 */
 
-// Both available renderers are imported
+// Available renderers
 import textRenderer from "./core/textrenderer";
 import canvasRenderer from "./core/canvasrenderer";
+import webglRenderer from "./core/webglrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
@@ -28,6 +29,7 @@ const renderers: Record<
 > = {
   canvas: canvasRenderer,
   text: textRenderer,
+  webgl: webglRenderer,
 };
 
 // Default settings for the program runner.
@@ -104,28 +106,19 @@ export function run(
     // If the parent element is a canvas the canvas renderer is selected,
     // for any other type a text node (PRE or any othe text node)
     // is expected and the text renderer is used.
-    // TODO: better / more generic renderer init
-    let renderer: typeof textRenderer | typeof canvasRenderer;
+    const renderer = renderers[settings.renderer] || renderers["text"]!;
     if (!settings.element) {
-      renderer = renderers[settings.renderer] || renderers["text"]!;
       settings.element = document.createElement(
         renderer.preferredElementNodeName
       );
       document.body.appendChild(settings.element);
-    } else {
-      if (settings.renderer == "canvas") {
-        if (settings.element.nodeName == "CANVAS") {
-          renderer = renderers[settings.renderer]!;
-        } else {
-          console.warn("This renderer expects a canvas target element.");
-        }
-      } else {
-        if (settings.element.nodeName != "CANVAS") {
-          renderer = renderers[settings.renderer]!;
-        } else {
-          console.warn("This renderer expects a text target element.");
-        }
-      }
+    } else if (
+      (settings.element.nodeName == "CANVAS") !=
+      (renderer.preferredElementNodeName == "CANVAS")
+    ) {
+      console.warn(
+        `The "${settings.renderer}" renderer expects a ${renderer.preferredElementNodeName} target element.`
+      );
     }
 
     // Apply CSS settings to element
@@ -477,7 +470,9 @@ export function calcMetrics(el: HTMLElement | HTMLCanvasElement) {
   // If the output element is a canvas 'measureText()' is used
   // else cellWidth is computed 'by hand' (should be the same, in any case)
   if (el.nodeName == "CANVAS") {
-    const ctx = (el as HTMLCanvasElement).getContext("2d");
+    // Measure on a scratch canvas: a 2d context on the output canvas would
+    // lock it to 2d and make getContext("webgl2") fail.
+    const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) throw new Error("Could not get 2d context");
     ctx.font = fontSize + "px " + fontFamily;
     cellWidth = ctx.measureText("".padEnd(50, "X")).width / 50;

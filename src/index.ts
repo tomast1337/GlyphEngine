@@ -1,5 +1,6 @@
 import textRenderer from "./core/textrenderer";
 import canvasRenderer from "./core/canvasrenderer";
+import webglRenderer from "./core/webglrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
@@ -26,6 +27,7 @@ const renderers: Record<
 > = {
   canvas: canvasRenderer,
   text: textRenderer,
+  webgl: webglRenderer,
 };
 
 // Default settings for the program runner.
@@ -346,7 +348,9 @@ export function calcMetrics(el: HTMLElement | HTMLCanvasElement) {
   // If the output element is a canvas 'measureText()' is used
   // else cellWidth is computed 'by hand' (should be the same, in any case)
   if (el.nodeName == "CANVAS") {
-    const ctx = (el as HTMLCanvasElement).getContext("2d");
+    // Measure on a scratch canvas: a 2d context on the output canvas would
+    // lock it to 2d and make getContext("webgl2") fail.
+    const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) throw new Error("Could not get 2d context");
     ctx.font = fontSize + "px " + fontFamily;
     cellWidth = ctx.measureText("".padEnd(50, "X")).width / 50;
