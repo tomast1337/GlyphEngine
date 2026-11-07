@@ -5,7 +5,7 @@
 @desc   Use of coord.x and coord.y
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 const density = "Ñ@#W$9876543210?!abc;:+=-,._ ";
 
@@ -13,10 +13,10 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
-  // To generate an output return a single character
-  // or an object with a “char” field, for example {char: 'x'}
+  // To generate an output set out.char to a single character,
+  // for example out.char = 'x'
 
   // Shortcuts for frame, cols and coord (x, y)
   const { cols, frame } = context;
@@ -26,5 +26,5 @@ export function main(
   const sign = (y % 2) * 2 - 1;
   const index = (cols + y + x * sign + frame) % density.length;
 
-  return density[index];
+  out.char = density[index];
 }

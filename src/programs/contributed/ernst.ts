@@ -7,7 +7,7 @@
 
 
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { drawbox,num,vec2 } from "glyph-engine";
 
 const { PI, atan2, floor, cos, max } = Math;
@@ -27,7 +27,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const m = max(context.cols, context.rows);
   const a = context.metrics.aspect;
@@ -49,11 +49,9 @@ export function main(
   const chars = [" ", "e", "o", "ö"];
 
   const colors = ["white", "#527EA8", "#BB2A1C", "#DFA636"];
-  return {
-    char: chars[i],
-    color: colors[i],
-    fontWeight: "100",
-  };
+  out.char = chars[i];
+  out.color = colors[i]!;
+  out.fontWeight = "100";
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

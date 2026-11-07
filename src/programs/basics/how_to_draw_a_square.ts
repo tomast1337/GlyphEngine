@@ -6,7 +6,7 @@
 */
 
 import { drawbox, num } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor, vec2 } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor, vec2 } from "glyph-engine";
 
 // Set framerate to 60
 export const settings = { fps: 60 };
@@ -23,7 +23,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time;
   const m = Math.min(context.cols, context.rows);
@@ -51,9 +51,9 @@ export function main(
   const d = box(p, { x: size, y: size });
 
   // Visualize the distance field
-  return d == 0 ? " " : ("" + d).charAt(2);
+  out.char = d == 0 ? " " : ("" + d).charAt(2);
   // Visualize the distance field and some background
-  // return d == 0 ? (coord.x % 2 == 0 ? '─' : '┼') : (''+d).charAt(2)
+  // out.char = d == 0 ? (coord.x % 2 == 0 ? '─' : '┼') : (''+d).charAt(2)
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

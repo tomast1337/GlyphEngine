@@ -5,15 +5,14 @@
 @desc   The smallest program possible?
 */
 
-export function main() {
-  return "?";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
+
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
+  out.char = "?";
 }
 
 // Shorter:
-// export const main = () => '?'
+// export const main = (c, x, u, o) => { o.char = '?' }
 
 // Even shorter:
-// export let main=o=>'?'
-
-// Shrtst:
-// export let main=o=>0
+// export let main=(c,x,u,o)=>o.char='?'

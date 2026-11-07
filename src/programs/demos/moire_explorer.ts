@@ -7,7 +7,7 @@
 
 
 import { drawbox,num,vec2 as v2 } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 const { drawInfo } = drawbox;
 const { map } = num;
 const { vec2, dist, mulN} = v2;
@@ -27,7 +27,7 @@ let mode = 0;
 
 const density = " ..._-:=+abcXW@#ÑÑÑ";
 
-export function main(coord: Coord, context: Context, cursor: Cursor) {
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
   const t = context.time * 0.0001;
   const m = min(context.cols, context.rows);
   const st = {
@@ -58,7 +58,7 @@ export function main(coord: Coord, context: Context, cursor: Cursor) {
   const i = (a * b + 1) / 2; // mult
   //const i = ((a + b) + 2) / 4 // sum
   const idx = floor(i * density.length);
-  return density[idx];
+  out.char = density[idx];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

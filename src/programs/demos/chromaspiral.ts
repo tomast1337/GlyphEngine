@@ -8,7 +8,7 @@ https://www.shadertoy.com/view/tdsyRf
 */
 
 import { drawbox,num,vec2 as v2 } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 const { drawInfo } = drawbox;
 const { map } = num;
 const { add, length, mulN, rot, subN,vec2 } = v2;
@@ -40,7 +40,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const m = min(context.cols, context.rows);
   const a = context.metrics.aspect;
@@ -64,11 +64,9 @@ export function main(
   const index = floor(c * (density.length - 1));
   const color = floor(c * (colors.length - 1));
 
-  return {
-    // char : (coord.x + coord.y) % 2 ? density[index] : '╲',
-    char: density[index],
-    color: colors[color],
-  };
+  // out.char = (coord.x + coord.y) % 2 ? density[index] : '╲';
+  out.char = density[index];
+  out.color = colors[color]!;
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

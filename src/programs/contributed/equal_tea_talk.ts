@@ -7,7 +7,7 @@ See: http://www.hammersleyfoundation.org/index.php/artwork/computer-drawings/184
 */
 
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 import {  num, vec2 } from "glyph-engine";
 
 const chars = "#BEFTI_".split("");
@@ -36,7 +36,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.0001;
 
@@ -46,12 +46,14 @@ export function main(
 
   // show blank if the resolution is too small
   if (context.cols <= sumW(1)) {
-    return blank;
+    out.char = blank;
+    return;
   }
 
   // clamp the space to the resolution
   if (coord.x >= w) {
-    return blank;
+    out.char = blank;
+    return;
   }
 
   // ----------------------------- st space
@@ -94,5 +96,5 @@ export function main(
   // throw new Error('dudee')
   // if(coord.x === 0) { console.log() }
 
-  return char;
+  out.char = char;
 }

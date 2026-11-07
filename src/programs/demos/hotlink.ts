@@ -6,7 +6,7 @@
         The code for the Open Simplex Noise function is downloaded from GitHub
         and evaluated through “new Function()”.
 */
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 // Don’t do this :)
 fetch(
@@ -27,12 +27,12 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.0007;
   const s = 0.03;
   const x = coord.x * s;
   const y = (coord.y * s) / context.metrics.aspect + t;
   const i = Math.floor((noise3D(x, y, t) * 0.5 + 0.5) * density.length);
-  return density[i];
+  out.char = density[i];
 }

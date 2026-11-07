@@ -8,7 +8,7 @@ https://www.shadertoy.com/view/XdSGzR
 */
 
 import { drawbox,num,vec2,sort as sort2 } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 const { drawInfo } = drawbox;
 const { sort } = sort2 ;
 const { length } = vec2;
@@ -24,7 +24,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.0006;
   const m = Math.min(context.cols, context.rows);
@@ -52,7 +52,7 @@ export function main(
   const i_radius = floor(1.5 / pow(radius * 0.5, 0.6) + 5.0 * t);
   const idx = (i_turn + i_radius) % density.length;
 
-  return density[idx];
+  out.char = density[idx];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

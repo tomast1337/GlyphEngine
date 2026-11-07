@@ -1,11 +1,10 @@
 /**
 @module   frame
-@desc     the cell grid as typed arrays: what frame() programs write and renderers read
+@desc     the cell grid as typed arrays: what main() writes (through `out`) and renderers read
 @category core
 */
 
 import type { Buffer, Cell } from "../modules/buffer";
-import type { Settings } from "../program";
 
 // chars[i] >= GRAPHEME: index into frame.graphemes (glyphs made of several code points)
 export const GRAPHEME = 0x80000000;
@@ -125,39 +124,6 @@ export function weightCode(w: string | number | undefined): number {
 }
 export function weightString(code: number): string {
   return String(code * 100);
-}
-
-// Copies an object buffer (main()/pre()/post() programs) into a frame. Values
-// equal to the settings defaults are stored as 0, so renderers skip them.
-export function fromBuffer(buffer: Buffer, f: Frame, settings: Partial<Settings>) {
-  const { chars, fg, bg, weight } = f;
-  const dColor = settings.color;
-  const dBg = settings.backgroundColor;
-  const dWeight = settings.fontWeight;
-  f.html.clear();
-  // Neighbouring cells usually repeat values: skip the lookups on repeats.
-  let lastFg: unknown = dColor, lastFgV = 0;
-  let lastBg: unknown = dBg, lastBgV = 0;
-  let lastW: unknown = dWeight, lastWV = 0;
-  for (let i = 0, n = f.cols * f.rows; i < n; i++) {
-    const cell = buffer[i];
-    if (!cell) {
-      chars[i] = 32;
-      fg[i] = bg[i] = weight[i] = 0;
-      continue;
-    }
-    const ch = cell.char;
-    if (typeof ch === "string" && ch.length === 1) chars[i] = ch.charCodeAt(0);
-    else setChar(f, i, ch == null ? " " : String(ch));
-    if (cell.color !== lastFg) lastFgV = (lastFg = cell.color) && lastFg !== dColor ? cssColor(lastFg as string) : 0;
-    if (cell.backgroundColor !== lastBg)
-      lastBgV = (lastBg = cell.backgroundColor) && lastBg !== dBg ? cssColor(lastBg as string) : 0;
-    if (cell.fontWeight !== lastW) lastWV = (lastW = cell.fontWeight) !== dWeight ? weightCode(lastW as string) : 0;
-    fg[i] = lastFgV;
-    bg[i] = lastBgV;
-    weight[i] = lastWV;
-    if (cell.beginHTML || cell.endHTML) f.html.set(i, { begin: cell.beginHTML, end: cell.endHTML });
-  }
 }
 
 // An array-like view of a frame as cell objects, so buffer helpers (drawBox,

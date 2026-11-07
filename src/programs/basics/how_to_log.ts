@@ -4,14 +4,14 @@
 @title  How to log
 @desc   Console output inside the main() loop
 */
-import  type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import  type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 const { abs, floor, max } = Math;
 export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const x = abs(coord.x - cursor.x);
   const y = abs(coord.y - cursor.y) / context.metrics.aspect;
@@ -26,5 +26,5 @@ export function main(
     console.log("dist = " + dist);
   }
 
-  return ".-=:abc123?xyz*;%+,"[dist % 30];
+  out.char = ".-=:abc123?xyz*;%+,"[dist % 30];
 }

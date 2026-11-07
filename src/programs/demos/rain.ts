@@ -2,35 +2,41 @@
 [header]
 @author Nicolas Vyčas Nery
 @title  Rain
-@desc   The frame keeps its content: fade what was drawn before
+@desc   State kept between frames: fade what was drawn before
 */
 
-import { rgba, asBuffer, drawbox } from "glyph-engine";
-import type { Context, Cursor, Frame } from "glyph-engine";
+import { rgba, drawbox } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 export const settings = { backgroundColor: "black", fps: 60 };
 
-// Unlike main(), the frame is not rebuilt each time: whatever frame() wrote
-// stays until it is overwritten (the frame is only replaced on resize).
-// Here each drop draws its glyphs and the old ones fade out.
+// main() starts every cell empty, so the rain keeps its own picture: a glyph
+// and a colour per cell. pre() fades it and draws the drops, main() copies it
+// into `out`.
 //
 // Speed and fade are per second, scaled by context.delta (ms since the last
 // frame), so the rain looks the same at any frame rate: try fps: 10.
 const SPEED = 30; // rows per second
 const FADE = 0.02; // brightness left after one second
-const glyphs = [..."0123456789ABCDEF:.=*+-<>|"].map((c) => c.codePointAt(0)!);
+const glyphs = [..."0123456789ABCDEF:.=*+-<>|"];
 const head = rgba(220, 255, 220);
 let drops: number[] = []; // row of the drop in each column (fractional)
+let chars: string[] = []; // glyph of each cell
+let fg = new Uint32Array(0); // packed colour of each cell
 
-export function frame(context: Context, cursor: Cursor, out: Frame) {
-  const { cols, rows, chars, fg } = out;
+export function pre(context: Context, cursor: Cursor) {
+  const { cols, rows } = context;
   if (drops.length !== cols) drops = Array.from({ length: cols }, () => -Math.random() * rows);
+  if (fg.length !== cols * rows) {
+    chars = new Array(cols * rows).fill(" ");
+    fg = new Uint32Array(cols * rows);
+  }
 
   // Fade every cell: read the packed green channel, write it back darker.
   const fade = Math.pow(FADE, context.delta / 1000);
   for (let k = 0; k < fg.length; k++) {
     const g = (fg[k]! >>> 16) & 255;
-    if (g < 40) chars[k] = 32; // faded out: clear the glyph
+    if (g < 40) chars[k] = " "; // faded out: clear the glyph
     fg[k] = rgba(0, g * fade, 0);
   }
 
@@ -51,7 +57,13 @@ export function frame(context: Context, cursor: Cursor, out: Frame) {
     }
     if (to >= rows) drops[x] = -Math.random() * rows; // restart above the top
   }
+}
 
-  // FPS box: drawInfo() expects a buffer, asBuffer() lets it write into the frame
-  drawbox.drawInfo(context, cursor, asBuffer(out));
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
+  out.char = chars[coord.index];
+  out.color = fg[coord.index]!;
+}
+
+export function post(context: Context, cursor: Cursor, buffer: Buffer) {
+  drawbox.drawInfo(context, cursor, buffer);
 }

@@ -9,10 +9,9 @@ import webglRenderer from "./core/webglrenderer";
 import FPS from "./core/fps";
 import storage from "./core/storage";
 import RUNNER_VERSION from "./core/version";
-import { asBuffer, createFrame, cssColor, getChar, setChar, weightCode, type Frame } from "./core/frame";
+import { asBuffer, createFrame, cssColor, setChar, weightCode, type Frame } from "./core/frame";
 import { CellOut } from "./core/out";
 import type { Buffer } from "./modules/buffer";
-import type { CellValue } from "./program";
 import type { Context, Cursor, Metrics, Pointer, Program, Settings, State } from "./program";
 import type{ RenderModes } from "./core";
 
@@ -215,10 +214,9 @@ export function run(
     // FPS object (keeps some state for precise FPS measure)
     const fps = new FPS();
 
-    // What the renderers draw. main() writes it through the `out` slot,
-    // frame() programs directly; pre(), post() and events see it as a buffer.
+    // What the renderers draw. main() writes it through the `out` slot;
+    // pre(), post(), boot() and events see it as a buffer.
     let frame: Frame = createFrame(0, 0);
-    const usesFrame = typeof program.frame == "function";
 
     // Metrics object, calc once (below)
     let metrics: Metrics;
@@ -235,7 +233,7 @@ export function run(
       // Programs get a sized frame already in boot()
       frame = createFrame((cols = context.cols), (rows = context.rows));
       if (typeof program.boot == "function") {
-        program.boot(context, usesFrame ? frame : bufferOf(frame), userData);
+        program.boot(context, bufferOf(frame), userData);
       }
       requestAnimationFrame(loop);
     }
@@ -308,7 +306,7 @@ export function run(
       }
 
       // 2-4. ------------------------------------------------------------
-      stepFrame(program, context, cursor, frame, userData);
+      computeFrame(program, context, cursor, frame, userData);
 
       // 5. --------------------------------------------------------------
       renderer.render(context, frame);
@@ -318,7 +316,7 @@ export function run(
       while (eventQueue.length > 0) {
         const type = eventQueue.shift();
         if (type && typeof program[type] == "function") {
-          program[type](context, cursor, usesFrame ? frame : bufferOf(frame), userData);
+          program[type](context, cursor, bufferOf(frame), userData);
         }
       }
 
@@ -334,16 +332,6 @@ export function run(
 }
 
 // -- Helpers ------------------------------------------------------------------
-
-// One program step into `frame`: frame() programs write it directly; others
-// run pre(), main() per cell and post().
-export function stepFrame(program: Program, context: Context, cursor: Cursor, frame: Frame, userData: object = {}) {
-  if (typeof program.frame == "function") {
-    program.frame(context, cursor, frame, userData);
-  } else {
-    computeFrame(program, context, cursor, frame, userData);
-  }
-}
 
 // The frame as a buffer of cell objects, for pre(), post(), boot() and events
 // (drawInfo() and other buffer helpers work on it). One view per frame.
@@ -391,8 +379,7 @@ export function computeFrame(program: Program, context: Context, cursor: Cursor,
         background.unpack(bl);
         color.dirty = background.dirty = false;
 
-        const ret = program.main(coord, context, cursor, out, userData);
-        if (ret != null) applyReturn(out, ret, frame, k);
+        program.main(coord, context, cursor, out, userData);
 
         // Pack the slot into the frame
         const c = out.char;
@@ -417,24 +404,6 @@ export function computeFrame(program: Program, context: Context, cursor: Cursor,
   if (typeof program.post == "function") {
     program.post(context, cursor, buffer, userData);
   }
-}
-
-// What main() returned, applied to the slot. Returning is the short form
-// (return "#"); a returned cell object is the play.core form.
-function applyReturn(out: CellOut, ret: NonNullable<CellValue>, frame: Frame, k: number) {
-  if (typeof ret != "object") {
-    out.char = String(ret);
-    return;
-  }
-  // A missing field keeps the cell's value; a field set to undefined resets it.
-  if (ret.char != null) out.char = String(ret.char);
-  else if (!("char" in ret)) out.char = getChar(frame, k);
-  if (ret.color !== undefined) out.color = ret.color;
-  else if ("color" in ret) out.color = 0;
-  if (ret.backgroundColor !== undefined) out.background = ret.backgroundColor;
-  else if ("backgroundColor" in ret) out.background = 0;
-  if (ret.fontWeight !== undefined) out.fontWeight = ret.fontWeight;
-  if (ret.beginHTML || ret.endHTML) frame.html.set(k, { begin: ret.beginHTML, end: ret.endHTML });
 }
 
 // Build / update the 'context' object (immutable)

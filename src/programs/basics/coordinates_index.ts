@@ -5,7 +5,7 @@
 @desc   Use of coord.index
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 // Global variables have scope in the whole module.
 const pattern = "| |.|,|:|;|x|K|Ñ|R|a|+|=|-|_";
@@ -16,8 +16,8 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const i = coord.index % pattern.length;
-  return pattern[i];
+  out.char = pattern[i];
 }

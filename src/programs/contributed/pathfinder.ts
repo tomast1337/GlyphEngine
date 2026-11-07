@@ -5,7 +5,7 @@
 @desc   Click to spawn new path segments
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { vec2 as v2 } from "glyph-engine";
 
 const vec2 = v2.vec2;
@@ -51,7 +51,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const { x, y } = coord;
   if (
@@ -60,10 +60,9 @@ export function main(
     Math.floor(cursor.y) == y &&
     get(x, y) == " "
   ) {
-    return {
-      char: choose(roads),
-      color: "white",
-    };
+    out.char = choose(roads);
+    out.color = "white";
+    return;
   }
 
   const last = get(x, y);
@@ -88,16 +87,13 @@ export function main(
       char = choose("━━━━━━━━━━━━━━━━━━━━┏┗┣┳┻╋");
     }
 
-    return {
-      char,
-      color: "white",
-    };
+    out.char = char;
+    out.color = "white";
+    return;
   }
 
-  return {
-    char: last,
-    color: "white",
-  };
+  out.char = last as string;
+  out.color = "white";
 }
 
 function get(x: number, y: number) {

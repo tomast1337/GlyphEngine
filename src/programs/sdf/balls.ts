@@ -5,7 +5,7 @@
 @desc   Smooth SDF balls
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 import  { num as num2, sdf } from "glyph-engine";
 
 const density = "#ABC|/:÷×+-=?*· ";
@@ -39,7 +39,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const m = Math.min(context.cols, context.rows);
   const a = context.metrics.aspect;
@@ -62,5 +62,5 @@ export function main(
 
   const index = Math.floor(c * density.length);
 
-  return density[index];
+  out.char = density[index];
 }

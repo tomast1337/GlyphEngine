@@ -5,7 +5,7 @@
 @desc   Smooth union of two circles
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import  { vec2,sdf,drawbox } from "glyph-engine";
 
 const density = "#WX?*:÷×+=-· ";
@@ -14,7 +14,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time;
   const m = Math.min(context.cols, context.rows);
@@ -44,7 +44,7 @@ export function main(
   const c = 1.0 - Math.exp(-5 * Math.abs(d));
   const index = Math.floor(c * density.length);
 
-  return density[index];
+  out.char = density[index];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

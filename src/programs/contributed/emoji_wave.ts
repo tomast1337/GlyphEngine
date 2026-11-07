@@ -5,7 +5,7 @@
 @desc   From wingdings icons to unicode emojis
 		Inspired by emojis evolution
 */
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 export const settings = {
   color: "white",
@@ -20,7 +20,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const t = context.time * 0.0008;
 
@@ -35,5 +35,5 @@ export function main(
   const i = floor(x + wave) - posCenter;
 
   // Note: “undefined” is rendered as a space…
-  return density[i];
+  out.char = density[i];
 }

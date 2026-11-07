@@ -6,7 +6,7 @@
 */
 
 import  { canvas,camera,drawbox,sort,color } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 const cam = camera.default.init();
 const can = new canvas.default();
@@ -36,12 +36,12 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   // Coord also contains the index of each cell:
   const color = data[coord.index]!;
   const index = Math.floor(color.v! * (density.length - 1)); // v: set by normalize()
-  return density[index];
+  out.char = density[index];
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

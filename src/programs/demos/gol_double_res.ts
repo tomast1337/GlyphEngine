@@ -20,7 +20,7 @@ so in this case the 'data' buffer is two arrays (see initialization in pre).
 */
 import { drawbox } from "glyph-engine";
 const { drawBox } = drawbox;
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 // Safe set function
 function set(
   val: number,
@@ -114,7 +114,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   // Current buffer
   const curr = data[(context.frame + 1) % 2]!;
@@ -124,10 +124,10 @@ export function main(
   const upper = curr[idx];
   const lower = curr[idx + context.cols];
 
-  if (upper && lower) return "█"; // both cells are occupied
-  if (upper) return "▀"; // upper cell
-  if (lower) return "▄"; // lower cell
-  return " "; // both cells are empty
+  if (upper && lower) out.char = "█"; // both cells are occupied
+  else if (upper) out.char = "▀"; // upper cell
+  else if (lower) out.char = "▄"; // lower cell
+  else out.char = " "; // both cells are empty
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

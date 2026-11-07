@@ -7,14 +7,16 @@ See also:
 https://10print.org
 */
 
+import type { CellOut, Context, Coord, Cursor } from "glyph-engine";
+
 // Run the program only once
 export const settings = {
 	once : true
 }
 
-export function main() {
+export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
 	// Also try: ╩ ╦ or ▄ ░
 	// or any combination from
 	// https://play.ertdfgcvb.xyz/abc.html#font:characterset
-	return Math.random() < 0.5 ? '╱' : '╲'
+	out.char = Math.random() < 0.5 ? '╱' : '╲'
 }

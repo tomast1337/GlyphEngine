@@ -13,7 +13,7 @@ With inspiration from:
 - http://www.tech-algorithm.com/articles/nearest-neighbor-image-scaling
 */
 
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 import { vec2 as v2 } from "glyph-engine";
 
 // Environment
@@ -116,7 +116,7 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer,
+  out: CellOut,
   data: SlimeData
 ) {
   const { viewFocus, viewScale } = data;
@@ -140,7 +140,10 @@ export function main(
     x: offset.x + Math.floor((coord.x + 1) * viewScale.x),
   };
 
-  if (!bounded(sampleFrom) || !bounded(sampleTo)) return OOB;
+  if (!bounded(sampleFrom) || !bounded(sampleTo)) {
+    out.char = OOB;
+    return;
+  }
 
   // When upscaling, sample W/H may be 0
   const sampleH = Math.max(1, sampleTo.y - sampleFrom.y);
@@ -169,7 +172,7 @@ export function main(
   const char = TEXTURE[texRow]![texCol];
   if (!char) throw new Error(`Invalid char for ${val}`);
 
-  return char;
+  out.char = char;
 }
 
 // import { drawInfo } from '/src/modules/drawbox.js'

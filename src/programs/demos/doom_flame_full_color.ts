@@ -6,7 +6,7 @@
 */
 
 import { drawbox,num } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 
 const { clamp, map, mix, smoothstep } = num;
 
@@ -72,22 +72,20 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
   const u = data[coord.index];
   const v = flame[clamp(u!, 0, flame.length - 1)];
 
-  if (v === 0)
-    return {
-      char: " ",
-      backgroundColor: "black",
-    };
+  if (v === 0) {
+    out.char = " ";
+    out.background = "black";
+    return;
+  }
 
-  return {
-    char: u! % 10,
-    color: palette[min(palette.length - 1, v! + 1)],
-    backgroundColor: palette[v!],
-  };
+  out.char = String(u! % 10);
+  out.color = palette[min(palette.length - 1, v! + 1)]!;
+  out.background = palette[v!]!;
 }
 
 // Random int betweem a and b, inclusive!

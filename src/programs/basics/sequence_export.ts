@@ -6,7 +6,7 @@
 */
 
 import { drawbox,exportframe } from "glyph-engine";
-import type { Buffer, Context, Coord, Cursor } from "glyph-engine";
+import type { Buffer, CellOut, Context, Coord, Cursor } from "glyph-engine";
 // Important: the frame exporter works only with the canvas renderer.
 // Optional: reset the frame count and time at each new run!
 export const settings = {
@@ -39,10 +39,10 @@ export function main(
   coord: Coord,
   context: Context,
   cursor: Cursor,
-  buffer: Buffer
+  out: CellOut
 ) {
-  if ((coord.x + coord.y) % 2 != 0) return " ";
-  return (context.frame - 9) % 10;
+  if ((coord.x + coord.y) % 2 != 0) out.char = " ";
+  else out.char = String((context.frame - 9) % 10);
 }
 
 export function post(context: Context, cursor: Cursor, buffer: Buffer) {

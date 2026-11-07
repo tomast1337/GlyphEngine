@@ -1,7 +1,6 @@
 // The contract between run() and a program: what a program exports and what
 // it receives each frame.
-import type { Frame } from "./core/frame";
-import type { Buffer, Cell } from "./modules/buffer";
+import type { Buffer } from "./modules/buffer";
 import type { RenderModes } from "./core/renderer";
 import type { CellOut } from "./core/out";
 import type { Vec2 } from "./modules/vec2";
@@ -46,25 +45,18 @@ export interface Metrics {
   _update: () => void;
 }
 
-// What main() may return: a glyph (short for out.char = …), a cell object
-// (the play.core form), or nothing (use what was written into `out`).
-export type CellValue = string | number | Partial<Cell> | null | undefined | void;
-
 // userData: whatever object was passed to run() ({} by default).
 // Method syntax on purpose: TypeScript checks method parameters bivariantly, so
 // a program may declare narrower ones (buffer: Buffer, data: MyData).
 export type Program = {
-  boot?(context: Context, buffer: Buffer | Frame, userData: object): void; // the frame for frame() programs, else a buffer view of it
+  boot?(context: Context, buffer: Buffer, userData: object): void;
   pre?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
-  // Called for every cell; writes the cell into `out` (or returns it).
-  main?(position: Coord, context: Context, cursor: Cursor, out: CellOut, userData: object): CellValue;
+  // Called for every cell; writes the cell into `out`.
+  main?(position: Coord, context: Context, cursor: Cursor, out: CellOut, userData: object): void;
   post?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
-  // Fast API: fills the whole frame (typed arrays) in one call. When present,
-  // pre(), main() and post() are not called; boot() and events get the frame.
-  frame?(context: Context, cursor: Cursor, frame: Frame, userData: object): void;
-  pointerMove?(context: Context, cursor: Cursor, buffer: Buffer | Frame, userData: object): void;
-  pointerDown?(context: Context, cursor: Cursor, buffer: Buffer | Frame, userData: object): void;
-  pointerUp?(context: Context, cursor: Cursor, buffer: Buffer | Frame, userData: object): void;
+  pointerMove?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
+  pointerDown?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
+  pointerUp?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
   settings?: Partial<Settings>;
 };
 
