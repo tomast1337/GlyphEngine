@@ -5,7 +5,7 @@
 @desc   The frame() API: fill the whole grid in one call
 */
 
-import { rgba, setChar } from "glyph-engine";
+import { rgba, setChar, asBuffer, drawbox } from "glyph-engine";
 import type { Context, Cursor, Frame } from "glyph-engine";
 
 export const settings = { backgroundColor: "black", color: "white" };
@@ -35,9 +35,12 @@ export function frame(context: Context, cursor: Cursor, out: Frame) {
   // Text: setChar() writes one glyph from a string, emoji included.
   const text = [..." Hello frame() 👋 "];
   text.forEach((c, i) => {
-    const k = 2 + i + 2 * cols;
+    const k = 2 + i + (rows - 2) * cols; // bottom left, below the FPS box
     setChar(out, k, c);
     fg[k] = rgba(0, 0, 0);
     bg[k] = rgba(255, 255, 255);
   });
+
+  // FPS box: drawInfo() expects a buffer, asBuffer() lets it write into the frame
+  drawbox.drawInfo(context, cursor, asBuffer(out));
 }

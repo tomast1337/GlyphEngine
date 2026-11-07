@@ -5,7 +5,7 @@
 @desc   Packing colours once, font weight, and 0 as "use the default"
 */
 
-import { cssColor, rgba } from "glyph-engine";
+import { cssColor, rgba, asBuffer, drawbox } from "glyph-engine";
 import type { Context, Cursor, Frame } from "glyph-engine";
 
 export const settings = { backgroundColor: "black", color: "gray", fontWeight: "400" };
@@ -32,4 +32,7 @@ export function frame(context: Context, cursor: Cursor, out: Frame) {
       weight[k] = Math.floor(x / 4) % 2 ? 7 : 0;
     }
   }
+
+  // FPS box: drawInfo() expects a buffer, asBuffer() lets it write into the frame
+  drawbox.drawInfo(context, cursor, asBuffer(out));
 }
