@@ -1,339 +1,65 @@
-import * as Bun from "bun";
+// Builds the playground into ./out:
+//   index.html         single page: output, editable source, example list
+//   glyph-engine.js    the engine bundle (programs import "glyph-engine")
+//   programs/**.js     each example with types stripped, comments kept
+//   examples.json      list for the sidebar
+// Usage: bun run build:examples [--watch]   (--watch also serves on $PORT, default 3000)
 import * as fs from "fs";
+import ts from "typescript";
 
-const build = async () => {
-    const outDir = "./out";
+const outDir = "./out";
 
-    // find all .ts files in the programs directory
-    const files = new Bun.Glob("./src/programs/**/*.ts");
-    
-    const getemoInfo = async (path: string) => {
-      const file = Bun.file(path);
-      const content = await file.text();
-      
-      // Extract author, title, and description using regex
-      const authorMatch = content.match(/@author\s+([\s\S]*?)(?=\s*@title|\s*\*\/)/);
-      const titleMatch = content.match(/@title\s+([\s\S]*?)(?=\s*@desc|\s*\*\/)/);
-      const descMatch = content.match(/@desc\s+([\s\S]*?)(?=\s*\*\/|\s*$)/);
-      
-      return {
-        author: authorMatch ? authorMatch[1].trim() : null,
-        title: titleMatch ? titleMatch[1].trim() : null,
-        description: descMatch ? descMatch[1].trim().replace(/^"|"$/g, '').replace(/\n/g, '<br>') : null
-      };
-    };
-    
-    let links = '';
-    const paths: string[] = [];
-    for await (const path of files.scan()) {
-        paths.push(path);
-    }
+const meta = (src: string, tag: string) =>
+  src.match(new RegExp(`@${tag}\\s+(.*)`))?.[1]?.trim() ?? null;
 
-    paths.sort(
-        (a, b) => {
-            return a.localeCompare(b) || a.localeCompare(b);
-        }
-    );
-
-
-    for (const path of paths) {
-      const info = await getemoInfo(path);
-      const title = info.title || path.split('/').pop()?.replace('.ts', '') || 'Untitled';
-      links += `<li class="example">
-         <a href="${path.replace(".ts", ".html")}">
-           <span class="example-title">${title}</span>
-           <span class="example-author">by ${info.author || 'Unknown'}</span>
-           <span class="example-description">${info.description || 'No description available'}</span>
-         </a>
-    </li>\n`;
-    }
-    
-    const html = `
-    <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Play.Core Examples</title>
-            <style>
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    min-height: 100vh;
-                    padding: 20px;
-                }
-                
-                .container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    background: white;
-                    border-radius: 20px;
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                    overflow: hidden;
-                }
-                
-                .header {
-                    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-                    color: white;
-                    padding: 40px;
-                    text-align: center;
-                }
-                
-                .header h1 {
-                    font-size: 3rem;
-                    font-weight: 700;
-                    margin-bottom: 10px;
-                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                }
-                
-                .header p {
-                    font-size: 1.2rem;
-                    opacity: 0.9;
-                }
-                
-                .examples {
-                    padding: 40px;
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-                    gap: 20px;
-                    list-style: none;
-                }
-                
-                .example {
-                    background: #f8f9fa;
-                    border-radius: 15px;
-                    overflow: hidden;
-                    transition: all 0.3s ease;
-                    border: 2px solid transparent;
-                }
-                
-                .example:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-                    border-color: #3498db;
-                }
-                
-                .example a {
-                    display: block;
-                    padding: 25px;
-                    text-decoration: none;
-                    color: inherit;
-                    height: 100%;
-                }
-                
-                .example-title {
-                    font-size: 1.4rem;
-                    font-weight: 600;
-                    color: #2c3e50;
-                    margin-bottom: 12px;
-                    display: block;
-                }
-                
-                .example-author {
-                    font-size: 0.9rem;
-                    color: #7f8c8d;
-                    font-weight: 500;
-                    margin-bottom: 8px;
-                    display: block;
-                }
-                
-                .example-description {
-                    font-size: 1rem;
-                    color: #5a6c7d;
-                    line-height: 1.5;
-                    display: block;
-                }
-                
-                .example:hover .example-title {
-                    color: #3498db;
-                }
-                
-                .stats {
-                    background: #ecf0f1;
-                    padding: 20px 40px;
-                    text-align: center;
-                    color: #7f8c8d;
-                    font-size: 0.9rem;
-                }
-                
-                @media (max-width: 768px) {
-                    .header h1 {
-                        font-size: 2rem;
-                    }
-                    
-                    .examples {
-                        grid-template-columns: 1fr;
-                        padding: 20px;
-                    }
-                    
-                    body {
-                        padding: 10px;
-                    }
-                }
-            </style>
-        </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Play.Core Examples</h1>
-                <p>Creative coding experiments and demos</p>
-            </div>
-            <ul class="examples">
-                ${links}
-            </ul>
-            <div class="stats">
-                <p>${links.split('</li>').length - 1} examples available</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    `;
-    
-    fs.mkdirSync(outDir.replace("src", ""), { recursive: true });
-    fs.writeFileSync(`${outDir.replace("programs", "").replace("src", "")}/index.html`, html);
-    
-    // compile the run.ts file
-    await Bun.build({
-      entrypoints: ["./src/run.ts"],
-      outdir: `${outDir}/programs`,
-      format: "esm",
-      target: "browser",
-      minify: {
-        whitespace: true,
-        syntax: true,
-        identifiers: false,
-        keepNames: true,
-      },
-    });
-    
-    // Build each example js file
-    const entrypoints: string[] = [];
-    for await (const path of files.scan()) {
-      entrypoints.push(path);
-    }
-    
-    await Bun.build({
-      entrypoints: entrypoints,
-      outdir: outDir.replace("src", ""),
-      format: "esm",
-      target: "browser",
-      minify: false,
-    });
-    
-    const buildExampleHtml = (path: string) => {
-      const content = `
-      <html>
-      <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-    
-        html,
-        body {
-            padding: 0;
-            margin: 0;
-            font-size: 1em;
-            line-height: 1.2;
-            font-family: 'Simple Console', monospace;
-        }
-    
-        pre {
-            position: absolute;
-            margin: 0;
-            padding: 0;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            font-family: inherit;
-        }
-    
-        span {
-            margin: 0;
-            padding: 0;
-        }
-    
-        #root {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            white-space: pre;
-            z-index: -1;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-      </style>
-        <body>
-          <script type="module">
-            import {run} from '/out/programs/run.js'
-            import * as program from '/out/${path.replace(".ts", ".js")}'
-            run(program, { element : document.querySelector('pre') }).then(function(e){
-              console.log(e)
-            }).catch(function(e) {
-              console.warn(e.message)
-              console.log(e.error)
-            })
-          </script>
-          
-        </body>
-      </html>
-      `;
-      return content
-    }
-    
-    for (const file of entrypoints) {
-        const html = buildExampleHtml(file);
-        const htmlPath = `${outDir.replace("src", "")}/${file.replace(".ts", ".html")}`;
-        fs.writeFileSync(htmlPath, html);
-    }
-
-    console.log("Examples built successfully");
+// tsc drops blank lines, so mark them before and restore after.
+function stripTypes(src: string) {
+  const marked = src.replace(/^[ \t]*$/gm, "//__blank__");
+  const js = ts.transpileModule(marked, {
+    compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, verbatimModuleSyntax: true },
+  }).outputText;
+  // The header comment sits on the `import type` line, which tsc removes with it.
+  const header = src.match(/^\/\*[\s\S]*?\*\/\n+/)?.[0] ?? "";
+  return (header + js.replace(/^[ \t]*\/\/__blank__$/gm, "").replace(header, "")).replace(/\n{3,}/g, "\n\n");
 }
 
-// Debounce helper to prevent rapid rebuilds
-let debounceTimeout: Timer | null = null;
-const debouncedBuild = () => {
-    if (debounceTimeout) clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-        build().catch((error) => {
-            console.error("Error during rebuild:", error);
-        })
-    }, 100); // Wait 100ms after the last change
-};
+async function build() {
+  fs.rmSync(outDir, { recursive: true, force: true });
 
-// Watcher function
-const watch = () => {
-    console.log("👀 Watching for changes in ./src...");
-    fs.watch("./src", { recursive: true }, (eventType, filename) => {
-        if (filename) {
-            console.log(`[${eventType}] Change detected in: ${filename}`);
-            debouncedBuild();
-        }
-    });
-};
+  const engine = await Bun.build({ entrypoints: ["./src/index.ts"], outdir: outDir, naming: "glyph-engine.js", target: "browser" });
+  if (!engine.success) throw new AggregateError(engine.logs, "engine build failed");
 
-const isWatch = process.argv.includes("--watch");
+  const paths = [...new Bun.Glob("src/programs/**/*.ts").scanSync(".")].sort();
+  const examples = [];
+  for (const path of paths) {
+    const src = await Bun.file(path).text();
+    const file = path.replace("src/programs/", "").replace(/\.ts$/, ".js");
+    await Bun.write(`${outDir}/programs/${file}`, stripTypes(src));
+    examples.push({ file, group: file.split("/")[0], title: meta(src, "title") ?? file, author: meta(src, "author") });
+  }
+  await Bun.write(`${outDir}/examples.json`, JSON.stringify(examples));
+  fs.copyFileSync("./script/playground.html", `${outDir}/index.html`);
+  console.log(`Built playground with ${examples.length} examples`);
+}
 
-// Main execution
-const main = async () => {
-    try {
-        await build(); // Run an initial build
-        if (isWatch) {
-            watch();       // Then start watching for changes
-        }
-    } catch (error) {
-        console.error("Error during initial build:", error);
-    }
-};
+await build();
 
-main();
+if (process.argv.includes("--watch")) {
+  let timer: Timer | undefined;
+  const rebuild = () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => build().catch((e) => console.error("Rebuild failed:", e)), 100);
+  };
+  fs.watch("./src", { recursive: true }, rebuild);
+  fs.watch("./script/playground.html", rebuild);
+
+  const server = Bun.serve({
+    port: Number(process.env.PORT) || 3000,
+    async fetch(req) {
+      const path = new URL(req.url).pathname;
+      const file = Bun.file(outDir + (path.endsWith("/") ? path + "index.html" : path));
+      return (await file.exists()) ? new Response(file) : new Response("Not found", { status: 404 });
+    },
+  });
+  console.log(`Watching ./src, serving http://localhost:${server.port}/`);
+}
