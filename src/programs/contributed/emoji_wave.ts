@@ -13,7 +13,8 @@ export const settings = {
 };
 
 const { sin, cos, floor } = Math;
-const density = "☆ ☺︎ 👀 🌈 🌮🌮 🌈 👀 ☺︎ ☆";
+// Split by grapheme, not UTF-16 unit: indexing the string would cut emoji in half.
+const density = Array.from(new Intl.Segmenter().segment("☆ ☺︎ 👀 🌈 🌮🌮 🌈 👀 ☺︎ ☆"), (s) => s.segment);
 
 export function main(
   coord: Coord,
