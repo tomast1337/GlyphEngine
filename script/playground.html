@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GlyphEngine Playground</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      display: grid;
+      grid-template-columns: 1fr 1fr 240px;
+      font: 13px/1.4 ui-monospace, "Simple Console", monospace;
+      background: #fff;
+      color: #222;
+    }
+    #output { border: 0; width: 100%; height: 100%; display: block; }
+    #code {
+      border: 0;
+      border-left: 1px solid #ddd;
+      padding: 0.5em 1em;
+      resize: none;
+      outline: none;
+      font: inherit;
+      color: #333;
+      background: #fafafa;
+      tab-size: 2;
+      white-space: pre;
+    }
+    nav { background: #111; color: #ddd; padding: 0.5em 1em; overflow-y: auto; }
+    nav h1 { font-size: inherit; margin: 0 0 0.5em; }
+    nav button {
+      font: inherit; color: inherit; background: none; border: 1px solid #555;
+      padding: 0.2em 0.6em; cursor: pointer; margin-bottom: 0.5em;
+    }
+    nav button:hover { background: #333; }
+    nav .group { color: #777; margin-top: 0.8em; }
+    nav a { display: block; color: #bbb; text-decoration: none; padding-left: 1em; }
+    nav a:hover, nav a.active { color: #fff; background: #333; }
+    nav kbd { color: #777; font: inherit; }
+    @media (max-width: 800px) {
+      body { grid-template-columns: 1fr; grid-template-rows: 50vh 50vh auto; }
+    }
+  </style>
+</head>
+<body>
+  <iframe id="output" title="Program output"></iframe>
+  <textarea id="code" spellcheck="false" aria-label="Program source"></textarea>
+  <nav>
+    <h1>GlyphEngine</h1>
+    <button id="run">Run</button> <kbd>Ctrl+Enter</kbd>
+    <div id="list"></div>
+  </nav>
+
+  <script type="module">
+    const output = document.getElementById("output");
+    const code = document.getElementById("code");
+    const list = document.getElementById("list");
+    const engineURL = new URL("glyph-engine.js", location.href).href;
+    let blobURL;
+
+    // Each run gets a fresh iframe document: stops the old loop and resets program state.
+    function run() {
+      if (blobURL) URL.revokeObjectURL(blobURL);
+      blobURL = URL.createObjectURL(new Blob([code.value], { type: "text/javascript" }));
+      output.srcdoc = `<!doctype html><html><head><meta charset="utf-8">
+<script type="importmap">${JSON.stringify({ imports: { "glyph-engine": engineURL } })}<\/script>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; font: 14px/1.2 "Simple Console", monospace; }
+  pre, canvas { display: block; margin: 0; width: 100vw; height: 100vh; font: inherit; }
+</style></head><body><script type="module">
+  const show = (e) => {
+    const pre = document.createElement("pre");
+    pre.style.cssText = "color:#c00;white-space:pre-wrap;padding:1em";
+    pre.textContent = String((e && e.stack) || e);
+    document.body.replaceChildren(pre);
+  };
+  addEventListener("error", (e) => show(e.error || e.message));
+  addEventListener("unhandledrejection", (e) => show(e.reason));
+  const { run } = await import("glyph-engine");
+  run(await import("${blobURL}")).catch(show);
+<\/script></body></html>`;
+    }
+
+    async function load(file) {
+      const res = await fetch("programs/" + file);
+      if (!res.ok) return;
+      code.value = await res.text();
+      for (const a of list.querySelectorAll("a")) a.classList.toggle("active", a.hash === "#" + file);
+      run();
+    }
+
+    const examples = await (await fetch("examples.json")).json();
+    let group;
+    for (const ex of examples) {
+      if (ex.group !== group) {
+        group = ex.group;
+        list.insertAdjacentHTML("beforeend", `<div class="group">${group}</div>`);
+      }
+      const a = document.createElement("a");
+      a.href = "#" + ex.file;
+      a.textContent = ex.title;
+      if (ex.author) a.title = "by " + ex.author;
+      list.append(a);
+    }
+
+    document.getElementById("run").onclick = run;
+    code.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        run();
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        code.setRangeText("  ", code.selectionStart, code.selectionEnd, "end");
+      }
+    });
+    addEventListener("hashchange", () => load(location.hash.slice(1)));
+    load(location.hash.slice(1) || examples[0].file);
+  </script>
+</body>
+</html>
