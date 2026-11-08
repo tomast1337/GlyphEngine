@@ -126,10 +126,15 @@ export class GlyphAtlas {
     }
 }
 
-// Text drawn in white stays grey; emoji bring their own colours.
-function isColorGlyph(px: Uint8ClampedArray) {
+// Glyphs are drawn white, so a coloured pixel means an emoji. Brave's fingerprint noise nudges read-back channels by a
+// few levels, which would mark every glyph coloured, so small differences don't count.
+const NOISE = 16;
+export function isColorGlyph(px: Uint8ClampedArray) {
     for (let i = 0; i < px.length; i += 4) {
-        if (px[i + 3]! > 0 && (px[i] !== px[i + 1] || px[i + 1] !== px[i + 2])) return true;
+        const r = px[i]!,
+            g = px[i + 1]!,
+            b = px[i + 2]!;
+        if (px[i + 3]! > 0 && Math.max(r, g, b) - Math.min(r, g, b) > NOISE) return true;
     }
     return false;
 }
