@@ -33,7 +33,7 @@ const defaultSettings = {
 // Where run() draws and reads. Without it: the local terminal (stdout / stdin).
 export type Io = {
     write(s: string): void; // frames and terminal modes go here
-    input?: AsyncIterable<string | Uint8Array>; // keys and mouse reports come from here
+    input?: AsyncIterable<string | Uint8Array> | ReadableStream<string | Uint8Array>; // keys and mouse reports come from here
     size?(): { cols: number; rows: number }; // the terminal size; 80x24 without it
     signal?: AbortSignal; // aborting stops the loop and leaves the terminal modes
     ready?(): boolean; // false: the output is backed up, the frame is skipped
@@ -107,7 +107,8 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             if (io.input)
                 (async () => {
                     const decoder = new TextDecoder();
-                    for await (const chunk of io.input!) {
+                    for await (const chunk of io.input as AsyncIterable<string | Uint8Array>) {
+                        // ReadableStream is async iterable in Bun, Node and Deno
                         if (stopped) break;
                         read(typeof chunk == 'string' ? chunk : decoder.decode(chunk, { stream: true }));
                     }
