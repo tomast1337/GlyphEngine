@@ -50,7 +50,7 @@ Runs a program file in the terminal; without a path, `demos/plasma`. Relative pa
 bun run desktop ./programs/demos/box_fun.ts --renderer=vulkan
 ```
 
-Same paths as the terminal. `--renderer` picks SDL's backend (`vulkan`, `opengl`, `opengles2`, `gpu`, `software`); without it SDL chooses. Escape or closing the window quits. Needs SDL3 and SDL3_ttf from your distro (Arch: `pacman -S sdl3 sdl3_ttf`).
+Same paths as the terminal. `--renderer` picks SDL's backend (`vulkan`, `opengl`, `opengles2`, `gpu`, `software`); without it SDL chooses. Escape (unless the program has `keyDown`) or closing the window quits. Needs SDL3 and SDL3_ttf from your distro (Arch: `pacman -S sdl3 sdl3_ttf`).
 
 ## Writing programs
 

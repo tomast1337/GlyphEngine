@@ -56,6 +56,7 @@ function open() {
             SDL_ConvertSurface: { args: [ptr, u32], returns: ptr },
             SDL_DestroySurface: { args: [ptr], returns: FFIType.void },
             SDL_PollEvent: { args: [ptr], returns: bool },
+            SDL_GetKeyFromScancode: { args: [u32, FFIType.u16, bool], returns: u32 },
         });
         const ttf = dlopen(names.ttf, {
             TTF_Init: { returns: bool },

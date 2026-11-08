@@ -7,7 +7,7 @@
 import { bufferOf, computeFrame } from './computeframe';
 import FPS from './fps';
 import { createFrame, type Frame } from './frame';
-import type { Context, Cursor, Metrics, Pointer, Program, Settings, State } from './program';
+import type { Context, Cursor, Key, Metrics, Pointer, Program, Settings, State } from './program';
 
 export type PointerEventName = 'pointerMove' | 'pointerDown' | 'pointerUp';
 
@@ -20,6 +20,7 @@ export type Host = {
     size(): { width: number; height: number };
     pointer: Pointer; // in pixels, updated by the host
     events: PointerEventName[]; // queued by the host, sent to the program after each frame
+    keys?: Key[]; // the same for key presses
     render(context: Context, frame: Frame, cursor: Cursor): void;
     // main() runs elsewhere (WGSL on the GPU): the frame only gets pre() / post()
     onGpu?: boolean;
@@ -102,6 +103,10 @@ export function startLoop(program: Program, settings: Settings, userData: object
         while (host.events.length > 0) {
             const type = host.events.shift();
             if (type && typeof program[type] == 'function') program[type](context, cursor, bufferOf(frame), userData);
+        }
+        while (host.keys?.length) {
+            const key = host.keys.shift()!;
+            if (typeof program.keyDown == 'function') program.keyDown(context, cursor, bufferOf(frame), key, userData);
         }
 
         if (!settings.once) host.requestFrame(loop);

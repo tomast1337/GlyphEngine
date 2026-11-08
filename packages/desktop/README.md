@@ -23,4 +23,4 @@ await run(
 );
 ```
 
-Escape or closing the window quits.
+Escape (unless the program has `keyDown`) or closing the window quits.

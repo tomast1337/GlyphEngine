@@ -41,3 +41,14 @@ test('without once the loop keeps asking for ticks', () => {
     expect(tick(80)).toBe(true);
     expect(host.renders).toBe(2);
 });
+
+test('queued keys reach keyDown in order after the frame, then the queue is empty', () => {
+    const { host, tick } = fakeHost();
+    const a = { key: 'a', ctrlKey: false, altKey: false, shiftKey: false, metaKey: false };
+    host.keys = [a, { ...a, key: 'Enter' }];
+    const seen: string[] = [];
+    startLoop({ main: () => '#', keyDown: (_c, _cu, _b, key) => void seen.push(key.key) }, settings, {}, { time: 0, frame: 0, cycle: 0, fps: 30 }, host, () => {});
+    tick(100);
+    expect(seen).toEqual(['a', 'Enter']);
+    expect(host.keys).toEqual([]);
+});
