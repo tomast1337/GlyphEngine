@@ -136,8 +136,10 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
         const touchHandler = ((e: TouchEvent) => {
             const rect = settings.element?.getBoundingClientRect();
             if (!rect) return;
-            pointer.x = e.touches[0]!.clientX - rect.left;
-            pointer.y = e.touches[0]!.clientY - rect.top;
+            // changedTouches: on touchend for the last finger, touches is empty
+            const touch = e.changedTouches[0]!;
+            pointer.x = touch.clientX - rect.left;
+            pointer.y = touch.clientY - rect.top;
             eventQueue.push('pointerMove');
         }) as EventListenerOrEventListenerObject;
 
