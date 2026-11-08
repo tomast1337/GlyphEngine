@@ -44,3 +44,16 @@ test('text renderer keeps a separate back buffer per element', () => {
     textRenderer.render(ctx(a), row('bb'));
     expect(a.childNodes[0]!.innerHTML).toBe('bb');
 });
+
+test('text renderer escapes glyphs as text', () => {
+    const el = fakeElement();
+    const s = '<img src=x onerror=alert(1)>&';
+    textRenderer.render(ctx(el), row(s));
+    expect(el.childNodes[0]!.innerHTML).toBe('&lt;img src=x onerror=alert(1)&gt;&amp;');
+
+    // A multi-code-point glyph is stored whole, so it can hold markup too.
+    const f = createFrame(1, 1);
+    setChar(f, 0, '<b>');
+    textRenderer.render(ctx(el), f);
+    expect(el.childNodes[0]!.innerHTML).toBe('&lt;b&gt;');
+});

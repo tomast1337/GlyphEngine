@@ -5,7 +5,7 @@
 */
 
 import type { Context } from '@glyph-engine/core';
-import { colorString, createFrame, type Frame, getChar, weightString } from '@glyph-engine/core';
+import { colorString, createFrame, type Frame, getChar, GRAPHEME, weightString } from '@glyph-engine/core';
 
 import type { Render } from './renderer';
 
@@ -13,6 +13,10 @@ export default {
     preferredElementNodeName: 'PRE',
     render,
 } as Render;
+
+const ESCAPED: Record<number, string> = { 38: '&amp;', 60: '&lt;', 62: '&gt;' };
+// Multi-code-point glyphs are stored whole, so any of them may hold markup.
+const escape = (s: string) => s.replace(/[&<>]/g, (m) => ESCAPED[m.charCodeAt(0)]!);
 
 // Per element, so several text-rendered programs on one page don't share state.
 // `back` is a copy of the last rendered frame, to skip unchanged rows.
@@ -109,7 +113,8 @@ function render(context: Context, frame: Frame) {
                 pb = b;
                 pw = w;
             }
-            markup += getChar(frame, k);
+            const c = chars[k]!;
+            markup += c === 38 || c === 60 || c === 62 ? ESCAPED[c] : c >= GRAPHEME ? escape(getChar(frame, k)) : getChar(frame, k);
 
             // Add closing tag, in case
             if (extra?.end) {
