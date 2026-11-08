@@ -68,7 +68,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             reject(settings.signal!.reason); // no effect once the first frame resolved run()
         };
         if (settings.signal?.aborted) abort();
-        settings.signal?.addEventListener('abort', abort, listen);
+        settings.signal?.addEventListener('abort', abort, { once: true });
 
         // State is stored in local storage and will loaded on program launch
         // if settings.restoreState == true.

@@ -15,7 +15,7 @@ export interface Settings {
     restoreState: boolean;
     // Aborting stops the run: no more frames, and the runner releases what it set up
     // (listeners, window, terminal modes). Pass it to run(), not in a program's settings.
-    signal?: AbortSignal;
+    signal?: AbortSignalLike;
     // CSS applied to the element (see CSSStyles in run.ts)
     backgroundColor?: string;
     color?: string;
@@ -28,6 +28,13 @@ export interface Settings {
     // Canvas and WebGL renderers only
     canvasOffset?: { x: number | 'auto'; y: number | 'auto' };
     canvasSize?: { width: number; height: number };
+}
+
+// The part of AbortSignal the runners use: core is built without DOM or Node types
+export interface AbortSignalLike {
+    readonly aborted: boolean;
+    readonly reason?: unknown;
+    addEventListener(type: 'abort', listener: () => void, options?: { once?: boolean }): void;
 }
 
 export interface State {
