@@ -14,7 +14,7 @@ Releases are made by hand from a clean, pulled `main`. The npm account uses two-
 
     ```sh
     v=0.1.0
-    for p in core web tui desktop; do npm publish release/glyph-engine-$p-$v.tgz --access public; done
+    for p in core web tui desktop; do npm publish ./release/glyph-engine-$p-$v.tgz --access public; done
     ```
 
 4. Tag and make the GitHub release with the assets:
