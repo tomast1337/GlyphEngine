@@ -36,9 +36,8 @@
         "access": "public"
     },
     "scripts": {
-        "build": "rm -rf dist && bun build src/index.ts --target bun --outdir dist --external @glyph-engine/core && tsc -p tsconfig.build.json && bun ../../script/fix-dts.ts dist",
-        "prepublishOnly": "bun run build",
-        "prepack": "cp ../../LICENSE ."
+        "build": "bun ../../script/build-package.ts --target=bun",
+        "prepublishOnly": "bun run build"
     },
     "dependencies": {
         "@glyph-engine/core": "workspace:*"
