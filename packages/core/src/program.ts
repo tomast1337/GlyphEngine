@@ -73,6 +73,15 @@ export interface Pointer {
     ppressed: boolean;
 }
 
+// A key press, with browser KeyboardEvent names ('a', 'Enter', 'ArrowUp'...) in every runner.
+export interface Key {
+    key: string;
+    ctrlKey: boolean;
+    altKey: boolean;
+    shiftKey: boolean;
+    metaKey: boolean;
+}
+
 export type Context = {
     height: number;
     width: number;
