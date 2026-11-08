@@ -53,8 +53,8 @@ export function startLoop(program: Program, settings: Settings, userData: object
         // Timing
         const delta = t - timeSample;
         if (delta < interval) {
-            // Skip the frame
-            if (!settings.once) host.requestFrame(loop);
+            // Too early: wait for the next tick (also with once, or the one frame never runs)
+            host.requestFrame(loop);
             return;
         }
 
