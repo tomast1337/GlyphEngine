@@ -2,7 +2,7 @@
 Runner
 */
 
-import { type Host, type Key, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
+import { type Context, type Host, type Key, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
 
 import canvasRenderer from './canvasrenderer';
 import type { Render, RenderModes } from './renderer';
@@ -51,7 +51,8 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
     // Everything is wrapped inside a promise;
     // in case of errors in ‘program’ it will reject without reaching the bottom.
     // If the program reaches the bottom of the first frame the promise is resolved.
-    return new Promise(function (resolve, reject) {
+    return new Promise<Context>(function (resolve, reject) {
+        let started = false; // the first frame got through: later errors no longer reject
         // Merge of user- and default settings
         const settings = {
             ...defaultSettings,
@@ -188,7 +189,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
                     // console.log(`Using font faimily: ${ci.fontFamily} @ ${ci.fontSize}/${ci.lineHeight}`)
                     // console.log(`Metrics: cellWidth: ${metrics.cellWidth}, lineHeightf: ${metrics.lineHeightf}`)
                     // Finally Boot!
-                    prepareGpu().then(boot, reject);
+                    prepareGpu().then(boot).catch(reject);
                 }
             })();
             // Ideal mode:
@@ -216,7 +217,15 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             let rect = el.getBoundingClientRect();
             new ResizeObserver(() => (rect = el.getBoundingClientRect())).observe(el);
             const host: Host = {
-                requestFrame: (cb) => requestAnimationFrame(cb),
+                requestFrame: (cb) =>
+                    requestAnimationFrame((t) => {
+                        try {
+                            cb(t);
+                        } catch (e) {
+                            if (started) throw e; // as before: the loop stops, the console shows it
+                            reject(e);
+                        }
+                    }),
                 metrics: calcMetrics(el),
                 size: () => rect,
                 pointer,
@@ -226,7 +235,10 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
                 onGpu: !!gpu,
                 storeState: (state) => storage.store(LOCAL_STORAGE_KEY_STATE, state),
             };
-            startLoop(program, settings, userData, state, host, resolve);
+            startLoop(program, settings, userData, state, host, (context) => {
+                started = true;
+                resolve(context);
+            });
         }
     });
 }
