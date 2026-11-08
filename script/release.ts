@@ -3,6 +3,7 @@
 //   glyph-engine-web.js                       @glyph-engine/web with core, one ES module for <script type="module">
 //   glyph-engine-<package>-<version>.tgz      the npm tarballs
 // Usage: bun script/release.ts [target...]    targets default to every platform below
+// The release steps are in docs/releasing.md.
 import { mkdir, rm } from 'fs/promises';
 import { resolve } from 'path';
 
