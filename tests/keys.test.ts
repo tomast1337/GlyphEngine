@@ -34,3 +34,19 @@ test('a sequence cut off at the end comes back as rest', () => {
     const { rest } = parseKeys('x\x1b[');
     expect(names(rest + 'A')).toEqual(['ArrowUp']);
 });
+
+test('a sequence broken by an unexpected byte is dropped; the keys after it still come through', () => {
+    expect(names('\x1b[>0;276;0cabc')).toEqual(['a', 'b', 'c']); // a terminal reply (DA2)
+    expect(names('\x1b[ q\x1b[1$yx')).toEqual(['x']); // intermediate bytes
+    expect(names('\x1b[1\x07y')).toEqual(['C-g', 'y']); // a control byte inside the sequence: read on its own
+    expect(parseKeys('\x1b[>abc').rest).toBe('');
+});
+
+test('rest never grows past a short sequence', () => {
+    // A sequence that never ends, fed one read at a time
+    let pending = '\x1b[';
+    let longest = 0;
+    for (let i = 0; i < 100; i++) longest = Math.max(longest, (pending = parseKeys(pending + '1;1;1;').rest).length);
+    expect(longest).toBeLessThanOrEqual(64);
+    expect(names(pending + '\rx')).toContain('x');
+});
