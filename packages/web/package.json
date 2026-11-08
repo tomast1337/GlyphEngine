@@ -1,7 +1,23 @@
 {
     "name": "@glyph-engine/web",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "GlyphEngine in the browser: run() with text, canvas, WebGL2 and WebGPU renderers.",
+    "keywords": [
+        "ascii",
+        "ascii-art",
+        "canvas",
+        "webgl",
+        "webgpu",
+        "creative-coding"
+    ],
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/tomast1337/GlyphEngine#readme",
+    "bugs": "https://github.com/tomast1337/GlyphEngine/issues",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tomast1337/GlyphEngine.git",
+        "directory": "packages/web"
+    },
     "type": "module",
     "exports": {
         ".": {
@@ -12,9 +28,13 @@
     "files": [
         "dist"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "rm -rf dist && bun build src/index.ts --target browser --outdir dist --external @glyph-engine/core && tsc -p tsconfig.build.json",
-        "prepublishOnly": "bun run build"
+        "prepublishOnly": "bun run build",
+        "prepack": "cp ../../LICENSE ."
     },
     "dependencies": {
         "@glyph-engine/core": "workspace:*"

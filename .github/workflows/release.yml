@@ -1,0 +1,32 @@
+name: Release
+
+# Push a tag like v0.1.0 to publish every package at that version.
+# Needs the NPM_TOKEN secret: an npm automation token with publish rights on the @glyph-engine scope.
+on:
+    push:
+        tags: ['v*']
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: 1.4.4
+            - run: bun install --frozen-lockfile
+            - name: Versions match the tag
+              run: |
+                  for p in core web tui desktop; do
+                      v=$(bun -e "console.log(require('./packages/$p/package.json').version)")
+                      [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "packages/$p is $v, tag is $GITHUB_REF_NAME"; exit 1; }
+                  done
+            - run: bun test
+            # core first: the others depend on it. bun publish turns workspace:* into the version.
+            - name: Publish
+              env:
+                  NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: |
+                  for p in core web tui desktop; do
+                      (cd packages/$p && bun publish)
+                  done
