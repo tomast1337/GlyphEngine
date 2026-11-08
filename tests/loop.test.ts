@@ -52,3 +52,7 @@ test('queued keys reach keyDown in order after the frame, then the queue is empt
     expect(seen).toEqual(['a', 'Enter']);
     expect(host.keys).toEqual([]);
 });
+
+test('a WGSL-only program stops with an error where it cannot run on the GPU', () => {
+    expect(() => startLoop({ wgsl: '...' }, settings, {}, { time: 0, frame: 0, cycle: 0, fps: 30 }, fakeHost().host, () => {})).toThrow('runs on the GPU');
+});

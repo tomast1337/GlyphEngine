@@ -9,6 +9,8 @@ import * as desktop from '@glyph-engine/desktop';
 import * as tui from '@glyph-engine/tui';
 import { plugin } from 'bun';
 
+import { version } from '../packages/core/package.json';
+
 const packages = { core, tui, desktop };
 plugin({
     name: 'glyph-engine packages',
@@ -22,7 +24,7 @@ const [target, ...args] = process.argv.slice(2);
 const runner = target === 'tui' || target === 'desktop' ? packages[target] : undefined;
 const path = args.find((a) => !a.startsWith('--'));
 if (target === '--version' || target === '-v') {
-    console.log(core.RUNNER_VERSION);
+    console.log(version);
     process.exit(0);
 }
 if (!runner || !path) {

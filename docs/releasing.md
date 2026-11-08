@@ -13,7 +13,7 @@ Releases are made by hand from a clean, pulled `main`. The npm account uses two-
 3. Publish to npm, core first (the others depend on it). Each publish waits for that browser confirmation. A new package shows as `0.0.0-stage` for a few minutes while npm processes it. Run `npm login` first if `npm whoami` fails.
 
     ```sh
-    v=0.1.0
+    v=$(bun -p "require('./packages/core/package.json').version")
     for p in core web tui desktop; do npm publish ./release/glyph-engine-$p-$v.tgz --access public; done
     ```
 

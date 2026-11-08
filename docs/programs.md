@@ -77,7 +77,7 @@ The frame rate is not fixed: `settings.fps` is a cap, and a slow machine or a he
 
 ## main() on the GPU (WGSL)
 
-A program can also export its `main()` in WGSL. With `renderer: "webgpu"` it runs on the GPU, one invocation per cell, and the JS `main()` is skipped. Without WebGPU the JS `main()` runs instead, so keep both. A program with only `wgsl` stops with an error.
+A program can also export its `main()` in WGSL. With `renderer: "webgpu"` it runs on the GPU, one invocation per cell, and the JS `main()` is skipped. Without WebGPU the JS `main()` runs instead, so keep both. A program with only `wgsl` stops with an error, also in the terminal and desktop runners, which have no GPU path.
 
 ```ts
 export const glyphs = ' .:-=+*#'; // every glyph the WGSL may draw
