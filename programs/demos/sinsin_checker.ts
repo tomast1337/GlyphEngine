@@ -9,7 +9,6 @@ import type { Buffer, CellOut, Context, Coord, Cursor } from '@glyph-engine/core
 const { drawInfo } = drawbox;
 
 const pattern = [' _000111_ ', '.+abc+.      '];
-const col = ['black', 'blue'];
 const weights = [100, 700];
 
 const { floor, sin } = Math;

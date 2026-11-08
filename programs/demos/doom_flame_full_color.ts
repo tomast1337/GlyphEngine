@@ -12,7 +12,7 @@ const { clamp, map, mix, smoothstep } = num;
 
 export const settings = { backgroundColor: 'black' };
 
-const { min, max, sin, floor } = Math;
+const { min, max, floor } = Math;
 
 const palette = [
     'black', // 0 < top

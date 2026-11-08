@@ -5,7 +5,7 @@
 @desc   Color input from camera (quantised)
 */
 
-import { camera, canvas, color, drawbox, sort } from '@glyph-engine/web';
+import { camera, canvas, color, drawbox } from '@glyph-engine/web';
 import type { Buffer, CellOut, Context, Coord, Cursor } from '@glyph-engine/web';
 
 const cam = camera.default.init();

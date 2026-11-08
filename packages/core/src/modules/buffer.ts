@@ -17,9 +17,10 @@ export type Cell = {
     char: string;
     beginHTML?: string; // text renderer only: raw HTML around the glyph
     endHTML?: string;
-    color?: string;
-    backgroundColor?: string;
-    fontWeight?: string;
+    // undefined is allowed: merge() then clears the field
+    color?: string | undefined;
+    backgroundColor?: string | undefined;
+    fontWeight?: string | undefined;
     shadowStyle?: string;
     borderStyle?: string;
     shadowX?: number;

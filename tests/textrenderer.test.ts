@@ -34,7 +34,7 @@ const row = (s: string) => {
     [...s].forEach((c, i) => setChar(f, i, c));
     return f;
 };
-const ctx = (element: ReturnType<typeof fakeElement>) => ({ cols: 2, rows: 1, settings: { element } }) as unknown as Context;
+const ctx = (element: ReturnType<typeof fakeElement>) => ({ cols: 2, rows: 1, settings: { element } }) as Context;
 
 test('text renderer keeps a separate back buffer per element', () => {
     const a = fakeElement();

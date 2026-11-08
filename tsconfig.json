@@ -18,8 +18,10 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedIndexedAccess": true,
         "noImplicitOverride": true,
-        // Some stricter flags (disabled by default)
-        "noUnusedLocals": false,
+        "noImplicitReturns": true,
+        "exactOptionalPropertyTypes": true,
+        "noUnusedLocals": true,
+        // Program callbacks take arguments they may not use: main(coord, context, cursor, out)
         "noUnusedParameters": false,
         "noPropertyAccessFromIndexSignature": false,
         // Workspace packages resolve to their sources: no build needed to run or test

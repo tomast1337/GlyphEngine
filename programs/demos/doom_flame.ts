@@ -12,7 +12,7 @@ const { drawInfo } = drawbox;
 const { clamp, map, mix, smoothstep } = num;
 export const settings = { fps: 30, backgroundColor: 'black', color: 'white' };
 
-const { min, max, sin, floor } = Math;
+const { min, max, floor } = Math;
 
 const flame = '...::/\\/\\/\\+=*abcdef01XYZ#';
 let cols: number, rows: number;

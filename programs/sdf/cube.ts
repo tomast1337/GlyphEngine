@@ -15,7 +15,7 @@ const density = ' -=+abcdX';
 // Shorthands
 const { vec3 } = v3;
 const { vec2 } = v2;
-const { sin, cos, floor, abs, exp, min } = Math;
+const { sin, floor, abs, exp, min } = Math;
 
 // Lookup table for the background
 const bgMatrix = ['┼──────', '│      ', '│      ', '│      ', '│      ', '│      '];
@@ -59,7 +59,6 @@ export function pre(context: Context, cursor: Cursor) {
 }
 
 export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
-    const t = context.time * 0.01;
     const m = min(context.cols, context.rows);
     const a = context.metrics.aspect;
 

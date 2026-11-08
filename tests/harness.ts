@@ -36,7 +36,7 @@ export function makeRunner(program: Program, cols: number, rows: number) {
             height: rows * metrics.lineHeight,
             settings,
             runtime: Object.freeze({ cycle: 0, fps: settings.fps }),
-        }) as unknown as Context;
+        }) as Context;
         computeFrame(program, context, cursor, out);
         return out;
     };
