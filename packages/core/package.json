@@ -1,6 +1,6 @@
 {
     "name": "@glyph-engine/core",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Platform-free core of GlyphEngine: frames, the out slot, computeFrame() and the modules programs use.",
     "keywords": [
         "ascii",

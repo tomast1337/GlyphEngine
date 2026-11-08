@@ -1,6 +1,6 @@
 {
     "name": "@glyph-engine/tui",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "GlyphEngine in the terminal: run() with ANSI 24-bit colour and the mouse as the cursor. Runs on Bun.",
     "keywords": [
         "ascii",
