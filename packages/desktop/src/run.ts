@@ -6,10 +6,10 @@ settings.renderer picks SDL's backend: "vulkan", "opengl", "opengles2", "gpu" or
 
 import { CString, type Pointer, ptr as addressOf } from 'bun:ffi';
 
-import { type Context, type Host, type Pointer as PointerState, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
+import { type Context, type Frame, type Host, type Pointer as PointerState, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
 
 import { Renderer } from './renderer';
-import { renderDrivers, sdl, SDL_EVENT_KEY_DOWN, SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP, SDL_EVENT_MOUSE_MOTION, SDL_EVENT_QUIT, SDL_INIT_VIDEO, SDL_WINDOW_HIGH_PIXEL_DENSITY, SDL_WINDOW_RESIZABLE, sdlError, SDLK_ESCAPE } from './sdl';
+import { renderDrivers, sdl, SDL_EVENT_KEY_DOWN, SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP, SDL_EVENT_MOUSE_MOTION, SDL_EVENT_QUIT, SDL_EVENT_WINDOW_EXPOSED, SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED, SDL_EVENT_WINDOW_RESIZED, SDL_INIT_VIDEO, SDL_WINDOW_HIGH_PIXEL_DENSITY, SDL_WINDOW_RESIZABLE, sdlError, SDLK_ESCAPE } from './sdl';
 
 const defaultSettings = {
     element: null,
@@ -61,8 +61,11 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
         let renderer: Renderer | undefined;
         let font: Pointer | null = null;
         let started = false;
+        let last: Frame | undefined; // the frame on screen, drawn again when the window needs it
+        let polling: Timer | undefined;
 
         const close = () => {
+            clearInterval(polling);
             renderer?.destroy();
             renderer = undefined;
             if (gpu) s.SDL_DestroyRenderer(gpu);
@@ -103,13 +106,18 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             const pointer: PointerState = { x: 0, y: 0, pressed: false, px: 0, py: 0, ppressed: false };
             const events: PointerEventName[] = [];
 
-            // Window events, polled once per frame tick
+            // Window events, polled on their own timer so the window keeps answering after a once frame
             const poll = () => {
                 while (s.SDL_PollEvent(addressOf(event))) {
                     const type = view.getUint32(0, true);
                     if (type === SDL_EVENT_QUIT || (type === SDL_EVENT_KEY_DOWN && view.getUint32(28, true) === SDLK_ESCAPE)) {
                         close();
                         process.exit(0);
+                    } else if (type === SDL_EVENT_WINDOW_EXPOSED || type === SDL_EVENT_WINDOW_RESIZED || type === SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+                        if (last) {
+                            renderer!.draw(last, settings);
+                            renderer!.present();
+                        }
                     } else if (type === SDL_EVENT_MOUSE_MOTION || type === SDL_EVENT_MOUSE_BUTTON_DOWN || type === SDL_EVENT_MOUSE_BUTTON_UP) {
                         // Window coordinates; the grid is in pixels
                         pointer.x = view.getFloat32(28, true) * density;
@@ -129,7 +137,6 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 requestFrame: (cb) =>
                     setTimeout(() => {
                         try {
-                            poll();
                             cb(performance.now());
                         } catch (e) {
                             fail(e);
@@ -143,10 +150,18 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 pointer,
                 events,
                 render: (_context, frame) => {
+                    last = frame;
                     renderer!.draw(frame, settings);
                     renderer!.present();
                 },
             };
+            polling = setInterval(() => {
+                try {
+                    poll();
+                } catch (e) {
+                    fail(e);
+                }
+            }, 4);
             startLoop(program, settings, userData, state, host, (context) => {
                 started = true;
                 resolve(context);
