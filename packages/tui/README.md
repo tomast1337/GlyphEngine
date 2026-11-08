@@ -18,3 +18,5 @@ await run({
 ```
 
 Ctrl+C quits. Programs that use browser modules (`camera`, `canvas`, `sort`…) only run on the web.
+
+`parseKeys(text)` turns raw terminal input into keys with browser names (`'a'`, `'Enter'`, `'ArrowUp'`, plus `ctrlKey` / `altKey` / `shiftKey` / `metaKey`). It returns `{ keys, rest }`; `rest` is an escape sequence cut off at the end, to put in front of the next read.
