@@ -55,7 +55,7 @@ export const settings = {
 };
 
 export function boot(context: Context, buffer: Buffer, data: SlimeData) {
-    document.body.style.cursor = 'crosshair';
+    if (typeof document !== 'undefined') document.body.style.cursor = 'crosshair'; // the browser only
 
     data.chem = new Float32Array(HEIGHT * WIDTH);
     data.wip = new Float32Array(HEIGHT * WIDTH);
