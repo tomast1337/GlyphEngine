@@ -12,7 +12,7 @@ bun add @glyph-engine/tui       # terminal (Bun or Node)
 bun add @glyph-engine/desktop   # native window (Bun, Linux, SDL3)
 ```
 
-Each runner re-exports `@glyph-engine/core`, so one import is enough. `npm install` works too for `web` and `core`.
+Each runner re-exports `@glyph-engine/core`, so one import is enough. `npm install` works too for `core`, `web` and `tui` (Node 22+); `desktop` needs Bun.
 
 Or, without Bun or npm, download from [Releases](https://github.com/tomast1337/GlyphEngine/releases):
 

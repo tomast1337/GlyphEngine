@@ -31,6 +31,8 @@ export type Host = {
 // Boots the program and runs it every frame. `state` may hold a restored time /
 // frame count. onFirstFrame runs when the first frame got through without errors.
 export function startLoop(program: Program, settings: Settings, userData: object, state: State, host: Host, onFirstFrame: (context: Context) => void) {
+    // The web runner says this earlier, with a hint about WebGPU; the others have no GPU path
+    if (program.wgsl && typeof program.main != 'function' && !host.onGpu) throw new Error('This program runs on the GPU: it needs the web runner with renderer: "webgpu".');
     const fps = new FPS();
     const { metrics, pointer } = host;
 

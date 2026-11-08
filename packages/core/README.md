@@ -5,7 +5,7 @@ The platform-free core of [GlyphEngine](https://github.com/tomast1337/GlyphEngin
 You usually want a runner instead, which re-exports all of this:
 
 - [`@glyph-engine/web`](https://www.npmjs.com/package/@glyph-engine/web): the browser
-- [`@glyph-engine/tui`](https://www.npmjs.com/package/@glyph-engine/tui): the terminal (Bun)
+- [`@glyph-engine/tui`](https://www.npmjs.com/package/@glyph-engine/tui): the terminal (Bun or Node)
 - [`@glyph-engine/desktop`](https://www.npmjs.com/package/@glyph-engine/desktop): a native window (Bun, SDL3)
 
 See [docs/programs.md](https://github.com/tomast1337/GlyphEngine/blob/main/docs/programs.md) for the program API.
