@@ -1,7 +1,7 @@
 {
     "name": "@glyph-engine/tui",
     "version": "0.1.1",
-    "description": "GlyphEngine in the terminal: run() with ANSI 24-bit colour and the mouse as the cursor. Runs on Bun.",
+    "description": "GlyphEngine in the terminal: run() with ANSI 24-bit colour and the mouse as the cursor. Runs on Bun and Node.",
     "keywords": [
         "ascii",
         "ascii-art",
@@ -29,13 +29,14 @@
         "dist"
     ],
     "engines": {
-        "bun": ">=1.4.4"
+        "bun": ">=1.4.4",
+        "node": ">=22"
     },
     "publishConfig": {
         "access": "public"
     },
     "scripts": {
-        "build": "rm -rf dist && bun build src/index.ts --target bun --outdir dist --external @glyph-engine/core && tsc -p tsconfig.build.json",
+        "build": "rm -rf dist && bun build src/index.ts --target node --outdir dist --external @glyph-engine/core && tsc -p tsconfig.build.json",
         "prepublishOnly": "bun run build",
         "prepack": "cp ../../LICENSE ."
     },
