@@ -32,8 +32,6 @@ export const settings = {
 };
 
 export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
-    const t = context.time * 0.0001;
-
     // compute resolution to fit geometry, not the screen
     // 🙏thanks andreas
     let w = getW(context.cols);
@@ -59,10 +57,6 @@ export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOu
     };
     const _st = vec2.mul(st, vec2.vec2(5.0, 1.0));
     const tileIndex = num.step(1, num.mod(_st.x, 2.0));
-    // make each cell between 0.0 - 1.0
-    // see Truchet Tiles from https://thebookofshaders.com/09/
-    // for reference/inspiration
-    const __st = vec2.fract(_st);
 
     const color = tileIndex === 0 ? _st.y : 1 - _st.y;
     const i = Math.floor(num.map(color, 0, 1, 0, chars.length - 1));

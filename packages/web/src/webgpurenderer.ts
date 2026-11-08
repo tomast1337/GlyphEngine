@@ -159,11 +159,14 @@ function createState(dev: GPUDevice, canvas: HTMLCanvasElement) {
         }),
         drawData: new ArrayBuffer(64),
         atlasTexture: createAtlasTexture(dev, size),
-        atlas: null as unknown as GlyphAtlas,
+        // Glyphs are uploaded when first drawn, by then s exists
+        atlas: new GlyphAtlas(size, (x, y, glyph) => {
+            dev.queue.copyExternalImageToTexture({ source: glyph }, { texture: s.atlasTexture, origin: { x, y }, premultipliedAlpha: true }, [glyph.width, glyph.height]);
+        }),
         cols: 0,
         rows: 0,
-        cells: null as unknown as GPUBuffer, // what the frame or the compute pass fills
-        overlay: null as unknown as GPUBuffer, // what pre()/post() drew over a GPU program
+        cells: cellBuffer(dev, 16), // what the frame or the compute pass fills; sized by ensureCells()
+        overlay: cellBuffer(dev, 16), // what pre()/post() drew over a GPU program
         cellData: new Uint32Array(0),
         overlayData: new Uint32Array(0),
         overlayEmpty: false, // the overlay buffer holds only zeros
@@ -182,9 +185,6 @@ function createState(dev: GPUDevice, canvas: HTMLCanvasElement) {
             bindGroup: GPUBindGroup | null;
         },
     };
-    s.atlas = new GlyphAtlas(size, (x, y, glyph) => {
-        dev.queue.copyExternalImageToTexture({ source: glyph }, { texture: s.atlasTexture, origin: { x, y }, premultipliedAlpha: true }, [glyph.width, glyph.height]);
-    });
     return s;
 }
 
@@ -366,17 +366,18 @@ function runProgram(s: GPUState, encoder: GPUCommandEncoder, context: Context, g
 
 const unpack = (c: number) => [c >>> 24, (c >>> 16) & 255, (c >>> 8) & 255, c & 255].map((v) => v / 255);
 
+const cellBuffer = (dev: GPUDevice, size: number) => dev.createBuffer({ size, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+
 // (Re)allocates the cell buffers when the grid size changes.
 function ensureCells(s: GPUState, cols: number, rows: number) {
     if (s.cols === cols && s.rows === rows) return;
     s.cols = cols;
     s.rows = rows;
     const size = Math.max(16, cols * rows * 16);
-    const usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST;
-    s.cells?.destroy();
-    s.overlay?.destroy();
-    s.cells = s.device.createBuffer({ size, usage });
-    s.overlay = s.device.createBuffer({ size, usage });
+    s.cells.destroy();
+    s.overlay.destroy();
+    s.cells = cellBuffer(s.device, size);
+    s.overlay = cellBuffer(s.device, size);
     s.cellData = new Uint32Array(cols * rows * 4);
     s.overlayData = new Uint32Array(cols * rows * 4);
     s.overlayEmpty = true; // new buffers start zeroed

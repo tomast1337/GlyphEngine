@@ -6,14 +6,9 @@
 */
 
 import type { Buffer, CellOut, Context, Coord, Cursor } from '@glyph-engine/core';
-import { vec2 as v2 } from '@glyph-engine/core';
-
-const vec2 = v2.vec2;
 
 let prevFrame: Buffer;
 let width: number, height: number;
-
-const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
 
 export const settings = {
     fps: 30, // fps capping

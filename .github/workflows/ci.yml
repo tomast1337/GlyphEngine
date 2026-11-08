@@ -20,6 +20,8 @@ jobs:
               run: bunx tsc --noEmit -p .
             - name: Core has no DOM
               run: bunx tsc --noEmit -p packages/core
+            - name: No any, double casts or ts-ignore
+              run: "! git grep -nE '\\bas (any|unknown as)\\b|:\\s*any\\b|<any>|\\bany\\[\\]|@ts-(ignore|nocheck)' -- '*.ts' '*.mts' '*.tsx'"
             - name: Test
               run: bun test
             - name: Build

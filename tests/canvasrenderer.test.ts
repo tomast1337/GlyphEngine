@@ -48,7 +48,7 @@ test('canvas renderer uses settings.fontWeight for cells without their own', () 
             fontFamily: 'monospace',
         },
         settings: { element: canvas, color: 'white', fontWeight: '700' },
-    } as unknown as Context;
+    } as Context;
 
     canvasRenderer.render(context, frameOf([{ char: 'A' }, { char: 'B', fontWeight: '100' }]));
 
@@ -80,7 +80,7 @@ test('canvas renderer gives wide glyphs two cells, pushing the row right', () =>
             fontFamily: 'monospace',
         },
         settings: { element: { style: {}, getContext: () => ctx } },
-    } as unknown as Context;
+    } as Context;
 
     canvasRenderer.render(context, frameOf([{ char: '🌮' }, { char: 'A' }, { char: 'B' }]));
 

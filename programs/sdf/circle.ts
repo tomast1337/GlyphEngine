@@ -5,7 +5,7 @@
 @desc   Draw a smooth circle with exp()
 */
 
-import type { CellOut, Context, Coord, Cursor, Style } from '@glyph-engine/web';
+import type { CellOut, Context, Coord, Cursor } from '@glyph-engine/web';
 import { sdf, sort } from '@glyph-engine/web';
 
 const density = sort.sort('/\\MXYZabc!?=-. ', 'Simple Console', false);

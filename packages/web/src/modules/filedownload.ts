@@ -47,17 +47,6 @@ export function saveBlobAsFile(blob: Blob, filename: string) {
         URL.revokeObjectURL(a.href);
     }, 10000);
     setTimeout(() => {
-        click(a);
+        a.click();
     }, 0);
-}
-
-function click(node: HTMLAnchorElement) {
-    try {
-        node.dispatchEvent(new MouseEvent('click'));
-    } catch (err) {
-        var e: MouseEvent = document.createEvent('MouseEvents');
-        // @ts-ignore
-        e.initMouseEvent('click');
-        node.dispatchEvent(e);
-    }
 }

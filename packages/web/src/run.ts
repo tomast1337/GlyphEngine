@@ -24,7 +24,7 @@ const renderers: Record<RenderModes, Render> = {
 // Default settings for the program runner.
 // They can be overwritten by the parameters of the runner
 // or as a settings object exported by the program (in this order).
-const defaultSettings = {
+const defaultSettings: WebSettings = {
     element: null, // target element for output
     cols: 0, // number of columns, 0 is equivalent to 'auto'
     rows: 0, // number of columns, 0 is equivalent to 'auto'
@@ -34,7 +34,7 @@ const defaultSettings = {
     allowSelect: false, // allows selection of the rendered element
     restoreState: false, // will store the "state" object in local storage
     // this is handy for live-coding situations
-} as unknown as WebSettings;
+};
 
 // CSS styles which can be passed to the container element via settings
 const CSSStyles: (keyof WebSettings & keyof CSSStyleDeclaration)[] = ['backgroundColor', 'color', 'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'lineHeight', 'textAlign'];
@@ -353,19 +353,7 @@ export function calcMetrics(el: HTMLElement | HTMLCanvasElement) {
         lineHeight,
         fontFamily,
         fontSize,
-        // Semi-hackish way to allow an update of the metrics object.
-        // This may be useful in some situations, for example
-        // responsive layouts with baseline or font change.
-        // NOTE: It’s not an immutable object anymore
-        _update: function () {
-            const tmp = calcMetrics(el);
-            for (var k in tmp) {
-                // NOTE: Object.assign won’t work
-                //if (typeof tmp[k] == "number" || typeof tmp[k] == "string") {
-                //  m[k] = tmp[k];
-                //}
-            }
-        },
+        _update: () => {}, // nothing re-measures the font yet
     };
 
     return metrics;

@@ -11,7 +11,6 @@ import { drawbox, sdf, vec2 } from '@glyph-engine/core';
 const density = '#WX?*:÷×+=-· ';
 
 export function main(coord: Coord, context: Context, cursor: Cursor, out: CellOut) {
-    const t = context.time;
     const m = Math.min(context.cols, context.rows);
     const a = context.metrics.aspect;
 

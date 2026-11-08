@@ -7,7 +7,7 @@ Inspired by this shader by ahihi
 https://www.shadertoy.com/view/XdSGzR
 */
 
-import { drawbox, num, sort as sort2, vec2 } from '@glyph-engine/web';
+import { drawbox, sort as sort2, vec2 } from '@glyph-engine/web';
 import type { Buffer, CellOut, Context, Coord, Cursor } from '@glyph-engine/web';
 const { drawInfo } = drawbox;
 const { sort } = sort2;
@@ -15,7 +15,7 @@ const { length } = vec2;
 
 export const settings = { fps: 60 };
 
-const { sin, cos, floor, PI, atan, sqrt, pow } = Math;
+const { sin, floor, PI, atan, pow } = Math;
 const TAU = PI * 2;
 
 const density = sort('▅▃▁?ab012:. ', 'Simple Console', false);

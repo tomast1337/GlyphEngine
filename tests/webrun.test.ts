@@ -31,7 +31,8 @@ const node = () => ({
     },
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 80, height: 32 }),
 });
-g.document = { fonts: { ready: Promise.resolve() }, createElement: node };
+// No element in the settings: run() makes one with document.createElement and adds it to body
+g.document = { fonts: { ready: Promise.resolve() }, createElement: node, body: node() };
 g.requestAnimationFrame = (cb: (t: number) => void) => setTimeout(() => cb(performance.now() + 1000), 0);
 g.ResizeObserver = class {
     observe() {
@@ -45,8 +46,6 @@ g.window = { addEventListener };
 g.getComputedStyle = () => ({ getPropertyValue: (p: string) => (p == 'font-family' ? 'monospace' : '16px') });
 afterAll(() => Object.assign(g, saved));
 
-const element = node() as unknown as HTMLElement;
-
 test('web run() rejects when boot() throws', async () => {
     const program: Program = {
         boot() {
@@ -54,7 +53,7 @@ test('web run() rejects when boot() throws', async () => {
         },
         main() {},
     };
-    await expect(run(program, { element })).rejects.toThrow('boot');
+    await expect(run(program)).rejects.toThrow('boot');
 });
 
 test('web run() rejects when the first frame throws', async () => {
@@ -63,14 +62,14 @@ test('web run() rejects when the first frame throws', async () => {
             throw new Error('frame');
         },
     };
-    await expect(run(program, { element })).rejects.toThrow('frame');
+    await expect(run(program)).rejects.toThrow('frame');
 });
 
 test('aborting settings.signal stops the frames and removes every listener and observer', async () => {
     let frames = 0;
     const abort = new AbortController();
     const [l, o] = [listeners, observers]; // earlier tests leave some behind
-    await run({ main: () => void frames++, keyDown() {} }, { element, signal: abort.signal });
+    await run({ main: () => void frames++, keyDown() {} }, { signal: abort.signal });
     expect(listeners).toBeGreaterThan(l);
     expect(observers).toBe(o + 1);
     abort.abort();
@@ -82,5 +81,5 @@ test('aborting settings.signal stops the frames and removes every listener and o
 });
 
 test('an aborted signal rejects run() before the first frame', async () => {
-    await expect(run({ main() {} }, { element, signal: AbortSignal.abort(new Error('stopped')) })).rejects.toThrow('stopped');
+    await expect(run({ main() {} }, { signal: AbortSignal.abort(new Error('stopped')) })).rejects.toThrow('stopped');
 });

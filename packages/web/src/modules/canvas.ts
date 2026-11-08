@@ -36,9 +36,9 @@ Or accessed with:
 - sample(x, y)
 */
 
-import { type Buffer, num, type RGB } from '@glyph-engine/core';
+import { num, type RGB } from '@glyph-engine/core';
 
-const { clamp, map, mix } = num;
+const { map, mix } = num;
 
 type Source = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 
@@ -47,7 +47,6 @@ export const MODE_FIT = Symbol();
 export const MODE_CENTER = Symbol();
 
 const BLACK: RGB = { r: 0, g: 0, b: 0, a: 1, v: 0 };
-const WHITE: RGB = { r: 255, g: 255, b: 255, a: 1, v: 1 };
 
 export default class Canvas {
     public canvas: HTMLCanvasElement;
