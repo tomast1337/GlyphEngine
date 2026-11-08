@@ -8,7 +8,6 @@ import { join, resolve } from 'path';
 import { $ } from 'bun';
 
 const root = resolve(import.meta.dir, '..');
-const tsc = resolve(root, 'node_modules/.bin/tsc');
 const dir = await mkdtemp(join(tmpdir(), 'glyph-types-'));
 
 // A broken .d.ts makes run() missing or any: missing errors, any trips the implicit-any params and the unused @ts-expect-error.
@@ -35,7 +34,7 @@ try {
         ['nodenext', 'nodenext'],
         ['preserve', 'bundler'],
     ]) {
-        await $`${tsc} --noEmit --strict --skipLibCheck --lib esnext,dom --module ${module} --moduleResolution ${resolution} check.mts`.cwd(dir);
+        await $`${process.execPath} x tsc --noEmit --strict --skipLibCheck --lib esnext,dom --module ${module} --moduleResolution ${resolution} ${join(dir, 'check.mts')}`.cwd(root);
         console.log(`types ok under ${resolution}`);
     }
 } finally {
