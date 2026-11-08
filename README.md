@@ -14,6 +14,11 @@ bun add @glyph-engine/desktop   # native window (Bun, Linux, SDL3)
 
 Each runner re-exports `@glyph-engine/core`, so one import is enough. `npm install` works too for `web` and `core`.
 
+Or, without Bun or npm, download from [Releases](https://github.com/tomast1337/GlyphEngine/releases):
+
+- `glyph-engine-<os>-<arch>`: the `glyph-engine` command with the packages built in. Run `glyph-engine tui sketch.ts` or `glyph-engine desktop sketch.ts --renderer=vulkan` (desktop: Linux only for now).
+- `glyph-engine-web.js`: the browser runner and core in one ES module, for `<script type="module">`.
+
 ## Packages
 
 - `@glyph-engine/core` (`packages/core`): frames, the `out` slot, `computeFrame()` and the modules programs use (`drawbox`, `num`, `vec2`, `sdf`…). No DOM: it runs anywhere.
