@@ -30,6 +30,6 @@
             "@glyph-engine/desktop": ["./packages/desktop/src/index.ts"]
         }
     },
-    "include": ["packages/*/src", "programs", "script", "tests"],
+    "include": ["packages/*/src", "programs", "script", "tests", "examples"],
     "exclude": ["**/dist"]
 }

@@ -39,7 +39,7 @@ createServer((socket) => {
         {},
         {
             write: (s) => socket.write(s),
-            input: socket, // any AsyncIterable of strings or bytes
+            input: socket, // any AsyncIterable or ReadableStream of strings or bytes
             size: () => ({ cols: 80, rows: 24 }), // the remote terminal's size, if you know it
             signal: abort.signal, // stops the loop
             ready: () => !socket.writableNeedDrain, // skip frames while a slow reader catches up
@@ -49,4 +49,4 @@ createServer((socket) => {
 }).listen(2323);
 ```
 
-Try it with `stty raw -echo; nc localhost 2323; stty sane`.
+Try it with `stty raw -echo; nc localhost 2323; stty sane`. Over SSH no `io` is needed: `sshd` gives the program a terminal, so `ssh -t host bun program.ts` works as is. Runnable examples, TCP and WebSocket (a browser page with xterm.js): [`examples/network`](../../examples/network).
