@@ -1,6 +1,6 @@
 /**
 Runs a program in the terminal: alternate screen, 24-bit colour, mouse as the cursor.
-Ctrl+C quits.
+Ctrl+C quits. With an Io, over any stream instead (see Io).
 */
 
 import { type Context, type Host, type Key, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
@@ -30,41 +30,39 @@ const defaultSettings = {
     restoreState: false,
 } as Settings;
 
-export function run(program: Program, runSettings: Partial<Settings> = {}, userData: object = {}): Promise<Context> {
+// Where run() draws and reads. Without it: the local terminal (stdout / stdin).
+export type Io = {
+    write(s: string): void; // frames and terminal modes go here
+    input?: AsyncIterable<string | Uint8Array>; // keys and mouse reports come from here
+    size?(): { cols: number; rows: number }; // the terminal size; 80x24 without it
+    signal?: AbortSignal; // aborting stops the loop and leaves the terminal modes
+    ready?(): boolean; // false: the output is backed up, the frame is skipped
+    onError?(e: unknown): void; // an error after the first frame (the loop has stopped); without it, thrown
+};
+
+/**
+Runs `program` in the local terminal, or over `io` (an SSH channel, a socket, a WebSocket...).
+With `io` the process is left alone: no raw mode, no exit hook, and Ctrl+C is a key like any other.
+*/
+export function run(program: Program, runSettings: Partial<Settings> = {}, userData: object = {}, io?: Io): Promise<Context> {
     return new Promise((resolve, reject) => {
         const settings: Settings = { ...defaultSettings, ...runSettings, ...program.settings };
         const stdout = process.stdout;
         const stdin = process.stdin;
+        const write = io ? (s: string) => io.write(s) : (s: string) => void stdout.write(s);
+        const size = io ? (io.size ?? (() => ({ cols: 80, rows: 24 }))) : () => ({ cols: stdout.columns || 80, rows: stdout.rows || 24 });
         const state: State = { time: 0, frame: 0, cycle: 0, fps: settings.fps };
         const pointer: Pointer = { x: 0, y: 0, pressed: false, px: 0, py: 0, ppressed: false };
         const events: PointerEventName[] = [];
         const keys: Key[] = [];
         let pending = ''; // an escape sequence split across reads
-        const draw = createRenderer((s) => stdout.write(s));
+        const draw = createRenderer(write);
         let started = false;
 
-        let restored = false;
-        const restore = () => {
-            if (restored) return;
-            restored = true;
-            stdout.write(LEAVE);
-            if (stdin.isTTY) stdin.setRawMode(false);
-            stdin.pause();
-        };
-        // Terminal back to normal before any error is printed, or it vanishes with the alternate screen
-        const fail = (e: unknown) => {
-            restore();
-            if (!started) reject(e);
-            else throw e;
-        };
-        process.on('exit', restore);
-
-        stdout.write(ENTER);
-        if (stdin.isTTY) stdin.setRawMode(true);
-        stdin.setEncoding('utf8');
-        stdin.on('data', (data: string) => {
-            if (data.includes('\x03')) {
-                restore();
+        const read = (data: string) => {
+            if (stopped) return;
+            if (!io && data.includes('\x03')) {
+                stop();
                 process.exit(0); // Ctrl+C: the normal way to quit
             }
             const parsed = parseKeys(pending + data);
@@ -82,12 +80,50 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                     events.push(pointer.pressed ? 'pointerDown' : 'pointerUp');
                 }
             }
-        });
+        };
+
+        let stopped = false;
+        const stop = () => {
+            if (stopped) return;
+            stopped = true;
+            write(LEAVE);
+            if (io) return;
+            stdin.off('data', read);
+            if (stdin.isTTY) stdin.setRawMode(false);
+            stdin.pause();
+        };
+        // Terminal back to normal before any error is printed, or it vanishes with the alternate screen
+        const fail = (e: unknown) => {
+            stop();
+            if (!started) reject(e);
+            else if (io?.onError) io.onError(e);
+            else throw e;
+        };
+
+        if (io?.signal?.aborted) return reject(io.signal.reason);
+        io?.signal?.addEventListener('abort', stop, { once: true });
+        write(ENTER);
+        if (io) {
+            if (io.input)
+                (async () => {
+                    const decoder = new TextDecoder();
+                    for await (const chunk of io.input!) {
+                        if (stopped) break;
+                        read(typeof chunk == 'string' ? chunk : decoder.decode(chunk, { stream: true }));
+                    }
+                })().catch(fail);
+        } else {
+            process.on('exit', stop);
+            if (stdin.isTTY) stdin.setRawMode(true);
+            stdin.setEncoding('utf8');
+            stdin.on('data', read);
+        }
 
         const host: Host = {
-            // Polls often enough for the loop's fps cap to stay accurate.
+            // Polls often enough for the loop's fps cap to stay accurate. Stopping ends the loop here.
             requestFrame: (cb) =>
-                setTimeout(() => {
+                void setTimeout(() => {
+                    if (stopped) return;
                     try {
                         cb(performance.now());
                     } catch (e) {
@@ -95,11 +131,16 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                     }
                 }, 4),
             metrics: { aspect: CELL_W / CELL_H, cellWidth: CELL_W, lineHeight: CELL_H, fontFamily: 'monospace', fontSize: CELL_H, _update: () => {} },
-            size: () => ({ width: (stdout.columns || 80) * CELL_W, height: (stdout.rows || 24) * CELL_H }),
+            size: () => {
+                const { cols, rows } = size();
+                return { width: cols * CELL_W, height: rows * CELL_H };
+            },
             pointer,
             events,
             keys,
-            render: (_context, frame) => draw(frame, settings),
+            render: (_context, frame) => {
+                if (!io?.ready || io.ready()) draw(frame, settings);
+            },
         };
         try {
             startLoop(program, settings, userData, state, host, (context) => {

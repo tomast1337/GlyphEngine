@@ -3,5 +3,5 @@
 export * from '@glyph-engine/core';
 export { parseKeys } from './keys';
 export { createRenderer, rowString } from './renderer';
-export { run } from './run';
+export { type Io, run } from './run';
 export { run as default } from './run';
