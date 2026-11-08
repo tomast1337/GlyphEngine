@@ -1,6 +1,6 @@
 {
     "name": "@glyph-engine/web",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "GlyphEngine in the browser: run() with text, canvas, WebGL2 and WebGPU renderers.",
     "keywords": [
         "ascii",

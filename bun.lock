@@ -13,25 +13,25 @@
     },
     "packages/core": {
       "name": "@glyph-engine/core",
-      "version": "0.1.1",
+      "version": "0.2.0",
     },
     "packages/desktop": {
       "name": "@glyph-engine/desktop",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "dependencies": {
         "@glyph-engine/core": "workspace:*",
       },
     },
     "packages/tui": {
       "name": "@glyph-engine/tui",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "dependencies": {
         "@glyph-engine/core": "workspace:*",
       },
     },
     "packages/web": {
       "name": "@glyph-engine/web",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "dependencies": {
         "@glyph-engine/core": "workspace:*",
       },

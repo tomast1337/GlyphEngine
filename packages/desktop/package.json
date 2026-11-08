@@ -1,6 +1,6 @@
 {
     "name": "@glyph-engine/desktop",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "GlyphEngine in a native window: run() draws through SDL3 (OpenGL, Vulkan, SDL GPU or software) via bun:ffi. Linux for now; needs SDL3 and SDL3_ttf.",
     "keywords": [
         "ascii",
