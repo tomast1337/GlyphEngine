@@ -1,4 +1,4 @@
-// Serves a program over plain TCP; every connection gets its own run.
+// Serves a program over plain TCP; every connection gets its own run and userData (programs keep per-user state there).
 // Usage: bun examples/network/tcp.ts [program.ts]    (default: programs/basics/keys.ts)
 // Connect: stty raw -echo; nc localhost 2323; stty sane      (Ctrl+C reaches the program; close with Ctrl+D... or kill nc)
 import { createServer } from 'node:net';
