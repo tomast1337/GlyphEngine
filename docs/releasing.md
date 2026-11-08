@@ -1,6 +1,6 @@
 # Releasing
 
-Releases are made by hand from a clean, pulled `main`. The npm account uses two-factor authentication, so `npm publish` asks for the authenticator code.
+Releases are made by hand from a clean, pulled `main`. The npm account uses two-factor authentication, so each `npm publish` prints a login link: press Enter, confirm in the browser (authenticator code there).
 
 1. Set the same version in all four `packages/*/package.json`, open a PR and merge it.
 2. Build every asset into `release/`: the `glyph-engine` command per platform, `glyph-engine-web.js` and the npm tarballs (`workspace:*` is already replaced by the version in them).
@@ -10,7 +10,7 @@ Releases are made by hand from a clean, pulled `main`. The npm account uses two-
     bun test && bun script/release.ts
     ```
 
-3. Publish to npm, core first (the others depend on it). Each publish asks for the authenticator code. Run `npm login` first if `npm whoami` fails.
+3. Publish to npm, core first (the others depend on it). Each publish waits for that browser confirmation. A new package shows as `0.0.0-stage` for a few minutes while npm processes it. Run `npm login` first if `npm whoami` fails.
 
     ```sh
     v=0.1.0
