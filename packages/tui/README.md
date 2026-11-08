@@ -49,4 +49,6 @@ createServer((socket) => {
 }).listen(2323);
 ```
 
+Every `run()` of the same program shares its module variables (`let x` in the program file), so one user's keys would change what everyone sees. Keep per-connection state in `userData` instead: pass a new object to each `run()` (the third argument); every program function gets it as its last argument. `programs/basics/keys.ts` does this.
+
 Try it with `stty raw -echo; nc localhost 2323; stty sane`. Over SSH no `io` is needed: `sshd` gives the program a terminal, so `ssh -t host bun program.ts` works as is. Runnable examples, TCP and WebSocket (a browser page with xterm.js): [`examples/network`](../../examples/network).
