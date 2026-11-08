@@ -3,6 +3,7 @@ import { expect, test } from 'bun:test';
 import { createFrame, rgba, setChar } from '@glyph-engine/core';
 
 import { createRenderer, rowString } from '../packages/tui/src/renderer';
+import { stringWidth } from '../packages/tui/src/runtime';
 
 const row = (s: string) => {
     const f = createFrame([...s].length, 1);
@@ -41,4 +42,9 @@ test('the renderer clears on the first frame and resize, then rewrites only chan
     expect(out[1]).toBe('\x1b[2;1H\x1b[39m\x1b[49m z\x1b[0m');
     render(createFrame(3, 2), {});
     expect(out[2]).toStartWith('\x1b[0m\x1b[2J');
+});
+
+test("the portable stringWidth (Node, Deno) matches Bun's", () => {
+    const samples = ['a', '~', 'é', '█', '░', '→', '·', '中', '한', 'あ', 'Ａ', '｡', '👋', '❤️', '❤', '👍🏽', '👨‍👩‍👧', '🇧🇷', '́', '​', '\x07'];
+    for (const s of samples) expect([s, stringWidth(s)]).toEqual([s, Bun.stringWidth(s)]);
 });

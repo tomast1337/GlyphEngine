@@ -7,6 +7,8 @@
 import { cssColor, type Frame, getChar, weightCode } from '@glyph-engine/core';
 import type { Settings } from '@glyph-engine/core';
 
+import { runtime } from './runtime';
+
 const ESC = '\x1b[';
 
 // Escape for a packed 0xRRGGBBAA colour; 0 or alpha 0 is the terminal's own colour.
@@ -30,7 +32,7 @@ export function rowString(frame: Frame, y: number, settings: Partial<Settings>):
     let col = 0;
     for (let i = 0, k = y * cols; i < cols && col < cols; i++, k++) {
         let ch = getChar(frame, k) || ' ';
-        let w = ch === ' ' ? 1 : Bun.stringWidth(ch);
+        let w = ch === ' ' ? 1 : runtime.stringWidth(ch);
         if (w === 0) {
             // combining marks and control characters alone
             ch = ' ';

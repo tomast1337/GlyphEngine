@@ -8,7 +8,7 @@ with the added npm package support, and typescript support.
 
 ```
 bun add @glyph-engine/web       # browser
-bun add @glyph-engine/tui       # terminal (Bun)
+bun add @glyph-engine/tui       # terminal (Bun or Node)
 bun add @glyph-engine/desktop   # native window (Bun, Linux, SDL3)
 ```
 
@@ -23,7 +23,7 @@ Or, without Bun or npm, download from [Releases](https://github.com/tomast1337/G
 
 - `@glyph-engine/core` (`packages/core`): frames, the `out` slot, `computeFrame()` and the modules programs use (`drawbox`, `num`, `vec2`, `sdf`…). No DOM: it runs anywhere.
 - `@glyph-engine/web` (`packages/web`): `run()` in the browser with the text, canvas, WebGL2 and WebGPU renderers, and the browser-only modules (`camera`, `canvas`, `sort`, `image`…). It re-exports the core.
-- `@glyph-engine/tui` (`packages/tui`): `run()` in a terminal, with 24-bit colour and the mouse as the cursor. Needs Bun. It re-exports the core.
+- `@glyph-engine/tui` (`packages/tui`): `run()` in a terminal, with 24-bit colour and the mouse as the cursor. Runs on Bun and Node. It re-exports the core.
 - `@glyph-engine/desktop` (`packages/desktop`): `run()` in a native window through SDL3 (Vulkan, OpenGL, SDL GPU or software), linked with `bun:ffi`. Needs Bun, SDL3, SDL3_ttf and fontconfig; Linux for now. It re-exports the core.
 
 The examples live in `programs/`. `bun run build` builds every package into their `dist/`.
