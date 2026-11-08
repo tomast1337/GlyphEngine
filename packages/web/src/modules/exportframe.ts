@@ -12,13 +12,16 @@ import type { Context } from '@glyph-engine/core';
 
 import { saveBlobAsFile } from './filedownload';
 
+let warnedNoCanvas = false; // programs call this every frame: warn once
+
 export function exportFrame(context: Context, filename: string, from = 1, to = from) {
     // Error: renderer is not canvas.
     // A renderer instance could be imported here and the content of the buffer
     // rendere to a tmp canvas… maybe overkill: let’s keep things simple for now.
     const canvas = context.settings.element as HTMLCanvasElement;
-    if (canvas.nodeName != 'CANVAS') {
-        console.warn('exportframe.js: Can’t export, a canvas renderer is required.');
+    if (canvas?.nodeName != 'CANVAS') {
+        if (!warnedNoCanvas) console.warn('exportframe.js: Can’t export, a canvas renderer is required.');
+        warnedNoCanvas = true;
         return;
     }
 

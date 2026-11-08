@@ -10,6 +10,8 @@ to draw the correct font.
 */
 
 export function sort(charSet: Array<string> | string, fontFamily: string, ascending: boolean = false) {
+    // shortcut: no DOM (terminal, desktop): the chars stay in the given order; measure them with the runner's font if that looks off
+    if (typeof document === 'undefined') return charSet;
     const size = 30;
     const ctx = document.createElement('canvas').getContext('2d');
 
