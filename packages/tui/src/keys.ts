@@ -9,7 +9,9 @@ import type { Key } from '@glyph-engine/core';
 // CSI / SS3 final bytes, and CSI "n~" numbers, to key names
 const FINAL: Record<string, string> = { A: 'ArrowUp', B: 'ArrowDown', C: 'ArrowRight', D: 'ArrowLeft', H: 'Home', F: 'End', P: 'F1', Q: 'F2', R: 'F3', S: 'F4' };
 const TILDE: Record<string, string> = { 1: 'Home', 2: 'Insert', 3: 'Delete', 4: 'End', 5: 'PageUp', 6: 'PageDown', 7: 'Home', 8: 'End', 15: 'F5', 17: 'F6', 18: 'F7', 19: 'F8', 20: 'F9', 21: 'F10', 23: 'F11', 24: 'F12' };
-const CSI = /^\x1b\[([0-9;<?]*)([\x40-\x7e])?/;
+// ECMA-48: parameter bytes, intermediate bytes, then a final byte
+const CSI = /^\x1b\[([\x30-\x3f]*)([\x20-\x2f]*)([\x40-\x7e])?/;
+const MAX_REST = 64; // longer "unfinished" sequences are garbage, not a split read
 
 const key = (name: string, mods = 0): Key => ({ key: name, shiftKey: !!(mods & 1), altKey: !!(mods & 2), ctrlKey: !!(mods & 4), metaKey: !!(mods & 8) });
 
@@ -42,11 +44,16 @@ export function parseKeys(text: string): { keys: Key[]; rest: string } {
             keys.push(key('Escape')); // shortcut: a lone ESC at the end is Escape, not the start of a split sequence; add a timeout if terminals split them
             i++;
         } else if (text[i + 1] === '[') {
-            const m = CSI.exec(text.slice(i));
-            if (!m?.[2]) return { keys, rest: text.slice(i) }; // no final byte yet
-            const [whole, params, final] = m;
+            const [whole, params, between, final] = CSI.exec(text.slice(i))!;
+            if (!final) {
+                // Cut off at the end: wait for the next read. Broken by another byte: dropped, that byte read as usual.
+                if (i + whole.length === text.length && whole.length <= MAX_REST) return { keys, rest: text.slice(i) };
+                i += whole.length;
+                continue;
+            }
+            // Keys only have digits and ';' (mouse reports '<', terminal replies '>', '?'... are dropped)
             const [first = '', mod = '1'] = params!.split(';');
-            const name = final === '~' ? TILDE[first] : final === 'Z' ? 'Tab' : params!.startsWith('<') ? undefined : FINAL[final!];
+            const name = between || !/^[\d;]*$/.test(params!) ? undefined : final === '~' ? TILDE[first] : final === 'Z' ? 'Tab' : FINAL[final];
             if (name) keys.push(key(name, (Number(mod) - 1) | (final === 'Z' ? 1 : 0)));
             i += whole.length;
         } else if (text[i + 1] === 'O') {

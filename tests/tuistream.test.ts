@@ -84,3 +84,12 @@ test('frames are skipped while io.ready() is false', async () => {
     expect(frames).toBe(1); // the row is written once; later frames are unchanged
     abort.abort();
 });
+
+test('a mouse report split across two reads still arrives', async () => {
+    let downs = 0;
+    const abort = new AbortController();
+    await run({ main: hash, pointerDown: () => void downs++ }, { fps: 60 }, {}, { write: () => {}, input: input('\x1b[<0;5;', '3M'), signal: abort.signal });
+    await wait(120);
+    abort.abort();
+    expect(downs).toBe(1);
+});

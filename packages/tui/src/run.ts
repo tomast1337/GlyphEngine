@@ -65,10 +65,11 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 stop();
                 process.exit(0); // Ctrl+C: the normal way to quit
             }
-            const parsed = parseKeys(pending + data);
+            const text = pending + data; // pending: a sequence cut off at the end of the last read
+            const parsed = parseKeys(text);
             pending = parsed.rest;
             if (program.keyDown) keys.push(...parsed.keys);
-            for (const [, b, x, y, kind] of data.matchAll(MOUSE)) {
+            for (const [, b, x, y, kind] of text.matchAll(MOUSE)) {
                 const button = Number(b);
                 if (button & 64) continue; // wheel
                 pointer.x = (Number(x) - 0.5) * CELL_W; // reports are 1-based; aim at the cell's centre
