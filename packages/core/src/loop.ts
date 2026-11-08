@@ -53,6 +53,7 @@ export function startLoop(program: Program, settings: Settings, userData: object
     let first = true;
 
     function loop(t: number) {
+        if (settings.signal?.aborted) return;
         // Timing
         const delta = t - timeSample;
         if (delta < interval) {

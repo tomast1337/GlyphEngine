@@ -37,7 +37,6 @@ export type Io = {
     write(s: string): void; // frames and terminal modes go here
     input?: AsyncIterable<string | Uint8Array> | ReadableStream<string | Uint8Array>; // keys and mouse reports come from here
     size?(): { cols: number; rows: number }; // the terminal size; 80x24 without it
-    signal?: AbortSignal; // aborting stops the loop and leaves the terminal modes
     ready?(): boolean; // false: the output is backed up, the frame is skipped
     onError?(e: unknown): void; // an error after the first frame (the loop has stopped); without it, thrown
 };
@@ -109,8 +108,13 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             else throw e;
         };
 
-        if (io?.signal?.aborted) return reject(io.signal.reason);
-        io?.signal?.addEventListener('abort', stop, { once: true });
+        // settings.signal: stops the loop (core), leaves the terminal modes and lets go of stdin
+        const abort = () => {
+            stop();
+            reject(settings.signal!.reason); // no effect once the first frame resolved run()
+        };
+        if (settings.signal?.aborted) return abort();
+        settings.signal?.addEventListener('abort', abort, { once: true });
         write(ENTER);
         if (io) {
             if (io.input)

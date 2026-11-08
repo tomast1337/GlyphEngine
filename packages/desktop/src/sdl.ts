@@ -60,6 +60,7 @@ function open() {
         });
         const ttf = dlopen(names.ttf, {
             TTF_Init: { returns: bool },
+            TTF_Quit: { returns: FFIType.void },
             TTF_OpenFont: { args: [cstring, f32], returns: ptr },
             TTF_CloseFont: { args: [ptr], returns: FFIType.void },
             TTF_AddFallbackFont: { args: [ptr, ptr], returns: bool },

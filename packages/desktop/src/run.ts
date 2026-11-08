@@ -61,14 +61,24 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
         let gpu: Pointer | null = null;
         let renderer: Renderer | undefined;
         let font: Pointer | null = null;
+        let emojiFont: Pointer | null = null;
+        let closed = false;
         let started = false;
         let last: Frame | undefined; // the frame on screen, drawn again when the window needs it
         let polling: Timer | undefined;
 
+        // Closes the window and releases SDL; the loop stops at its next frame. No process.exit:
+        // the process ends by itself unless the app has more to do.
         const close = () => {
+            if (closed) return;
+            closed = true;
             clearInterval(polling);
             renderer?.destroy();
             renderer = undefined;
+            if (font) s.TTF_CloseFont(font); // before its fallback
+            if (emojiFont) s.TTF_CloseFont(emojiFont);
+            font = emojiFont = null;
+            s.TTF_Quit();
             if (gpu) s.SDL_DestroyRenderer(gpu);
             if (window) s.SDL_DestroyWindow(window);
             gpu = window = null;
@@ -79,6 +89,14 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             if (!started) reject(e);
             else throw e;
         };
+
+        // settings.signal: close the window and stop
+        const abort = () => {
+            close();
+            reject(settings.signal!.reason); // no effect once the first frame resolved run()
+        };
+        if (settings.signal?.aborted) return abort();
+        settings.signal?.addEventListener('abort', abort, { once: true });
 
         try {
             if (!s.SDL_Init(SDL_INIT_VIDEO)) throw sdlError('SDL_Init');
@@ -95,7 +113,7 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             font = s.TTF_OpenFont(Buffer.from(fontFile(settings.fontFamily ?? 'monospace') + '\0'), (parseFloat(settings.fontSize ?? '16') || 16) * density);
             if (!font) throw sdlError('TTF_OpenFont');
             const emoji = emojiFile();
-            const emojiFont = emoji && s.TTF_OpenFont(Buffer.from(emoji + '\0'), (parseFloat(settings.fontSize ?? '16') || 16) * density);
+            emojiFont = emoji ? s.TTF_OpenFont(Buffer.from(emoji + '\0'), (parseFloat(settings.fontSize ?? '16') || 16) * density) : null;
             if (emojiFont) s.TTF_AddFallbackFont(font, emojiFont);
             const x = Buffer.from('X');
             s.TTF_GetStringSize(font, addressOf(x), 1, addressOf(ints), addressOf(ints, 4));
@@ -112,10 +130,12 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             const poll = () => {
                 while (s.SDL_PollEvent(addressOf(event))) {
                     const type = view.getUint32(0, true);
-                    // Escape quits, unless the program takes keys
+                    // Escape closes, unless the program takes keys
                     if (type === SDL_EVENT_QUIT || (type === SDL_EVENT_KEY_DOWN && !program.keyDown && view.getUint32(28, true) === SDLK_ESCAPE)) {
                         close();
-                        process.exit(0);
+                        return;
+                    } else if (settings.once && (type === SDL_EVENT_KEY_DOWN || type === SDL_EVENT_MOUSE_MOTION || type === SDL_EVENT_MOUSE_BUTTON_DOWN || type === SDL_EVENT_MOUSE_BUTTON_UP)) {
+                        // once: the loop is done, input would only pile up
                     } else if (type === SDL_EVENT_KEY_DOWN) {
                         // SDL_KeyboardEvent: scancode at 24, mod at 32
                         const mod = view.getUint16(32, true);
@@ -144,6 +164,7 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 // Polls often enough for the loop's fps cap to stay accurate.
                 requestFrame: (cb) =>
                     setTimeout(() => {
+                        if (closed) return; // the window is gone: the loop ends here
                         try {
                             cb(performance.now());
                         } catch (e) {
