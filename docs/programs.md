@@ -57,6 +57,7 @@ Two optional functions run around the cells, once per frame:
 
 - `boot(context, buffer, userData)`: once, before the first frame.
 - `pointerMove`, `pointerDown`, `pointerUp` `(context, cursor, buffer, userData)`: after a frame in which the pointer moved, was pressed or released.
+- `keyDown` `(context, cursor, buffer, key, userData)`: after the frame, once per key pressed (key repeat too). `key` is `{ key, ctrlKey, altKey, shiftKey, metaKey }` with browser [`KeyboardEvent.key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key) names (`'a'`, `'A'`, `'Enter'`, `'ArrowUp'`, `'F1'`...), the same in every runner. Use it instead of `window.addEventListener`, so the program also runs in the terminal and the desktop. Limits, as terminals can't do more: no key up, no modifier keys on their own, and keys as typed with the keyboard layout (no physical `code`). On the web, keys come from the whole page except form fields and editors; the browser's own shortcuts still run.
 - `settings`: exported object merged over the `run()` settings, e.g. `{ fps: 60, renderer: "canvas", color: "white", backgroundColor: "black" }`.
 - `context`: `frame`, `time` (ms), `delta` (ms since the previous frame), `cols`, `rows`, `width`, `height`, `metrics` (font metrics, `aspect` = cell width / height), `settings`.
 - `cursor`: `x`, `y` in cells (fractional) and `pressed`.

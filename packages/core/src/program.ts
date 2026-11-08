@@ -56,6 +56,8 @@ export type Program = {
     pointerMove?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
     pointerDown?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
     pointerUp?(context: Context, cursor: Cursor, buffer: Buffer, userData: object): void;
+    // A key press (and key repeat), sent after the frame like the pointer events.
+    keyDown?(context: Context, cursor: Cursor, buffer: Buffer, key: Key, userData: object): void;
     settings?: Partial<Settings>;
     // main() as WGSL, run on the GPU by the "webgpu" renderer (see docs/programs.md).
     // A JS main() is the fallback where WebGPU is unavailable.
@@ -73,7 +75,8 @@ export interface Pointer {
     ppressed: boolean;
 }
 
-// A key press, with browser KeyboardEvent names ('a', 'Enter', 'ArrowUp'...) in every runner.
+// A key press, with browser KeyboardEvent.key names ('a', 'A', 'Enter', 'ArrowUp'...) in every runner.
+// The key as typed with the keyboard layout; modifier keys alone are not sent.
 export interface Key {
     key: string;
     ctrlKey: boolean;

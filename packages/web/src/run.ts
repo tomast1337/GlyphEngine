@@ -2,7 +2,7 @@
 Runner
 */
 
-import { type Host, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
+import { type Host, type Key, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
 
 import canvasRenderer from './canvasrenderer';
 import type { Render, RenderModes } from './renderer';
@@ -38,6 +38,8 @@ const defaultSettings = {
 
 // CSS styles which can be passed to the container element via settings
 const CSSStyles: (keyof WebSettings & keyof CSSStyleDeclaration)[] = ['backgroundColor', 'color', 'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'lineHeight', 'textAlign'];
+// Modifier keys alone: not sent, as terminals can't report them
+const MODIFIERS = ['Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'CapsLock', 'NumLock', 'ScrollLock', 'Fn'];
 
 // Program runner.
 // Takes a program object (usually an imported module),
@@ -143,6 +145,16 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
         settings.element.addEventListener('touchstart', touchHandler);
         settings.element.addEventListener('touchend', touchHandler);
 
+        // Keys from the whole page (the element can't take focus), but not while typing in a form field or editor
+        const keys: Key[] = [];
+        if (typeof program.keyDown == 'function') {
+            window.addEventListener('keydown', (e) => {
+                const target = e.target as HTMLElement | null;
+                if (e.isComposing || MODIFIERS.includes(e.key) || target?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target?.nodeName ?? '')) return;
+                keys.push({ key: e.key, ctrlKey: e.ctrlKey, altKey: e.altKey, shiftKey: e.shiftKey, metaKey: e.metaKey });
+            });
+        }
+
         // CSS fix
         settings.element.style.fontStretch = 'normal';
 
@@ -209,6 +221,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
                 size: () => rect,
                 pointer,
                 events: eventQueue,
+                keys,
                 render: (context, frame, cursor) => renderer.render(context, frame, gpu && { ...gpu, cursor }),
                 onGpu: !!gpu,
                 storeState: (state) => storage.store(LOCAL_STORAGE_KEY_STATE, state),

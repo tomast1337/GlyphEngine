@@ -6,8 +6,9 @@ settings.renderer picks SDL's backend: "vulkan", "opengl", "opengles2", "gpu" or
 
 import { CString, type Pointer, ptr as addressOf } from 'bun:ffi';
 
-import { type Context, type Frame, type Host, type Pointer as PointerState, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
+import { type Context, type Frame, type Host, type Key, type Pointer as PointerState, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
 
+import { keyFrom, KMOD_CAPS, KMOD_SHIFT } from './keys';
 import { Renderer } from './renderer';
 import { renderDrivers, sdl, SDL_EVENT_KEY_DOWN, SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP, SDL_EVENT_MOUSE_MOTION, SDL_EVENT_QUIT, SDL_EVENT_WINDOW_EXPOSED, SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED, SDL_EVENT_WINDOW_RESIZED, SDL_INIT_VIDEO, SDL_WINDOW_HIGH_PIXEL_DENSITY, SDL_WINDOW_RESIZABLE, sdlError, SDLK_ESCAPE } from './sdl';
 
@@ -105,14 +106,21 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             const state: State = { time: 0, frame: 0, cycle: 0, fps: settings.fps };
             const pointer: PointerState = { x: 0, y: 0, pressed: false, px: 0, py: 0, ppressed: false };
             const events: PointerEventName[] = [];
+            const keys: Key[] = [];
 
             // Window events, polled on their own timer so the window keeps answering after a once frame
             const poll = () => {
                 while (s.SDL_PollEvent(addressOf(event))) {
                     const type = view.getUint32(0, true);
-                    if (type === SDL_EVENT_QUIT || (type === SDL_EVENT_KEY_DOWN && view.getUint32(28, true) === SDLK_ESCAPE)) {
+                    // Escape quits, unless the program takes keys
+                    if (type === SDL_EVENT_QUIT || (type === SDL_EVENT_KEY_DOWN && !program.keyDown && view.getUint32(28, true) === SDLK_ESCAPE)) {
                         close();
                         process.exit(0);
+                    } else if (type === SDL_EVENT_KEY_DOWN) {
+                        // SDL_KeyboardEvent: scancode at 24, mod at 32
+                        const mod = view.getUint16(32, true);
+                        const key = program.keyDown && keyFrom(s.SDL_GetKeyFromScancode(view.getUint32(24, true), mod & (KMOD_SHIFT | KMOD_CAPS), false), mod);
+                        if (key) keys.push(key);
                     } else if (type === SDL_EVENT_WINDOW_EXPOSED || type === SDL_EVENT_WINDOW_RESIZED || type === SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
                         if (last) {
                             renderer!.draw(last, settings);
@@ -149,6 +157,7 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 },
                 pointer,
                 events,
+                keys,
                 render: (_context, frame) => {
                     last = frame;
                     renderer!.draw(frame, settings);

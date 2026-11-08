@@ -3,8 +3,9 @@ Runs a program in the terminal: alternate screen, 24-bit colour, mouse as the cu
 Ctrl+C quits.
 */
 
-import { type Context, type Host, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
+import { type Context, type Host, type Key, type Pointer, type PointerEventName, type Program, type Settings, startLoop, type State } from '@glyph-engine/core';
 
+import { parseKeys } from './keys';
 import { createRenderer } from './renderer';
 
 const ESC = '\x1b[';
@@ -37,6 +38,8 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
         const state: State = { time: 0, frame: 0, cycle: 0, fps: settings.fps };
         const pointer: Pointer = { x: 0, y: 0, pressed: false, px: 0, py: 0, ppressed: false };
         const events: PointerEventName[] = [];
+        const keys: Key[] = [];
+        let pending = ''; // an escape sequence split across reads
         const draw = createRenderer((s) => stdout.write(s));
         let started = false;
 
@@ -64,6 +67,9 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 restore();
                 process.exit(0); // Ctrl+C: the normal way to quit
             }
+            const parsed = parseKeys(pending + data);
+            pending = parsed.rest;
+            if (program.keyDown) keys.push(...parsed.keys);
             for (const [, b, x, y, kind] of data.matchAll(MOUSE)) {
                 const button = Number(b);
                 if (button & 64) continue; // wheel
@@ -92,6 +98,7 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             size: () => ({ width: (stdout.columns || 80) * CELL_W, height: (stdout.rows || 24) * CELL_H }),
             pointer,
             events,
+            keys,
             render: (_context, frame) => draw(frame, settings),
         };
         try {
