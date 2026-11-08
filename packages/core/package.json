@@ -31,7 +31,7 @@
         "access": "public"
     },
     "scripts": {
-        "build": "rm -rf dist && bun build src/index.ts --target browser --outdir dist && tsc -p tsconfig.build.json",
+        "build": "rm -rf dist && bun build src/index.ts --target browser --outdir dist && tsc -p tsconfig.build.json && bun ../../script/fix-dts.ts dist",
         "prepublishOnly": "bun run build",
         "prepack": "cp ../../LICENSE ."
     }

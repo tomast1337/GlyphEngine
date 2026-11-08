@@ -30,3 +30,5 @@ jobs:
             - name: tui runs on Node
               run: node --input-type=module -e "import { createFrame, rowString, setChar } from '@glyph-engine/tui'; const f = createFrame(3, 1); ['中', 'a'].forEach((c, i) => setChar(f, i, c)); if (rowString(f, 0, {}) !== '\x1b[39m\x1b[49m中a\x1b[0m') process.exit(1)"
               working-directory: packages/tui
+            - name: Published types work under nodenext and bundler
+              run: bun script/check-types.ts
