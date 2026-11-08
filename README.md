@@ -50,7 +50,7 @@ Runs a program file in the terminal; without a path, `demos/plasma`. Relative pa
 bun run desktop ./programs/demos/box_fun.ts --renderer=vulkan
 ```
 
-Same paths as the terminal. `--renderer` picks SDL's backend (`vulkan`, `opengl`, `opengles2`, `gpu`, `software`); without it SDL chooses. Escape (unless the program has `keyDown`) or closing the window quits. Needs SDL3 and SDL3_ttf from your distro (Arch: `pacman -S sdl3 sdl3_ttf`).
+Same paths as the terminal. `--renderer` picks SDL's backend (`vulkan`, `opengl`, `opengles2`, `gpu`, `software`); without it SDL chooses. Escape (unless the program has `keyDown`) or closing the window ends the run; the process exits once nothing else keeps it going. Needs SDL3 and SDL3_ttf from your distro (Arch: `pacman -S sdl3 sdl3_ttf`).
 
 ## Writing programs
 
@@ -66,3 +66,5 @@ run({
 ```
 
 `main()` runs once per cell, like a fragment shader, and writes the cell into `out`. It can also be written in WGSL and run on the GPU with the `webgpu` renderer. See [docs/programs.md](docs/programs.md) for the whole API.
+
+To stop a run, pass an `AbortSignal` in the settings: `run(program, { signal })`. Aborting stops the frames and releases what the runner set up (listeners on the page, the terminal modes, the window). In every runner.

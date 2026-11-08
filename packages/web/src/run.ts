@@ -60,6 +60,16 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             ...program.settings,
         } as WebSettings; // program.settings cannot name a DOM element
 
+        // Removes every listener and observer this run adds: on settings.signal, or after a once frame
+        const stop = new AbortController();
+        const listen = { signal: stop.signal };
+        const abort = () => {
+            stop.abort();
+            reject(settings.signal!.reason); // no effect once the first frame resolved run()
+        };
+        if (settings.signal?.aborted) abort();
+        settings.signal?.addEventListener('abort', abort, listen);
+
         // State is stored in local storage and will loaded on program launch
         // if settings.restoreState == true.
         // The purpose of this is to live edit the code without resetting
@@ -78,7 +88,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             storage.restore(LOCAL_STORAGE_KEY_STATE, state);
             state.cycle++; // Keep track of the cycle count for debugging purposes
             // The loop stores at most once per second; save the latest state on leave
-            addEventListener('pagehide', () => storage.store(LOCAL_STORAGE_KEY_STATE, state));
+            addEventListener('pagehide', () => storage.store(LOCAL_STORAGE_KEY_STATE, state), listen);
         }
 
         // If element is not provided create a default element based
@@ -116,23 +126,35 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             ppressed: false,
         };
 
-        settings.element.addEventListener('pointermove', ((e: PointerEvent) => {
-            const rect = settings.element?.getBoundingClientRect();
-            if (!rect) return;
-            pointer.x = e.clientX - rect.left;
-            pointer.y = e.clientY - rect.top;
-            eventQueue.push('pointerMove');
-        }) as EventListenerOrEventListenerObject);
+        settings.element.addEventListener(
+            'pointermove',
+            ((e: PointerEvent) => {
+                const rect = settings.element?.getBoundingClientRect();
+                if (!rect) return;
+                pointer.x = e.clientX - rect.left;
+                pointer.y = e.clientY - rect.top;
+                eventQueue.push('pointerMove');
+            }) as EventListenerOrEventListenerObject,
+            listen,
+        );
 
-        settings.element.addEventListener('pointerdown', ((e: PointerEvent) => {
-            pointer.pressed = true;
-            eventQueue.push('pointerDown');
-        }) as EventListenerOrEventListenerObject);
+        settings.element.addEventListener(
+            'pointerdown',
+            ((e: PointerEvent) => {
+                pointer.pressed = true;
+                eventQueue.push('pointerDown');
+            }) as EventListenerOrEventListenerObject,
+            listen,
+        );
 
-        settings.element.addEventListener('pointerup', ((e: PointerEvent) => {
-            pointer.pressed = false;
-            eventQueue.push('pointerUp');
-        }) as EventListenerOrEventListenerObject);
+        settings.element.addEventListener(
+            'pointerup',
+            ((e: PointerEvent) => {
+                pointer.pressed = false;
+                eventQueue.push('pointerUp');
+            }) as EventListenerOrEventListenerObject,
+            listen,
+        );
 
         const touchHandler = ((e: TouchEvent) => {
             const rect = settings.element?.getBoundingClientRect();
@@ -144,18 +166,22 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             eventQueue.push('pointerMove');
         }) as EventListenerOrEventListenerObject;
 
-        settings.element.addEventListener('touchmove', touchHandler);
-        settings.element.addEventListener('touchstart', touchHandler);
-        settings.element.addEventListener('touchend', touchHandler);
+        settings.element.addEventListener('touchmove', touchHandler, listen);
+        settings.element.addEventListener('touchstart', touchHandler, listen);
+        settings.element.addEventListener('touchend', touchHandler, listen);
 
         // Keys from the whole page (the element can't take focus), but not while typing in a form field or editor
         const keys: Key[] = [];
         if (typeof program.keyDown == 'function') {
-            window.addEventListener('keydown', (e) => {
-                const target = e.target as HTMLElement | null;
-                if (e.isComposing || MODIFIERS.includes(e.key) || target?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target?.nodeName ?? '')) return;
-                keys.push({ key: e.key, ctrlKey: e.ctrlKey, altKey: e.altKey, shiftKey: e.shiftKey, metaKey: e.metaKey });
-            });
+            window.addEventListener(
+                'keydown',
+                (e) => {
+                    const target = e.target as HTMLElement | null;
+                    if (e.isComposing || MODIFIERS.includes(e.key) || target?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target?.nodeName ?? '')) return;
+                    keys.push({ key: e.key, ctrlKey: e.ctrlKey, altKey: e.altKey, shiftKey: e.shiftKey, metaKey: e.metaKey });
+                },
+                listen,
+            );
         }
 
         // CSS fix
@@ -184,6 +210,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             // Run this three times...
             let count = 3;
             (function __run_thrice__() {
+                if (stop.signal.aborted) return; // stopped before it booted
                 if (--count > 0) {
                     requestAnimationFrame(__run_thrice__);
                 } else {
@@ -217,7 +244,9 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             const el = settings.element as HTMLElement;
             // Element size, refreshed only on resize: reading it every frame forces layout
             let rect = el.getBoundingClientRect();
-            new ResizeObserver(() => (rect = el.getBoundingClientRect())).observe(el);
+            const resize = new ResizeObserver(() => (rect = el.getBoundingClientRect()));
+            resize.observe(el);
+            stop.signal.addEventListener('abort', () => resize.disconnect(), { once: true });
             const host: Host = {
                 requestFrame: (cb) =>
                     requestAnimationFrame((t) => {
@@ -239,6 +268,7 @@ export function run(program: Program, runSettings: Partial<WebSettings> = {}, us
             };
             startLoop(program, settings, userData, state, host, (context) => {
                 started = true;
+                if (settings.once) stop.abort(); // the loop is done: input would only pile up
                 resolve(context);
             });
         }

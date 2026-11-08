@@ -37,13 +37,12 @@ Bun.serve<Session, never>({
             const input = new ReadableStream<string>({ start: (c) => void (ws.data.input = c) });
             run(
                 program,
-                {},
+                { signal: ws.data.abort.signal }, // aborting stops the run
                 {},
                 {
                     write: (s) => void ws.send(s),
                     input,
                     size: () => ({ cols: COLS, rows: ROWS }),
-                    signal: ws.data.abort.signal,
                     ready: () => ws.getBufferedAmount() < 1 << 20,
                     onError: () => ws.close(),
                 },

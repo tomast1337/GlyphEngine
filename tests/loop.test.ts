@@ -56,3 +56,13 @@ test('queued keys reach keyDown in order after the frame, then the queue is empt
 test('a WGSL-only program stops with an error where it cannot run on the GPU', () => {
     expect(() => startLoop({ wgsl: '...' }, settings, {}, { time: 0, frame: 0, cycle: 0, fps: 30 }, fakeHost().host, () => {})).toThrow('runs on the GPU');
 });
+
+test('an aborted signal stops the loop: no frame, no further tick', () => {
+    const { host, tick } = fakeHost();
+    const abort = new AbortController();
+    startLoop({ main: () => '#' }, { ...settings, once: false, signal: abort.signal }, {}, { time: 0, frame: 0, cycle: 0, fps: 30 }, host, () => {});
+    expect(tick(100)).toBe(true);
+    abort.abort();
+    expect(tick(200)).toBe(false);
+    expect(host.renders).toBe(1);
+});

@@ -35,13 +35,12 @@ createServer((socket) => {
     socket.on('close', () => abort.abort());
     run(
         program,
-        {},
+        { signal: abort.signal }, // aborting stops the run
         {},
         {
             write: (s) => socket.write(s),
             input: socket, // any AsyncIterable or ReadableStream of strings or bytes
             size: () => ({ cols: 80, rows: 24 }), // the remote terminal's size, if you know it
-            signal: abort.signal, // stops the loop
             ready: () => !socket.writableNeedDrain, // skip frames while a slow reader catches up
             onError: () => socket.destroy(), // an error in a frame ends this connection, not the server
         },

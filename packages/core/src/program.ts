@@ -13,6 +13,9 @@ export interface Settings {
     renderer: string;
     allowSelect: boolean;
     restoreState: boolean;
+    // Aborting stops the run: no more frames, and the runner releases what it set up
+    // (listeners, window, terminal modes). Pass it to run(), not in a program's settings.
+    signal?: AbortSignal;
     // CSS applied to the element (see CSSStyles in run.ts)
     backgroundColor?: string;
     color?: string;

@@ -16,12 +16,12 @@ async function* input(...chunks: (string | Uint8Array)[]) {
     await new Promise(() => {});
 }
 
-test('frames go to io.write at io.size; keys come from io.input; abort leaves the terminal modes and stops', async () => {
+test('frames go to io.write at io.size; keys come from io.input; settings.signal leaves the terminal modes and stops', async () => {
     let out = '';
     const keys: string[] = [];
     const abort = new AbortController();
     const program = { main: hash, keyDown: (_c: unknown, _cu: unknown, _b: unknown, k: Key) => void keys.push(k.key) };
-    await run(program, { fps: 60 }, {}, { write: (s) => void (out += s), size: () => ({ cols: 3, rows: 2 }), input: input('a', new TextEncoder().encode('\x1b[A'), '\x03'), signal: abort.signal });
+    await run(program, { fps: 60, signal: abort.signal }, {}, { write: (s) => void (out += s), size: () => ({ cols: 3, rows: 2 }), input: input('a', new TextEncoder().encode('\x1b[A'), '\x03') });
     await wait(120);
     expect(out).toContain('\x1b[?1049h'); // alternate screen and mouse modes: bytes for the remote terminal
     expect(out).toContain('###');
@@ -76,7 +76,7 @@ test('frames are skipped while io.ready() is false', async () => {
     let frames = 0;
     let ready = false;
     const abort = new AbortController();
-    run({ main: hash }, { fps: 60 }, {}, { write: (s) => void (s.includes('#') && frames++), size: () => ({ cols: 2, rows: 1 }), ready: () => ready, signal: abort.signal });
+    run({ main: hash }, { fps: 60, signal: abort.signal }, {}, { write: (s) => void (s.includes('#') && frames++), size: () => ({ cols: 2, rows: 1 }), ready: () => ready });
     await wait(80);
     expect(frames).toBe(0);
     ready = true;
@@ -88,7 +88,7 @@ test('frames are skipped while io.ready() is false', async () => {
 test('a mouse report split across two reads still arrives', async () => {
     let downs = 0;
     const abort = new AbortController();
-    await run({ main: hash, pointerDown: () => void downs++ }, { fps: 60 }, {}, { write: () => {}, input: input('\x1b[<0;5;', '3M'), signal: abort.signal });
+    await run({ main: hash, pointerDown: () => void downs++ }, { fps: 60, signal: abort.signal }, {}, { write: () => {}, input: input('\x1b[<0;5;', '3M') });
     await wait(120);
     abort.abort();
     expect(downs).toBe(1);

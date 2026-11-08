@@ -14,13 +14,12 @@ createServer((socket) => {
     socket.on('error', () => {});
     run(
         program,
-        {},
+        { signal: abort.signal }, // aborting stops the run
         {},
         {
             write: (s) => socket.write(s),
             input: socket,
             size: () => ({ cols: 80, rows: 24 }), // raw TCP doesn't carry the terminal size
-            signal: abort.signal,
             ready: () => !socket.writableNeedDrain,
             onError: () => socket.destroy(),
         },
