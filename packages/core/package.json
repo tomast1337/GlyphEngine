@@ -1,7 +1,22 @@
 {
     "name": "@glyph-engine/core",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "Platform-free core of GlyphEngine: frames, the out slot, computeFrame() and the modules programs use.",
+    "keywords": [
+        "ascii",
+        "ascii-art",
+        "text-mode",
+        "generative",
+        "creative-coding"
+    ],
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/tomast1337/GlyphEngine#readme",
+    "bugs": "https://github.com/tomast1337/GlyphEngine/issues",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tomast1337/GlyphEngine.git",
+        "directory": "packages/core"
+    },
     "type": "module",
     "exports": {
         ".": {
@@ -12,8 +27,12 @@
     "files": [
         "dist"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "rm -rf dist && bun build src/index.ts --target browser --outdir dist && tsc -p tsconfig.build.json",
-        "prepublishOnly": "bun run build"
+        "prepublishOnly": "bun run build",
+        "prepack": "cp ../../LICENSE ."
     }
 }

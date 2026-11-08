@@ -4,13 +4,24 @@ This is a fork of [play.core](https://github.com/ertdfgcvb/play.core)
 
 with the added npm package support, and typescript support.
 
+## Install
+
+```
+bun add @glyph-engine/web       # browser
+bun add @glyph-engine/tui       # terminal (Bun)
+bun add @glyph-engine/desktop   # native window (Bun, Linux, SDL3)
+```
+
+Each runner re-exports `@glyph-engine/core`, so one import is enough. `npm install` works too for `web` and `core`.
+
 ## Packages
 
 - `@glyph-engine/core` (`packages/core`): frames, the `out` slot, `computeFrame()` and the modules programs use (`drawbox`, `num`, `vec2`, `sdf`…). No DOM: it runs anywhere.
 - `@glyph-engine/web` (`packages/web`): `run()` in the browser with the text, canvas, WebGL2 and WebGPU renderers, and the browser-only modules (`camera`, `canvas`, `sort`, `image`…). It re-exports the core.
 - `@glyph-engine/tui` (`packages/tui`): `run()` in a terminal, with 24-bit colour and the mouse as the cursor. Needs Bun. It re-exports the core.
+- `@glyph-engine/desktop` (`packages/desktop`): `run()` in a native window through SDL3 (Vulkan, OpenGL, SDL GPU or software), linked with `bun:ffi`. Needs Bun, SDL3, SDL3_ttf and fontconfig; Linux for now. It re-exports the core.
 
-The examples live in `programs/`. `bun run build` builds both packages into their `dist/`.
+The examples live in `programs/`. `bun run build` builds every package into their `dist/`.
 
 ## Playground
 
@@ -27,6 +38,14 @@ bun run tui ./programs/demos/box_fun.ts
 ```
 
 Runs a program file in the terminal; without a path, `demos/plasma`. Relative paths start at the repo root (`bun run` runs scripts there); absolute paths work from anywhere, and `@glyph-engine/*` imports in files outside the repo resolve to this repo's packages. Ctrl+C quits. Needs a terminal with 24-bit colour and mouse reporting (most do: kitty, WezTerm, Alacritty, GNOME Terminal, Windows Terminal). Programs that use browser modules (`camera`, `canvas`, `sort`…) only run in the browser.
+
+## Desktop
+
+```
+bun run desktop ./programs/demos/box_fun.ts --renderer=vulkan
+```
+
+Same paths as the terminal. `--renderer` picks SDL's backend (`vulkan`, `opengl`, `opengles2`, `gpu`, `software`); without it SDL chooses. Escape or closing the window quits. Needs SDL3 and SDL3_ttf from your distro (Arch: `pacman -S sdl3 sdl3_ttf`).
 
 ## Writing programs
 

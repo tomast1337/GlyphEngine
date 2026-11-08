@@ -1,7 +1,23 @@
 {
     "name": "@glyph-engine/tui",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "GlyphEngine in the terminal: run() with ANSI 24-bit colour and the mouse as the cursor. Runs on Bun.",
+    "keywords": [
+        "ascii",
+        "ascii-art",
+        "terminal",
+        "tui",
+        "ansi",
+        "bun"
+    ],
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/tomast1337/GlyphEngine#readme",
+    "bugs": "https://github.com/tomast1337/GlyphEngine/issues",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tomast1337/GlyphEngine.git",
+        "directory": "packages/tui"
+    },
     "type": "module",
     "exports": {
         ".": {
@@ -12,9 +28,16 @@
     "files": [
         "dist"
     ],
+    "engines": {
+        "bun": ">=1.4.4"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
     "scripts": {
         "build": "rm -rf dist && bun build src/index.ts --target bun --outdir dist --external @glyph-engine/core && tsc -p tsconfig.build.json",
-        "prepublishOnly": "bun run build"
+        "prepublishOnly": "bun run build",
+        "prepack": "cp ../../LICENSE ."
     },
     "dependencies": {
         "@glyph-engine/core": "workspace:*"
