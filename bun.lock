@@ -15,6 +15,13 @@
       "name": "@glyph-engine/core",
       "version": "1.0.0",
     },
+    "packages/desktop": {
+      "name": "@glyph-engine/desktop",
+      "version": "1.0.0",
+      "dependencies": {
+        "@glyph-engine/core": "workspace:*",
+      },
+    },
     "packages/tui": {
       "name": "@glyph-engine/tui",
       "version": "1.0.0",
@@ -32,6 +39,8 @@
   },
   "packages": {
     "@glyph-engine/core": ["@glyph-engine/core@workspace:packages/core"],
+
+    "@glyph-engine/desktop": ["@glyph-engine/desktop@workspace:packages/desktop"],
 
     "@glyph-engine/tui": ["@glyph-engine/tui@workspace:packages/tui"],
 

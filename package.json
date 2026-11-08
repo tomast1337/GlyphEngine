@@ -9,10 +9,11 @@
     "scripts": {
         "test": "bun test",
         "bench": "bun run script/bench.ts",
-        "build": "bun run --cwd packages/core build && bun run --cwd packages/web build && bun run --cwd packages/tui build",
+        "build": "bun run --cwd packages/core build && bun run --cwd packages/web build && bun run --cwd packages/tui build && bun run --cwd packages/desktop build",
         "build:examples": "bun run script/build-examples.ts",
         "dev": "bun run build:examples -- --watch",
-        "tui": "bun run script/tui.ts"
+        "tui": "bun run script/native.ts tui",
+        "desktop": "bun run script/native.ts desktop"
     },
     "devDependencies": {
         "@types/bun": "latest",
