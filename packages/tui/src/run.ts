@@ -13,6 +13,8 @@ const ESC = '\x1b[';
 const ENTER = ESC + '?1049h' + ESC + '?25l' + ESC + '?1003h' + ESC + '?1006h';
 const LEAVE = ESC + '?1003l' + ESC + '?1006l' + ESC + '0m' + ESC + '?25h' + ESC + '?1049l';
 const MOUSE = /\x1b\[<(\d+);(\d+);(\d+)([Mm])/g;
+// 'exit' doesn't fire when killed by these, so restore on them too; numbers for the 128 + n exit code
+const SIGNALS = { SIGHUP: 1, SIGQUIT: 3, SIGTERM: 15 } as const;
 
 // shortcut: cells assumed twice as tall as wide (aspect 0.5); query the terminal
 // (CSI 14t) if programs look squashed in some terminal.
@@ -88,9 +90,15 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
             stopped = true;
             write(LEAVE);
             if (io) return;
+            process.off('exit', stop);
+            for (const signal in SIGNALS) process.off(signal, onSignal);
             stdin.off('data', read);
             if (stdin.isTTY) stdin.setRawMode(false);
             stdin.pause();
+        };
+        const onSignal = (signal: keyof typeof SIGNALS) => {
+            stop();
+            process.exit(128 + SIGNALS[signal]);
         };
         // Terminal back to normal before any error is printed, or it vanishes with the alternate screen
         const fail = (e: unknown) => {
@@ -115,6 +123,7 @@ export function run(program: Program, runSettings: Partial<Settings> = {}, userD
                 })().catch(fail);
         } else {
             process.on('exit', stop);
+            for (const signal in SIGNALS) process.on(signal, onSignal);
             if (stdin.isTTY) stdin.setRawMode(true);
             stdin.setEncoding('utf8');
             stdin.on('data', read);
