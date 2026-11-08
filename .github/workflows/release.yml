@@ -1,10 +1,14 @@
 name: Release
 
-# Push a tag like v0.1.0 to publish every package at that version.
+# Push a tag like v0.1.0 to publish every package at that version to npm and make a
+# GitHub release with the glyph-engine command per platform, the browser bundle and the tarballs.
 # Needs the NPM_TOKEN secret: an npm automation token with publish rights on the @glyph-engine scope.
 on:
     push:
         tags: ['v*']
+
+permissions:
+    contents: write # gh release create
 
 jobs:
     publish:
@@ -22,6 +26,8 @@ jobs:
                       [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "packages/$p is $v, tag is $GITHUB_REF_NAME"; exit 1; }
                   done
             - run: bun test
+            - name: Release assets
+              run: bun script/release.ts
             # core first: the others depend on it. bun publish turns workspace:* into the version.
             - name: Publish
               env:
@@ -30,3 +36,7 @@ jobs:
                   for p in core web tui desktop; do
                       (cd packages/$p && bun publish)
                   done
+            - name: GitHub release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: gh release create "$GITHUB_REF_NAME" release/* --title "$GITHUB_REF_NAME" --generate-notes
